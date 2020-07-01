@@ -30,4 +30,4 @@ jobs:
       - name: Run Ansible
         run: |
           echo "test password" > vault-my_workstation.password
-          ansible-playbook --diff --skip-tags secrets,interactive --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --diff --skip-tags secrets,interactive,skip_test --connection=local -i "127.0.0.1," main.yml

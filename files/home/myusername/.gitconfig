@@ -1,0 +1,75 @@
+[user]
+    name = Petr Ruzicka
+    email = petr.ruzicka@gmail.com
+    signingkey = 2BD87EC4BA898363
+
+[color]
+    ui = true
+
+[core]
+    compression = 9
+    autocrlf = input
+    pager = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
+    editor = vim
+
+[receive]
+    denyCurrentBranch = warn
+
+[url "https://"]
+    insteadOf = git://
+
+[push]
+    default = current
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+    commit = yellow bold
+
+[color "status"]
+    added = cyan bold
+    changed = yellow bold
+    untracked = green bold
+
+[alias]
+    authors = log --pretty=format:'%an <%ae>'
+    df = diff
+    dt = difftool
+    ll = log --first-parent --pretty=format:'%h %s'
+    ls = ls-files
+    rb = rebase
+    changes = diff --name-status -r
+    stat = diff --stat -r
+    statd = diff --stat -r  --diff-filter=DR
+    who = shortlog -s --
+    fo = fetch origin
+    fu = fetch upstream
+    undo = reset --hard
+    gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+    pr = pull --rebase
+    review-master = push origin HEAD:refs/for/master
+    co = checkout
+    br = branch
+    ci = commit
+    st = status
+    lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
+    # cherryfetch fetches a repo ($1) / branch ($2) and applies it rebased!
+    # the && true at the end eats up the appended args
+    cherryfetch = !git fetch "$1" "$2" && git cherry-pick HEAD..FETCH_HEAD && true
+
+[commit]
+    verbose = true
+
+[color "diff-highlight"]
+    oldNormal = red bold
+    oldHighlight = red bold 52
+    newNormal = green bold
+    newHighlight = green bold 22

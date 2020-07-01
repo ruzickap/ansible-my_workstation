@@ -32,6 +32,7 @@
         key: NetBIOSName
         type: string
         value: "{{ hostname }}"
+      become: true
 
     - name: "Set hibernation mode to not back memory up to persistent storage"
       command: "pmset -a hibernatemode 0"
@@ -594,6 +595,8 @@
     key: idleTime
     type: int
     value: 300
+  # For some reason the type=string in GitHub Action MacOS
+  tags: skip_test
 
 - name: Configure Aerial
   osx_defaults:
