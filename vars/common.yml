@@ -1,0 +1,38 @@
+github_username: ruzickap
+
+codium_extensions:
+  - adammaras.overtype
+  - davidanson.vscode-markdownlint
+  - dhoeric.ansible-vault
+  - donjayamanne.githistory
+  - eamodio.gitlens
+  - esbenp.prettier-vscode
+  - haaaad.ansible
+  - henriiik.vscode-sort
+  - james-yu.latex-workshop
+  - lextudio.restructuredtext
+  - marcostazi.VS-code-vagrantfile
+  - HashiCorp.terraform
+  - mde.select-highlight-minimap
+  - vscode-icons-team.vscode-icons
+  - rupisaini.vscode-ansible-linter
+  - streetsidesoftware.code-spell-checker
+  - wholroyd.jinja
+  - yzhang.markdown-all-in-one
+
+krew_plugins:
+  - get-all
+  - outdated
+  - resource-capacity
+  - tree
+
+terraform_providers:
+  - azurerm
+  - github
+  - helm
+  - http
+  - kubernetes
+  - local
+  - oci
+  - random
+  - template

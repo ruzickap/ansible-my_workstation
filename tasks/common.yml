@@ -1,0 +1,842 @@
+###############################
+# Run as root
+###############################
+
+- name: Run tasks as root
+  block:
+    - name: Add hostname to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^127.0.1.1'
+        line: '127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}'
+
+    - name: Configure aliases
+      lineinfile:
+        dest: /etc/aliases
+        regexp: ^root:\s+
+        line: "root:           petr.ruzicka@gmail.com"
+      notify: newaliases
+      tags: user_specific
+
+    - name: Configure postfix
+      ini_file:
+        path: /etc/postfix/main.cf
+        section: null
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: inet_protocols
+          value: ipv4
+        - option: relayhost
+          value: "[smtp.gmail.com]:587"
+        - option: smtp_use_tls
+          value: "yes"
+        - option: smtp_sasl_auth_enable
+          value: "yes"
+        - option: smtp_sasl_password_maps
+          value: hash:/etc/postfix/sasl_passwd
+        - option: smtp_sasl_security_options
+          value: noanonymous
+        - option: smtp_sasl_mechanism_filter
+          value: login
+
+    - name: Add gmail credentials /etc/postfix/sasl_passwd
+      template:
+        src: files/etc/postfix/sasl_passwd.j2
+        dest: /etc/postfix/sasl_passwd
+        mode: 0600
+      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+      tags:
+        - secrets
+        - user_specific
+
+    - name: Check if printer is defined
+      command: lpstat -p
+      changed_when: false
+      ignore_errors: true
+      register: lpstat_output
+      tags: printer
+
+    - name: Add printer and make it default
+      shell: lpadmin -p HP_LaserJet_500_colorMFP_M570dw -E -v {{ cups_printer_device_uri }} -m everywhere -L "1st floor near kitchen" -o DefaultPageSize=A4 -o Duplex=DuplexNoTumble && sleep 1
+      when: cups_printer_device_uri is defined and lpstat_output.stderr is search('No destinations added')
+      tags:
+        - printer
+        - skip_test
+
+    - name: Check if there is a default printer
+      command: lpstat -d
+      changed_when: false
+      register: lpstat_output
+      tags: printer
+
+    - name: Set default printer
+      command: lpoptions -d HP_LaserJet_500_colorMFP_M570dw
+      when: cups_printer_device_uri is defined and lpstat_output.stdout is search('no system default destination')
+      tags:
+        - printer
+        - skip_test
+
+    - name: Tweak screen
+      blockinfile:
+        dest: /etc/screenrc
+        create: yes
+        block: |
+          defscrollback 10000
+          startup_message off
+          termcapinfo xterm ti@:te@
+          hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
+          vbell off
+
+    - name: Create directory for mc inside ~/.config
+      file:
+        path: ~/.config/mc/
+        state: directory
+        mode: 0700
+
+    - name: Create ~/.config/mc/ini file
+      ini_file:
+        path: ~/.config/mc/ini
+        no_extra_spaces: yes
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - section: Midnight-Commander
+          option: auto_save_setup
+          value: 'false'
+        - section: Midnight-Commander
+          option: drop_menus
+          value: 'true'
+        - section: Midnight-Commander
+          option: editor_return_does_auto_indent
+          value: 'false'
+        - section: Layout
+          option: keybar_visible
+          value: 'false'
+        - section: Layout
+          option: menubar_visible
+          value: 'false'
+        - section: Layout
+          option: message_visible
+          value: 'false'
+        - section: Panels
+          option: navigate_with_arrows
+          value: 'true'
+
+    - name: Create directory ~/.config for the {{ ansible_user_id }}
+      file:
+        path: "{{ ansible_user_dir }}/.config/"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid | string }}"
+
+    - name: Copy mc configuration to to User's home direcotry
+      copy:
+        src: ~/.config/mc
+        dest: "{{ ansible_user_dir }}/.config/"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid | string }}"
+        remote_src: yes
+
+    - name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
+      authorized_key:
+        user: "{{ item }}"
+        key: https://github.com/{{ github_username }}.keys
+      loop:
+        - root
+        - "{{ ansible_user_id }}"
+      tags: user_specific
+
+  become: true
+
+###############################
+# Run as user
+###############################
+
+- name: Install SpaceVim
+  shell: |
+    set -o pipefail
+    curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
+  args:
+    creates: ~/.SpaceVim
+    warn: false
+
+- name: Create SpaceVim configuration file ~/.SpaceVim.d/init.vim
+  copy:
+    src: files/home/myusername/.SpaceVim.d
+    dest: ~/
+
+- name: Create .terraform.d/plugins directory
+  file:
+    path: ~/.terraform.d/plugins
+    state: directory
+
+- name: Get the details about latest version of Terrafrom providers
+  uri:
+    url: https://registry.terraform.io/v1/providers/hashicorp/{{ item }}
+  loop: "{{ terraform_providers }}"
+  register: terraform_providers_registry
+
+- name: Download a and unpack Terrafrom provider
+  unarchive:
+    src: "https://releases.hashicorp.com/terraform-provider-{{ item.json.name }}/{{ item.json.version }}/terraform-provider-{{ item.json.name }}_{{ item.json.version }}_{{ ansible_system | lower }}_amd64.zip"
+    dest: ~/.terraform.d/plugins
+    remote_src: yes
+  loop: "{{ terraform_providers_registry.results }}"
+  loop_control:
+    label: "{{ item.json.name }} - {{ item.json.version }}"
+
+- name: Create VirtualBox config directory
+  file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
+    state: directory
+    mode: 0700
+
+- name: Put VirtualBox configuation in place
+  template:
+    src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
+    dest: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
+    mode: 0600
+
+- name: Create directory for mc inside ~/.config
+  file:
+    path: ~/.config/mpv/
+    state: directory
+    mode: 0700
+
+- name: Configure mpv
+  ini_file:
+    path: ~/.config/mpv/mpv.conf
+    no_extra_spaces: yes
+    section: null
+    allow_no_value: yes
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - option: autofit-larger
+      value: 100%x95%
+    - option: hwdec
+      value: "yes"
+    # MacOS
+    - option: icc-profile-auto
+      value:
+    # MacOS
+    - option: icc-contrast
+      value: 1000
+    - option: keep-open
+      value: "yes"
+    - option: osd-font-size
+      value: 30
+    - option: osd-level
+      value: 2
+    - option: screenshot-template
+      value: '"%f-%wM:%wS"'
+    - option: screenshot-jpeg-quality
+      value: 70
+    - option: slang
+      value: cz,cze,Czech
+    - option: sub-ass-force-style
+      value: Kerning=yes
+    - option: sub-border-color
+      value: '"#ff262626"'
+    - option: sub-border-size
+      value: 2.0
+    - option: sub-codepage
+      value: cp1250
+    - option: sub-color
+      value: '"#e6d21a"'
+    - option: sub-font-size
+      value: 40
+    - option: sub-shadow-color
+      value: '"#33000000"'
+    - option: sub-shadow-offset
+      value: 1
+    - option: term-osd-bar
+      value:
+    - option: volume-max
+      value: 200
+
+- name: Put darktable configs in place
+  copy:
+    src: files/home/myusername/.config/darktable
+    dest: ~/.config/
+
+- name: Configure darktable
+  ini_file:
+    path: ~/.config/darktable/darktablerc
+    no_extra_spaces: yes
+    section: null
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: send_to_trash
+      value: 'FALSE'
+    - option: ask_before_delete
+      value: 'FALSE'
+    - option: ask_before_remove
+      value: 'FALSE'
+    - option: cache_memory
+      value: 536870912
+    - option: host_memory_limit
+      value: 8500
+    - option: plugins/imageio/format/jpeg/quality
+      value: 97
+    - option: plugins/imageio/format/tiff/compresslevel
+      value: 9
+    - option: plugins/lighttable/export/high_quality_processing
+      value: 'TRUE'
+    - option: ui_last/import_apply_metadata
+      value: 'TRUE'
+    - option: ui_last/import_last_creator
+      value: 'Petr Ruzicka'
+    - option: ui_last/import_last_rights
+      value: 'Creative Commons Attribution-ShareAlike (CC BY-SA)'
+    - option: plugins/darkroom/demosaic/quality
+      value: at most PPG (reasonable)
+    - option: plugins/lighttable/filmstrip/height
+      value: 71
+    - option: plugins/lighttable/images_in_row
+      value: 6
+    - option: lighttable/ui/expose_statuses
+      value: 'TRUE'
+    - option: ui_last/grouping
+      value: 'TRUE'
+    - option: lighttable/ui/bottom_visible
+      value: 'FALSE'
+    - option: lighttable/ui/toolbar_bottom_visible
+      value: 'FALSE'
+    - option: lighttable/ui/header_visible
+      value: 'FALSE'
+    - option: plugins/darkroom/history/expanded
+      value: 'TRUE'
+    - option: plugins/darkroom/metadata_view/expanded
+      value: 'TRUE'
+    - option: plugins/lighttable/metadata_view/expanded
+      value: 'TRUE'
+    - option: plugins/lighttable/timeline/visible
+      value: 'FALSE'
+    - option: ui_last/import_ignore_jpegs
+      value: 'TRUE'
+    - option: plugins/darkroom/basecurve/auto_apply
+      value: 'FALSE'
+    - option: plugins/darkroom/ashift/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/atrous/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/basecurve/visible
+      value: 'FALSE'
+    - option: plugins/darkroom/channelmixer/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colisa/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colorchecker/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colorcorrection/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colorreconstruct/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colorreconstruct/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/colorzones/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/defringe/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/filmicrgb/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/globaltonemap/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/graduatednd/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/grain/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/highpass/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/lowpass/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/monochrome/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/rawdenoise/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/retouch/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/shadhi/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/soften/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/splittoning/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/tonecurve/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/velvia/visible
+      value: 'TRUE'
+    - option: plugins/darkroom/vignette/visible
+      value: 'TRUE'
+
+- name: Install krew plugins
+  command: kubectl krew install {{ item }}
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
+  args:
+    creates: ~/.krew/store/{{ item }}
+  loop: "{{ krew_plugins }}"
+
+- name: Check if the oci was installed
+  stat:
+    path: ~/bin/oci
+  register: oci_stat
+  changed_when: false
+
+- name: Install oci
+  block:
+    - name: Download oci installer
+      get_url:
+        dest: /tmp/install.sh
+        url: "https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh"
+        mode: 0755
+
+    - name: Install oci
+      command:
+        cmd: /tmp/install.sh --rc-file-path /dev/null --accept-all-defaults
+
+  when: not oci_stat.stat.exists
+
+- name: Create direcotry for KeePassxc settings
+  file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
+    state: directory
+
+- name: Copy KeePassxc settings
+  ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: General
+      option: AutoSaveAfterEveryChange
+      value: 'false'
+    - section: General
+      option: AutoSaveOnExit
+      value: 'false'
+    - section: General
+      option: LastDatabases
+      value: "{{ ansible_user_dir }}/data/keepass2.kdbx"
+    - section: General
+      option: LastKeyFiles
+      value: '@Variant(\0\0\0\x1c\0\0\0\x2\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
+    - section: General
+      option: SSHAgent
+      value: 'true'
+    - section: General
+      option: UseGroupIconOnEntryCreation
+      value: 'true'
+    - section: Browser
+      option: AlwaysAllowAccess
+      value: 'true'
+    - section: Browser
+      option: Enabled
+      value: 'true'
+    - section: FdoSecrets
+      option: Enabled
+      value: 'true'
+    - section: GUI
+      option: DarkTrayIcon
+      value: 'true'
+    - section: GUI
+      option: MinimizeOnStartup
+      value: 'true'
+    - section: GUI
+      option: MinimizeToTray
+      value: 'true'
+    - section: GUI
+      option: MonospaceNotes
+      value: 'true'
+    - section: GUI
+      option: ShowTrayIcon
+      value: 'true'
+    - section: security
+      option: lockdatabasescreenlock
+      value: "false"
+
+- name: Create ~/.config/qBittorrent directory
+  file:
+    path: ~/.config/qBittorrent
+    recurse: yes
+    state: directory
+
+- name: Configure qBittorrent
+  ini_file:
+    path: ~/.config/qBittorrent/qBittorrent.conf
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - section: LegalNotice
+      option: Accepted
+      value: 'true'
+    - section: GUI
+      option: Log\Enabled
+      value: 'false'
+    - section: Preferences
+      option: Downloads\SavePath
+      value: '/var/tmp/x/'
+    - section: Preferences
+      option: Advanced\confirmTorrentDeletion
+      value: 'false'
+    - section: Preferences
+      option: Connection\GlobalDLLimit
+      value: '300'
+    - section: Preferences
+      option: Connection\GlobalUPLimit
+      value: '10'
+    - section: Preferences
+      option: Connection\GlobalDLLimitAlt
+      value: '0'
+    - section: Preferences
+      option: Connection\GlobalUPLimitAlt
+      value: '0'
+    - section: Preferences
+      option: Queueing\MaxActiveDownloads
+      value: '11'
+    - section: Preferences
+      option: Queueing\MaxActiveTorrents
+      value: '11'
+    - section: Preferences
+      option: Connection\InterfaceListenIPv6
+      value: 'true'
+    - section: Preferences
+      option: General\SystrayEnabled
+      value: 'false'
+
+- name: Create link between qBittorrent.conf and qBittorrent.ini to make it compatible between Linux / MacOS
+  file:
+    src: ~/.config/qBittorrent/qBittorrent.conf
+    dest: ~/.config/qBittorrent/qBittorrent.ini
+    force: yes
+    state: link
+
+- name: Configure digikam
+  ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Preferences{% else %}~/.config{% endif %}/digikamrc"
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Album Settings
+      option: Icon Show Comments
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Date
+      value: 'true'
+    - section: Album Settings
+      option: Icon Show Fullscreen
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Image Format
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Modification Date
+      value: 'true'
+    - section: Album Settings
+      option: Icon Show Name
+      value: 'true'
+    - section: Album Settings
+      option: Icon Show Overlays
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Rating
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Resolution
+      value: 'true'
+    - section: Album Settings
+      option: Icon Show Size
+      value: 'true'
+    - section: Album Settings
+      option: Icon Show Tags
+      value: 'false'
+    - section: Album Settings
+      option: Icon Show Title
+      value: 'false'
+    - section: Album Settings
+      option: Item Left Click Action
+      value: 1
+    - section: Album Settings
+      option: Show Album ToolTips
+      value: 'true'
+    - section: Album Settings
+      option: Show Folder Tree View Items Count
+      value: 'true'
+    - section: Album Settings
+      option: Show ToolTips
+      value: 'true'
+    - section: Album Settings
+      option: ToolTips Show Album Caption
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show Album Category
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show Album Collection
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show Comments
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show File Date
+      value: 'true'
+    - section: Album Settings
+      option: ToolTips Show File Size
+      value: 'true'
+    - section: Album Settings
+      option: ToolTips Show Label Rating
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show Tags
+      value: 'false'
+    - section: Album Settings
+      option: ToolTips Show Titles
+      value: 'false'
+    - section: Album Settings
+      option: Theme
+      value: Black Body
+    - section: Database Settings
+      option: Database Name
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Name Face
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Name Thumbnails
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Type
+      value: QSQLITE
+    - section: General Settings
+      option: Clean core DB At Start
+      value: 'true'
+    - section: General Settings
+      option: Icon Theme
+      value: breeze-dark
+    - section: General Settings
+      option: Show Splash
+      value: 'false'
+    - section: General Settings
+      option: Show Trash Delete Dialog
+      value: 'false'
+    - section: General Settings
+      option: Use Large Thumbs
+      value: 'true'
+    - section: Image Properties SideBar
+      option: EXIF Tags Filter
+      value: Exif.GPSInfo.GPSLatitude,Exif.GPSInfo.GPSLongitude,Exif.Image.DateTime,Exif.Image.DateTimeOriginal,Exif.Photo.DateTimeDigitized,Exif.Photo.DateTimeOriginal
+    - section: ImageViewer Settings
+      option: JPEGCompression
+      value: 98
+    - section: ImageViewer Settings
+      option: TIFFCompression
+      value: 'true'
+    - section: ImageViewer Settings
+      option: SlideShowDelay
+      value: 3
+    - section: Import Settings
+      option: Show ToolTips
+      value: 'true'
+    - section: Import Settings
+      option: ToolTips Show File Date
+      value: 'true'
+    - section: Import Settings
+      option: ToolTips Show File Size
+      value: 'true'
+    - section: Metadata Settings
+      option: Metadata Writing Mode
+      value: 2
+    - section: Metadata Settings
+      option: Rescan File If Modified
+      value: 'true'
+    - section: Metadata Settings
+      option: Save EXIF Comments
+      value: 'true'
+    - section: Metadata Settings
+      option: Save Tags
+      value: 'true'
+    - section: Metadata Settings
+      option: Use XMP Sidecar For Reading
+      value: 'true'
+    - section: Versioning Settings
+      option: Non-Destructive Editing Enabled
+      value: 'false'
+
+- name: Put VSCodium configuation in place
+  copy:
+    src: files/home/myusername/.config/VSCodium
+    dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
+
+# Not working right now (2020-07-01)
+# - name: Install the VSCodium extensions
+#   command: code --install-extension {{ item }}
+#   changed_when: false
+#   loop: "{{ codium_extensions }}"
+
+- name: Install npm packages
+  npm:
+    name: "{{ item }}"
+    path: ~/
+  when: npm_packages is defined
+  loop: "{{ npm_packages }}"
+  tags: skip_test
+
+- name: Install pip packages
+  pip:
+    name: "{{ item }}"
+    extra_args: --user
+  when: pip_packages is defined
+  loop: "{{ pip_packages }}"
+
+###############################
+# Run as user
+###############################
+
+- name: Configure .forward to petr.ruzicka@gmail.com
+  lineinfile:
+    dest: ~/.forward
+    regexp: '^petr.ruzicka@gmail.com'
+    line: 'petr.ruzicka@gmail.com'
+    create: yes
+  tags: user_specific
+
+- name: Configure git
+  copy:
+    src: files/home/myusername/.gitconfig
+    dest: ~/.gitconfig
+  tags: user_specific
+
+###################################################
+# Secrets
+###################################################
+
+- name: Create data directory
+  file:
+    path: ~/data
+    state: directory
+
+- name: Secrets
+  block:
+    - name: Copy oci directory to home
+      copy:
+        src: files/home/myusername/.oci
+        dest: ~/
+        mode: preserve
+
+    - name: Copy rclone configuration
+      copy:
+        src: files/home/myusername/.config/rclone
+        dest: ~/.config/
+        mode: 0600
+
+    # - name: Copy syncthing configuration
+    #   copy:
+    #     src: files/home/myusername/.config/syncthing
+    #     dest: ~/.config/
+    #     mode: 0600
+
+    - name: Copy asciinema configuration
+      copy:
+        src: files/home/myusername/.config/asciinema
+        dest: ~/.config/
+        mode: 0600
+
+    ###################################################
+    # Secrets coppied from local disk
+    ###################################################
+
+    - name: Copy ~/data/secret_variables
+      copy:
+        src: ~/data/secret_variables
+        dest: ~/data/secret_variables
+        mode: 0600
+
+    - name: Copy KeePass data
+      copy:
+        src: ~/data/{{ item }}
+        dest: ~/data/{{ item }}
+        mode: 0600
+      loop:
+        - keepass2.kdbx
+        - keepass.key
+
+  tags:
+    - secrets
+    - user_specific
+
+###############################
+# Test data
+###############################
+
+- name: Create Movies, Music, Pictures directories
+  file:
+    path: ~/{{ item }}
+    state: directory
+  loop:
+    - Movies
+    - Music
+    - Pictures
+
+- name: Download Sintel movie
+  get_url:
+    url: "{{ item.url }}"
+    dest: ~/Movies/{{ item.file }}
+  loop:
+    - url: http://ftp.nluug.nl/pub/graphics/blender/demo/movies/Sintel.2010.1080p.mkv
+      file: Sintel.2010.1080p.mkv
+    - url: https://download.blender.org/durian/subs/sintel_cz.srt
+      file: Sintel.2010.1080p.srt
+  tags: skip_test
+
+- name: Download Music test data
+  unarchive:
+    src: https://www.zvirecihudba.cz/albums/sound-of-the-year/Nahravka-roku_Sound-of-the-Year_mp3.zip
+    dest: ~/Music/
+    remote_src: yes
+  tags: skip_test
+
+- name: Download raw fotos to ~/Pictures/
+  unarchive:
+    src: http://sulasula.com/lr/raw.zip
+    dest: ~/Pictures/
+    remote_src: yes
+  tags: skip_test
+
+- name: Download fotos to ~/Pictures/
+  get_url:
+    url: "{{ item.url }}"
+    dest: ~/Pictures/{{ item.file }}
+  loop:
+    - url: https://live.staticflickr.com/65535/49844398911_ea5a1feeeb_o_d.jpg
+      file: National_Museum_in_Prague.jpg
+    - url: https://live.staticflickr.com/65535/47970956713_2547df473c_o_d.jpg
+      file: Fishman_vs_ferry.jpg
+    - url: https://live.staticflickr.com/65535/32832598067_357d91774b_o_d.jpg
+      file: Sunrise_with_fishmans_boat.jpg
+    - url: https://live.staticflickr.com/7903/32619259957_593ca9d3e2_o_d.jpg
+      file: Cost_in_Soller.jpg
+    - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_01.nef
+      file: nikon_z7_01.nef
+    - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_47.nef
+      file: nikon_z7_47.nef
+    - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_64.cr3
+      file: canon_eos_r_64.cr3
+    - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_87.cr3
+      file: canon_eos_r_87.cr3
+    - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_62.arw
+      file: sony_a9_ii_62.arw
+    - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_68.arw
+      file: sony_a9_ii_68.arw
+  tags: skip_test

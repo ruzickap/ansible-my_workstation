@@ -1,0 +1,782 @@
+- name: Get IOPlatformUUID / Hardware UUID
+  shell: ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/ { print $(NF-1) }'
+  changed_when: false
+  register: ioreg_output
+
+- name: Set fact
+  set_fact:
+    huuid: "{{ ioreg_output.stdout }}"
+
+- name: Get wi-fi interface
+  shell: networksetup -listallhardwareports | awk '$3=="Wi-Fi" {getline; print $2}'
+  register: networksetup
+  changed_when: false
+
+- name: Set fact
+  set_fact:
+    wifi_interface: "{{ networksetup.stdout }}"
+
+- name: Set Hostname + Disable sleeping
+  block:
+    - name: Set Hostname
+      command: "{{ item }}"
+      changed_when: false
+      loop:
+        - scutil --set ComputerName "{{ hostname }}"
+        - scutil --set HostName "{{ hostname }}"
+        - scutil --set LocalHostName "{{ hostname }}"
+
+    - name: Set NetBIOSName
+      osx_defaults:
+        domain: /Library/Preferences/SystemConfiguration/com.apple.smb.server
+        key: NetBIOSName
+        type: string
+        value: "{{ hostname }}"
+      become: true
+
+    - name: "Set hibernation mode to not back memory up to persistent storage"
+      command: "pmset -a hibernatemode 0"
+      changed_when: false
+
+    - name: "Prevent MacOS from sleeping"
+      command: pmset -a sleep 0
+      changed_when: false
+
+    - name: "Turn display off after 1 hour when running on power adapter"
+      command: pmset -a displaysleep 60
+      changed_when: false
+
+  become: true
+
+- name: Install Homebrew
+  shell: echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  args:
+    creates: /usr/local/bin/brew
+
+- name: Install Homebrew taps
+  homebrew_tap:
+    name: "{{ homebrew_taps | join(',') }}"
+
+- name: Upgrade all Homebrew casks
+  homebrew_cask:
+    upgrade_all: yes
+  register: result
+  until: result is succeeded
+
+- name: Install Homebrew casks
+  homebrew_cask:
+    name: "{{ homebrew_casks }}"
+    install_options: no-quarantine
+
+- name: Install Homebrew packages
+  homebrew:
+    name: "{{ homebrew_packages }}"
+
+- name: Set Python3 as default
+  set_fact:
+    ansible_python_interpreter: /usr/bin/python3
+
+# Needs logout to be applied
+- name: Set scroll direction
+  osx_defaults:
+    key: com.apple.swipescrolldirection
+    type: bool
+    value: false
+
+- name: Ask to keep changes when closing documents
+  osx_defaults:
+    key: NSCloseAlwaysConfirmsChanges
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/expand-save-panel-default/
+- name: Expand save panel by default
+  osx_defaults:
+    key: NSNavPanelExpandedStateForSaveMode
+    type: bool
+    value: true
+  notify: Refresh UI
+
+# https://www.mactrast.com/2017/03/show-status-bar-finder-macos-sierra/
+- name: Show status bar
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowStatusBar
+    type: bool
+    value: true
+  notify: Refresh UI
+
+# https://www.techjunkie.com/show-path-finder-title-bar/
+- name: Show path bar
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+  notify: Refresh UI
+
+# https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
+- name: Use list view in all Finder windows by default
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXPreferredViewStyle
+    value: Nlsv
+  notify: Refresh UI
+
+# https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
+- name: Display full posix path in Finder title Bar
+  osx_defaults:
+    domain: com.apple.finder
+    key: _FXShowPosixPathInTitle
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/disable-the-extension-change-warning-in-os-x-finder/
+- name: Disable the extension change warning in Finder
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXEnableExtensionChangeWarning
+    type: bool
+    value: false
+
+# https://www.defaults-write.com/add-a-message-to-the-login-screen/
+- name: Add a message to the login screen
+  osx_defaults:
+    domain: /Library/Preferences/com.apple.loginwindow
+    key: LoginwindowText
+    type: string
+    value: "Mirantis"
+  become: yes
+
+# https://www.defaults-write.com/disable-screenshots-shadow-mac/
+- name: Disable screenshot shadows on a Mac
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: disable-shadow
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/display-the-file-extensions-in-finder/
+- name: Display the file extensions in Finder
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: AppleShowAllExtensions
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/plain-text-default-textedit/
+- name: Use plain text as default format in TextEdit
+  osx_defaults:
+    domain: com.apple.TextEdit
+    key: RichText
+    type: int
+    value: 0
+
+# https://www.defaults-write.com/disable-the-warning-before-emptying-the-trash/
+- name: Disable the warning before emptying the Trash
+  osx_defaults:
+    domain: com.apple.finder
+    key: WarnOnEmptyTrash
+    type: bool
+    value: false
+
+- name: Show the Dock on the left-hand side
+  osx_defaults:
+    domain: com.apple.dock
+    key: orientation
+    type: string
+    value: left
+  notify: Restart Dock
+
+- name: Set the icon size of Dock items to {{ dock_icons_size }} pixels
+  osx_defaults:
+    domain: com.apple.dock
+    key: tilesize
+    type: float
+    value: "{{ dock_icons_size }}"
+  notify: Restart Dock
+
+- name: Automatically hide and show the Dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: true
+  notify: Restart Dock
+
+# https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
+- name: Start screenserver in bottom right corner
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-br-corner
+    type: int
+    value: 5
+  notify: Restart Dock
+
+- name: Expand print panel by default
+  osx_defaults:
+    key: PMPrintingExpandedStateForPrint2
+    type: bool
+    value: true
+  notify: Refresh UI
+
+- name: Language & Region settings
+  osx_defaults:
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: AppleLocale
+      value: en_CZ
+    - key: AppleMeasurementUnits
+      value: Centimeters
+    - key: AppleMetricUnits
+      type: bool
+      value: true
+    - key: AppleTemperatureUnit
+      value: Celsius
+    - key: DateFormat
+      value: "d MMM HH:mm"
+
+- name: Change keyboard repeat delays
+  osx_defaults:
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    - key: InitialKeyRepeat
+      value: 25
+    - key: KeyRepeat
+      value: 2
+
+- name: Change clock to 24hour mode
+  osx_defaults:
+    domain: com.apple.menuextra.clock
+    key: DateFormat
+    type: string
+    value: "d MMM H:mm"
+  changed_when: false
+  notify: Refresh UI
+
+# https://osxdaily.com/2018/10/22/hide-show-recent-apps-mac-dock/
+- name: Hide 'recent applications' from dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: "false"
+  notify: Restart Dock
+
+- name: Do not show the keyboard layout in status bar
+  osx_defaults:
+    domain: com.apple.TextInputMenu
+    key: visible
+    type: bool
+    value: false
+
+- name: Always show scrollbars
+  osx_defaults:
+    key: AppleShowScrollBars
+    type: string
+    value: Always
+  notify: Refresh UI
+
+- name: Download Picture which will be used as login "Picture"
+  get_url:
+    url: "{{ login_picture_url }}"
+    dest: ~/Pictures/login_picture.jpg
+  tags: user_specific
+
+# https://www.alansiu.net/2019/09/20/scripting-changing-the-user-picture-in-macos/
+- name: Set login picture
+  copy:
+    dest: /Library/Caches/{{ ansible_user_id }}.picture.dsimport
+    content: |
+      0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 2 dsAttrTypeStandard:RecordName externalbinary:dsAttrTypeStandard:JPEGPhoto
+      {{ ansible_user_id }}:{{ ansible_user_dir }}/Pictures/login_picture.jpg
+  tags: user_specific
+
+- name: Set login picture 2
+  shell: |
+    dscl . delete ~ JPEGPhoto
+    dscl . delete ~ Picture
+    dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
+  changed_when: false
+  become: true
+  tags: user_specific
+
+################################################
+# ZSH + Oh My Zsh + Powerlevel10k + fzf
+################################################
+
+- name: Install oh-my-zsh
+  shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  args:
+    creates: ~/.oh-my-zsh
+
+- name: Fix permissions for zsh
+  file:
+    name: "{{ item }}"
+    mode: g-w,o-w
+  loop:
+    - /usr/local/share/zsh/site-functions
+    - /usr/local/share/zsh
+
+- name: Install fzf
+  shell: yes | /usr/local/opt/fzf/install
+  args:
+    creates: ~/.fzf.zsh
+
+- name: Chnage ~/.zshrc
+  replace:
+    dest: ~/.zshrc
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop:
+    - regexp: '^plugins=.*'
+      replace: 'plugins=(autojump docker git vagrant-prompt)'
+    - regexp: '^ZSH_THEME="robbyrussell"'
+      replace: '# ZSH_THEME="robbyrussell"'
+
+- name: Copy p10k-lean.zsh to ~/
+  file:
+    src: /usr/local/opt/powerlevel10k/config/p10k-lean.zsh
+    dest: ~/.p10k.zsh
+    state: link
+
+- name: Add commands to ~/.zshrc
+  blockinfile:
+    dest: ~/.zshrc
+    block: |
+      #set history size
+      export HISTSIZE=50000
+      #save history after logout
+      export SAVEHIST=10000
+      #save only one command if 2 common are same and consistent
+      setopt HIST_IGNORE_DUPS
+      #add timestamp for each entry
+      setopt EXTENDED_HISTORY
+
+      alias dos2unix="sed -i 's/\r$//' "
+      alias unix2dos="awk 'sub(\"$\",\"\r\")' "
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+      alias k=kubectl
+      alias cat="bat -p --paging=never"
+      alias ls=exa
+      alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
+      alias history="history -i"
+
+      source ~/lib/oracle-cli/lib/python3.7/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source ~/data/secret_variables
+
+      # Simpler prompt when using Midnight Commander
+      if ps $PPID |grep mc; then
+        PROMPT='%~ $ '
+      else
+        # Enable powerlevel10k with zsh plugins
+        source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        source /usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme
+        source ~/.p10k.zsh
+      fi
+
+      DISABLE_AUTO_UPDATE="true"
+      COMPLETION_WAITING_DOTS="true"
+      HIST_STAMPS="yyyy-mm-dd"
+
+      # Configure configure Ctrl+w as delete in bash
+      autoload -U select-word-style
+      select-word-style bash
+      WORDCHARS='*?.[]~-_=&;!#$%^(){}<>\/\|'
+
+      # Add highlighters to zsh-syntax-highlighting (default is 'main')
+      ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+
+      # If you don't set a sane max length the highlighter will highlight large pastes of text, which is painfully slow
+      ZSH_HIGHLIGHT_MAXLENGTH=20
+
+      # Disable underline in zsh-syntax-highlighting
+      ZSH_HIGHLIGHT_STYLES[path]=none
+      ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+
+      # Disable adding newline before each prompt
+      POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
+
+      # Remove "newline" form the prompt to have it on single line
+      POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
+      POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
+
+      # Fix slows down copy-pasting
+      DISABLE_MAGIC_FUNCTIONS=true
+
+- name: Create ~/.zshenv with PATH variable
+  copy:
+    dest: ~/.zshenv
+    content: |
+      PATH=${HOME}/Library/Python/3.7/bin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
+      export PATH
+
+- name: Remove all Dock items
+  command: dockutil --remove all --no-restart
+  changed_when: false
+  notify: Restart Dock
+
+- name: Add Dock items
+  shell: dockutil --add '{{ item }}' --no-restart
+  register: dock_add
+  changed_when: false
+  loop: "{{ dock_add_items }}"
+  notify: Restart Dock
+
+- name: Configure Rectangle
+  osx_defaults:
+    domain: com.knollsoft.Rectangle
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    - key: launchOnLogin
+      value: 1
+
+- name: Configure MenuMeters
+  osx_defaults:
+    domain: com.ragingmenace.MenuMeters
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    - key: CPUAverageMultiProcs
+      value: 1
+    - key: CPUDisplayMode
+      value: 2
+    - key: CPUSumAllProcsPercent
+      value: 1
+    - key: CPUMaxProcessCount
+      value: 10
+    - key: CPUTemperature
+      value: 0
+    - key: MemDisplayMode
+      value: 2
+    - key: MemUsedFreeLabel
+      value: 0
+    - key: NetDisplayMode
+      value: 4
+    - key: NetThroughputLabel
+      value: 0
+    - key: com.ragingmenace.MenuMeterDisk
+      value: 0
+
+- name: Configure KeepingYouAwake
+  osx_defaults:
+    domain: info.marcel-dierkes.KeepingYouAwake
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    - key: SUEnableAutomaticChecks
+      value: 0
+    - key: info.marcel-dierkes.KeepingYouAwake.LaunchAtLogin
+      value: 1
+
+- name: Add application to Fluor which should have FN keys enabled
+  osx_defaults:
+    domain: com.pyrolyse.Fluor
+    key: AppRules
+    type: array
+    value:
+      - |
+        <dict>
+          <key>behavior</key>
+          <integer>2</integer>
+          <key>id</key>
+          <string>com.googlecode.iterm2</string>
+          <key>path</key>
+          <string>/Applications/iTerm.app</string>
+        </dict>
+      - |
+        <dict>
+          <key>behavior</key>
+          <integer>2</integer>
+          <key>id</key>
+          <string>org.virtualbox.app.VirtualBoxVM</string>
+          <key>path</key>
+          <string>/Applications/VirtualBox.app/Contents/Resources/VirtualBoxVM.app</string>
+        </dict>
+  changed_when: false
+
+- name: Use light menu icon for Fluor
+  osx_defaults:
+    domain: com.pyrolyse.Fluor
+    key: UseLightIcon
+    type: int
+    value: 1
+
+- name: Configure ItsycalApp
+  osx_defaults:
+    domain: com.mowglii.ItsycalApp
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: SUEnableAutomaticChecks
+      value: "false"
+    - key: UseOutlineIcon
+      value: "true"
+    - key: SizePreference
+      value: "true"
+    - key: HighlightedDOWs
+      type: int
+      value: 65
+
+- name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: SmartPlacement
+      value: "true"
+    - key: PromptOnQuit
+      value: "false"
+    - key: FocusFollowsMouse
+      value: "true"
+    - key: OnlyWhenMoreTabs
+      value: "false"
+    - key: SUEnableAutomaticChecks
+      value: "false"
+    - key: ThreeFingerEmulates
+      value: "true"
+    - key: TabViewType
+      type: int
+      value: 1
+
+- name: Configure iTerm2 using PlistBuddy
+  command: "{{ item }}"
+  loop:
+    - open --background -a iTerm
+    - sleep 10
+    - osascript -e 'quit app "iTerm"'
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
+    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+  changed_when: false
+
+- name: Configure Vagrant-manager
+  osx_defaults:
+    domain: lanayo.Vagrant-Manager
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    - key: terminalPreference
+      type: string
+      value: iTerm
+    - key: terminalEditorPreference
+      type: string
+      value: vim
+    - key: dontShowRunningVmCount
+      type: bool
+      value: true
+    - key: refreshEveryInterval
+      type: int
+      value: 5
+    - key: dontAnimateStatusIcon
+      type: bool
+      value: true
+    - key: SUEnableAutomaticChecks
+      type: bool
+      value: 'false'
+
+- name: Start screensaver after 3 mins
+  osx_defaults:
+    host: currentHost
+    domain: com.apple.screensaver
+    key: idleTime
+    type: int
+    value: 300
+  # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
+  tags: skip_test
+
+- name: Configure Aerial
+  osx_defaults:
+    domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    - key: intVideoFormat
+      type: int
+      value: 1
+    - key: intOnBatteryMode
+      type: int
+      value: 1
+    - key: newViewingMode
+      type: int
+      value: 1
+    - key: timeMode
+      type: int
+      value: 3
+    - key: checkForUpdates
+      type: bool
+      value: "false"
+    - key: updateWhileSaverMode
+      type: bool
+      value: "false"
+    - key: debugMode
+      type: bool
+      value: "false"
+    - key: updateWhileSaverMode
+      type: bool
+      value: "false"
+    - key: logToDisk
+      type: bool
+      value: "false"
+
+- name: Configure Aerial 2
+  shell: |
+    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerBattery -string "{ \"corner\" : 2, \"disableWhenFull\" : true, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 20, \"isEnabled\" : true, \"mode\" : 1}"
+    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
+    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
+    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
+  changed_when: false
+
+- name: Set Aerial as default screensaver
+  command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
+  changed_when: false
+
+- name: Configure Meld
+  osx_defaults:
+    domain: org.gnome.meld
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: /org/gnome/meld/window-state/is-maximized
+      value: "true"
+    - key: /org/gnome/meld/indent-width
+      type: int
+      value: 4
+    - key: /org/gnome/meld/highlight-current-line
+      value: 'true'
+    - key: /org/gnome/meld/style-scheme
+      type: string
+      value: cobalt
+    - key: /org/gnome/meld/show-line-numbers
+      value: 'true'
+    - key: /org/gnome/meld/insert-spaces-instead-of-tabs
+      value: 'true'
+    - key: /org/gnome/meld/highlight-syntax
+      value: 'true'
+
+- name: Configure wifi interface if exists
+  block:
+    - name: Add Open wifi accounts
+      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ open_wifi }}"
+      when: open_wifi is defined
+
+    - name: Add WPA/WPA2 Personal wifi accounts
+      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ wpa_personal_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+      when: wpa_personal_wifi is defined
+
+    - name: Unlock keychain (needed for "security add-generic-password")
+      command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
+      changed_when: false
+
+    - name: Add WPA/WPA2 Enterprise wifi accounts
+      shell: |
+        security add-generic-password -a "{{ item.identity }}" -s "com.apple.network.eap.user.item.wlan.ssid.{{ item.ssid }}" -w "{{ item.password }}" -D "802.1X Password" -l "{{ item.ssid }}" -T "/System/Library/CoreServices/SystemUIServer.app" -T "group:///AirPort" -T "/System/Library/SystemConfiguration/EAPOLController.bundle/Contents/Resources/eapolclient" -T "/System/Library/CoreServices/WiFiAgent.app"
+        networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2E
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ wpa_enterprise_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+      when: wpa_enterprise_wifi is defined
+
+  when: wifi_interface != ""
+  tags: user_specific
+
+
+- name: Create Library/LaunchAgents directory for brew autoupdate
+  file:
+    path: ~/Library/LaunchAgents
+    state: directory
+
+#https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
+- name: Install brew autoupdate
+  command: brew autoupdate --start --upgrade --enable-notification
+  args:
+    creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
+
+- name: Configure IINA
+  osx_defaults:
+    domain: com.colliderli.iina
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: currentInputConfigName
+      type: string
+      value: mpv Default
+    - key: enableAdvancedSettings
+      value: 'true'
+    - key: useUserDefinedConfDir
+      value: 'true'
+    - key: SUEnableAutomaticChecks
+      value: 'false'
+    - key: maxVolume
+      type: int
+      value: 200
+    - key: audioLanguage
+      type: string
+      value: "cs,cze,ces"
+
+# https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
+- name: Disable Reopen Windows When Logging Back
+  osx_defaults:
+    domain: com.apple.loginwindow
+    key: TALLogoutSavesState
+    type: bool
+    value: 'false'
+
+############################ Interactive ############################
+
+- name: Install Virtualbox
+  homebrew_cask:
+    name: "{{ item }}"
+  loop:
+    - virtualbox
+    - virtualbox-extension-pack
+  ignore_errors: yes
+  tags: interactive
+
+- name: Run Applications which needs some manual tasks (approvals)
+  command: "{{ item }}"
+  changed_when: false
+  loop:
+    - chromium --make-default-browser
+    - open -a Fluor
+    - open -a Itsycal
+    - open -a Rectangle
+    - open -a MenuMeters
+    # Enable Oracle VirtualBox in "Security & Privacy" tab
+    - open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
+  tags: interactive
+
+- name: Allow programs to be started after login
+  command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
+  changed_when: false
+  loop: "{{ login_items_enabled }}"
+  tags: interactive
