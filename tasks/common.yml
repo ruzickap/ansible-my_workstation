@@ -16,6 +16,7 @@
         regexp: ^root:\s+
         line: "root:           petr.ruzicka@gmail.com"
       notify: newaliases
+      tags: user_specific
 
     - name: Configure postfix
       ini_file:
@@ -45,7 +46,9 @@
         dest: /etc/postfix/sasl_passwd
         mode: 0600
       notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
-      tags: secrets
+      tags:
+        - secrets
+        - user_specific
 
     - name: Check if printer is defined
       command: lpstat -p
@@ -65,8 +68,7 @@
       command: lpstat -d
       changed_when: false
       register: lpstat_output
-      tags:
-        - printer
+      tags: printer
 
     - name: Set default printer
       command: lpoptions -d HP_LaserJet_500_colorMFP_M570dw
@@ -144,6 +146,7 @@
       loop:
         - root
         - "{{ ansible_user_id }}"
+      tags: user_specific
 
   become: true
 
@@ -152,7 +155,9 @@
 ###############################
 
 - name: Install SpaceVim
-  shell: curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
+  shell: |
+    set -o pipefail
+    curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
   args:
     creates: ~/.SpaceVim
     warn: false
@@ -370,7 +375,7 @@
       value: 'TRUE'
 
 - name: Install krew plugins
-  shell: kubectl krew install {{ item }}
+  command: kubectl krew install {{ item }}
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
   args:
@@ -686,6 +691,7 @@
     path: ~/
   when: npm_packages is defined
   loop: "{{ npm_packages }}"
+  tags: skip_test
 
 - name: Install pip packages
   pip:
@@ -704,11 +710,13 @@
     regexp: '^petr.ruzicka@gmail.com'
     line: 'petr.ruzicka@gmail.com'
     create: yes
+  tags: user_specific
 
 - name: Configure git
   copy:
     src: files/home/myusername/.gitconfig
     dest: ~/.gitconfig
+  tags: user_specific
 
 ###################################################
 # Secrets
@@ -764,7 +772,9 @@
         - keepass2.kdbx
         - keepass.key
 
-  tags: secrets
+  tags:
+    - secrets
+    - user_specific
 
 ###############################
 # Test data

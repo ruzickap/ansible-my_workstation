@@ -285,6 +285,7 @@
   get_url:
     url: "{{ login_picture_url }}"
     dest: ~/Pictures/login_picture.jpg
+  tags: user_specific
 
 # https://www.alansiu.net/2019/09/20/scripting-changing-the-user-picture-in-macos/
 - name: Set login picture
@@ -293,6 +294,7 @@
     content: |
       0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 2 dsAttrTypeStandard:RecordName externalbinary:dsAttrTypeStandard:JPEGPhoto
       {{ ansible_user_id }}:{{ ansible_user_dir }}/Pictures/login_picture.jpg
+  tags: user_specific
 
 - name: Set login picture 2
   shell: |
@@ -301,6 +303,7 @@
     dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
   changed_when: false
   become: true
+  tags: user_specific
 
 ################################################
 # ZSH + Oh My Zsh + Powerlevel10k + fzf
@@ -595,7 +598,7 @@
     key: idleTime
     type: int
     value: 300
-  # For some reason the type=string in GitHub Action MacOS
+  # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
   tags: skip_test
 
 - name: Configure Aerial
@@ -701,7 +704,10 @@
       loop_control:
         label: "{{ item.ssid }}"
       when: wpa_enterprise_wifi is defined
+
   when: wifi_interface != ""
+  tags: user_specific
+
 
 - name: Create Library/LaunchAgents directory for brew autoupdate
   file:

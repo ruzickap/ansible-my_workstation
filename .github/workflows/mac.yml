@@ -4,16 +4,28 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths:
+      - .github/workflows/mac.yml
+      - files/**
+      - handlers/**
+      - main.yml
       - tasks/MacOSX.yml
       - tasks/common.yml
-      - .github/workflows/mac.yml
+      - vars/Darwin.yml
+      - vars/common.yml
+      - vars/secrets.yml.vault
   push:
     branches:
       - master
     paths:
+      - .github/workflows/mac.yml
+      - files/**
+      - handlers/**
+      - main.yml
       - tasks/MacOSX.yml
       - tasks/common.yml
-      - .github/workflows/mac.yml
+      - vars/Darwin.yml
+      - vars/common.yml
+      - vars/secrets.yml.vault
 
 jobs:
   macos-test:
@@ -30,4 +42,4 @@ jobs:
       - name: Run Ansible
         run: |
           echo "test password" > vault-my_workstation.password
-          ansible-playbook --diff --skip-tags secrets,interactive,skip_test --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --skip-tags secrets,interactive,skip_test --connection=local -i "127.0.0.1," main.yml
