@@ -1,0 +1,138 @@
+login_picture_url: https://www.gravatar.com/avatar/{{ 'petr.ruzicka@gmail.com' | hash('md5') }}?s=500
+hostname: peru
+
+# Items to add to the dock
+dock_add_items:
+  - /System/Applications/Mail.app
+  - /System/Applications/Calendar.app
+  - /Applications/iTerm.app
+  - /Applications/Chromium.app
+
+# The Dock icons size
+dock_icons_size: 36.0
+
+login_items_enabled:
+  - Fluor
+  - Itsycal
+  - KeePassXC
+  - KeepingYouAwake
+  - MenuMeters
+  - Vagrant Manager
+
+homebrew_taps:
+  - argoproj/tap
+  - beeftornado/rmtree
+  - domt4/autoupdate
+  - homebrew/cask-fonts
+  - johanhaleby/kubetail
+  - romkatv/powerlevel10k
+  - tektoncd/tools
+  - weaveworks/tap
+
+homebrew_packages:
+  - ansible                                      # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
+  - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
+  - argoproj/tap/argocd
+  - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - autojump
+  - aws-iam-authenticator
+  - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
+  - bat
+  - coreutils
+  - diff-so-fancy
+  - dockutil                                     # Command line tool for managing dock items
+  - exa
+  - fdupes                                       # pcre2
+  - fzf
+  - gh
+  - git-crypt                                    # openssl@1.1
+  - gnu-sed
+  - gpg                                          # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl@1.1, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
+  - hadolint
+  - helm
+  - htop                                         # ncurses
+  - hugo
+  - imagemagick                                  # libpng, freetype, jpeg, libtiff, ghostscript, libde265, gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, docbook, docbook-xsl, gnu-getopt, xmlto, shared-mime-info, x265, libheif, liblqr, libomp, libtool, little-cms2, ilmbase, openexr, openjpeg and webp
+  - iproute2mac
+  - istioctl
+  - johanhaleby/kubetail/kubetail
+  - jq                                           # oniguruma
+  - kind
+  - kops                                         # kubernetes-cli
+  - krew                                         # kubernetes-cli
+  - kubectl
+  - lftp                                         # libidn, openssl@1.1 and readline
+  - mc                                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
+  - nmap                                         # openssl@1.1
+  - npm                                          # icu4c
+  - packer
+  - pre-commit                                   # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - pv
+  - rclone
+  - restic
+  - rhash
+  - romkatv/powerlevel10k/powerlevel10k          # ncurses, pcre and zsh
+  - shellcheck
+  - speedtest-cli
+  - syncthing
+  - tektoncd/tools/tektoncd-cli
+  - telnet
+  - terminal-notifier                            # needed for the brew autoupdate
+  - termtosvg                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - terraform
+  - tig                                          # readline
+  - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc
+  - unrar
+  - watch                                        # ncurses
+  - weaveworks/tap/eksctl
+  - wget                                         # gettext, libunistring, libidn2 and openssl@1.1
+  - xorriso
+  - yamllint                                     # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - youtube-dl
+  - yq
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+
+homebrew_casks:
+  - aerial
+  - chromium
+  - darktable
+  - digikam
+  - firefox
+  - fluor                                        # https://github.com/Pyroh/Fluor
+  - gpxsee
+  - homebrew/cask-fonts/font-meslolg-nerd-font   # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
+  - iina
+  - iterm2
+  - itsycal                                      # https://www.mowglii.com/itsycal/
+  - jdownloader
+  - kap                                          # Capture screen https://getkap.co/
+  - keepassxc
+  - keepingyouawake                              # https://github.com/newmarcel/KeepingYouAwake
+  - mactex-no-gui
+  - meld
+  - menumeters                                   # https://member.ipmu.jp/yuji.tachikawa/MenuMetersElCapitan/
+  - mpv
+  - onyx
+  - qbittorrent
+  - rectangle                                    # https://github.com/rxhanson/Rectangle
+  - slack
+  - vagrant
+  - vagrant-manager
+  - vscodium
+  - zoomus
+
+npm_packages:
+  - "@vuepress/plugin-back-to-top"
+  - "@vuepress/plugin-medium-zoom"
+  - auto-changelog
+  - markdown-link-check
+  - markdown-spellcheck
+  - markdownlint-cli
+  - release-it
+  - vuepress
+  - vuepress-plugin-seo
+
+pip_packages:
+  - gitlint

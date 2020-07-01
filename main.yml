@@ -1,0 +1,25 @@
+- hosts: all
+  force_handlers: True
+
+  vars_files:
+    - vars/{{ ansible_system }}.yml
+    - vars/common.yml
+
+  tasks:
+    - name: Add {{ ansible_user_id }} to sudoers to become root easily
+      lineinfile:
+        dest: /etc/sudoers.d/01_{{ ansible_user_id }}
+        create: yes
+        regexp: '^{{ ansible_user_id }} ALL='
+        line: '{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+      become: yes
+
+    - name: Include secrets.yml
+      include_vars: vars/secrets.yml.vault
+      tags: secrets
+
+    - include: tasks/{{ ansible_distribution }}.yml
+
+  handlers:
+    - import_tasks: handlers/handlers.yml
