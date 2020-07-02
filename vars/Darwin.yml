@@ -1,5 +1,4 @@
 login_picture_url: https://www.gravatar.com/avatar/{{ 'petr.ruzicka@gmail.com' | hash('md5') }}?s=500
-hostname: peru
 
 # Items to add to the dock
 dock_add_items:

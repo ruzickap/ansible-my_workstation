@@ -1,0 +1,295 @@
+wifi_interface: "{{ ansible_facts | json_query('*.{ my_device: device, my_module: module} | [?my_module==`iwlwifi`].my_device') | list | join(',') }}"
+
+plymouth_theme: spinner
+
+enable_boot_services:
+  - dnf-automatic-install.timer
+  - docker
+  - postfix
+  - systemd-timesyncd
+  - syncthing@{{ ansible_user_id }}.service
+
+disable_boot_services:
+  - gssproxy
+  - NetworkManager-wait-online
+  - sssd
+
+mask_services:
+  - systemd-journald-audit.socket
+  - systemd-networkd-wait-online.service
+
+vagrant_plugins:
+  - vagrant-hostmanager
+  - vagrant-libvirt
+
+caddy_plugins:
+  - http.webdav
+  - tls.dns.cloudflare
+
+fstab_entries:
+  - name: "/mnt/winxp"
+    src: "//192.168.124.71/test"
+    fstype: "cifs"
+    opts: "noauto,username=ruzickap,password=test123,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+  - name: "/mnt/data"
+    src: "LABEL=data"
+    fstype: "xfs"
+    opts: "noatime,nodiratime,noauto"
+  - name: "/var/www/peru.xvx.cz/files/music"
+    src: "{{ ansible_user_dir }}/Music"
+    fstype: "none"
+    opts: "defaults,bind"
+  - name: "/var/www/peru.xvx.cz/files/iso"
+    src: "{{ ansible_user_dir }}/Documents/iso"
+    fstype: "none"
+    opts: "defaults,bind"
+  - name: "/var/www/peru.xvx.cz/files/videos"
+    src: "{{ ansible_user_dir }}/Videos"
+    fstype: "none"
+    opts: "defaults,bind"
+  - name: "/mnt/raspi/movies"
+    src: "//192.168.1.2/movies-rw"
+    fstype: "cifs"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+  - name: "/mnt/raspi/music"
+    src: "//192.168.1.2/music-rw"
+    fstype: "cifs"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+  - name: "/mnt/raspi/torrents"
+    src: "//192.168.1.2/torrents"
+    fstype: "cifs"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+  - name: "/mnt/raspi/backups"
+    src: "//192.168.1.2/backups-rw"
+    fstype: "cifs"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+
+rpmfusion_repositories:
+  - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
+  - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
+
+# sed 's/ - //; s/\s//g; s/\(.*\)#.*$/\1/' | tr "\n" " "
+dnf_packages:
+  - aircrack-ng
+  - ansible
+  - ansible-lint
+  - asciinema
+  - autojump
+  - awscli
+  - bash-completion
+  - bat
+  - bind-utils                                        # bind-libs, GeoIP dependency + others
+  - cifs-utils
+  - cronie
+  - dnf-automatic
+  - dosfstools
+  - dpkg
+  - ethtool
+  - exa
+  - fdupes
+  - fwupd
+  - fzf
+  - gcc                                                # Needed for vagrant-libvirt plugin
+  - git
+  - git-crypt
+  - gnupg2
+  - htop
+  - hugo
+  - iotop
+  - iwl7260-firmware
+  - jq
+  - lensfun-tools
+  - lftp
+  - libvirt-daemon-config-network                      # Needed for Virtual Machine Manager - /etc/libvirt/qemu/networks/default.xml network configuration
+  - libvirt-devel                                      # Needed for vagrant-libvirt plugin
+  - libxcrypt-compat                                   # Needed for upstream Vagrant
+  - lsof
+  - macchanger
+  - mailx
+  - mc                                                 # python2
+  - mediainfo
+  - moby-engine                                        # Docker
+  - mozilla-ublock-origin
+  - mpg123                                             # Needed for mc - to show MP3 details
+  - mutt                                               # Check dependencies
+  - NetworkManager-wifi
+  - NetworkManager-config-connectivity-fedora          # captive-portal detect
+  - nmap
+  - npm
+  - ntfsprogs
+  - openvpn
+  - pinentry                                           # needed for gnupg
+  - postfix
+  - python3-molecule
+  - python3-netaddr                                    # Needed for Ansible / kubespray
+  - python3-pip
+  - python3-psutil                                     # Needed for Ansible dconf module
+  - python3-psycogreen                                 # Needed for PGSQL manipulation
+  - python3-virtualenv
+  - python3-winrm                                      # Needed for Ansible
+  - python3-xmltodict                                  # Needed for Ansible and Winrm
+  - pv                                                 # Needed by demo-magic
+  - qpdf                                               # Many Perl dependencies
+  - rclone
+  - restic                                             # backup tool
+  - rhash
+  - ruby                                               # Needed for HomeBrew
+  - ruby-prelude                                       # Needed for HomeBrew
+  - rubygem-bigdecimal                                 # Needed for HomeBrew
+  - rubygem-json                                       # Needed for HomeBrew
+  - rubygems                                           # Needed for HomeBrew
+  - rsync
+  - rsyslog
+  - ShellCheck
+  - sqlite                                             # Open sqlite3 databases in mc
+  - sshuttle
+  - strace
+  - syncthing
+  - syslinux-nonlinux
+  - tcpdump
+  - telnet
+  - tig
+  - traceroute
+  - udisks2                                            # Needed for KDE to mount devices + many dependencies
+  - vim
+  - virt-install
+  - wireless-tools
+  - xorriso
+  - yamllint
+  - youtube-dl
+  - zip
+
+dnf_graphical_packages:
+  - '@Multimedia'
+  - cups
+  - freerdp
+  - gstreamer1-vaapi                                   # GPU acceleration (vokoscreenNG)
+  - hplip                                              # HP driver for CUPS (needed for HP printers)
+  - ImageMagick                                        # Need convert for some scripts
+  - libva-intel-hybrid-driver                          # Needed for mpv
+  - mesa-dri-drivers                                   # Neded for X (GLX)
+  - purple-facebook
+  - purple-telegram
+  - texlive
+  - texlive-chktex                                     # LaTeX linter
+  - texlive-cslatex
+  - texlive-dvisvgm                                    # Needed for convertin dvi->svg (systemd_cheatsheet)
+  - texlive-europasscv                                 # Needed for CV
+  - texlive-lastpage                                   # Needed for CV
+  - texlive-menukeys                                   # Needed for cheatsheets
+  - texlive-pdfjam                                     # For multiple pages on one sheet
+  - texlive-pdfcrop-bin
+  - texlive-substr                                     # Needed for CV
+  - texlive-tabu                                       # Needed for CV
+  - texlive-totpages                                   # Needed for CV
+  - tigervnc
+  - vorbis-tools
+  - xorg-x11-drv-libinput                              # Needed for keyboard + "mouse"
+
+dnf_gtk2_packages:
+  - firefox                                            # GTK2 + GTK3
+  - kde-gtk-config                                     # GTK2
+  - pidgin                                             # GTK2
+
+dnf_gtk3_packages:
+  - chromium
+  - darktable
+  - hugin                                              # GTK3 - wxGTK3
+  - libreoffice-calc
+  - libreoffice-draw
+  - libreoffice-gallery-vrt-network-equipment
+  - libreoffice-impress
+  - libreoffice-writer
+  - libvirt-daemon-kvm                                 # Needed for virtualization + GTK3
+  - meld
+  - virt-manager
+
+dnf_qt_packages:
+  - gpxsee
+  - qtchooser                                          # Needed for spectacle
+  - keepassxc
+  - qbittorrent
+  - sayonara
+  - sddm
+  - sddm-breeze
+  - vokoscreenNG                                       # QT 5
+  - wireshark
+
+dnf_kde_packages:
+  - digikam
+  - dolphin
+  - gwenview
+  - kde-connect
+  - kde-print-manager                                  # GTK3
+  - kde-settings-pulseaudio
+  - kdeplasma-addons
+  - kolourpaint
+  - konsole5
+  - kscreen
+  - ksysguard                                          # Needed for the plasma widgets like (CPU / Mem / HDD / ...)
+  - okular
+  - plasma-nm-openvpn
+  - plymouth-theme-{{ plymouth_theme }}
+  - spectacle
+  - upower                                             # Needed for battery widget in KDE
+
+dnf_additional_packages:
+  - akmod-VirtualBox                                   # X
+  - codium
+  - gbt
+  - gstreamer1-libav                                   # X
+  - kdenlive
+  - libva-intel-driver                                 # Needed for vaapi (mpv)
+  - mpv                                                # X
+  - unrar
+  - VirtualBox                                         # QT 5
+
+  - virtualbox-guest-additions                         # Needed for Virtualization + X
+  - qemu-guest-agent                                   # Needed for Virtualization
+  - spice-vdagent                                      # Needed for Virtualization + X
+  - xorg-x11-drv-qxl                                   # Needed for Virtualization + X
+
+homebrew:
+  - aws-iam-authenticator #
+  - azure-cli             # many dependencies
+  - diff-so-fancy         #
+  - gh                    #
+  - hadolint              # gmp
+  - helm                  #
+  - istioctl              #
+  - kind                  #
+  - kops                  # go 1.14 (compile)
+  - krew                  #
+  - kubectl               #
+  - packer                #
+  - pre-commit            # libyaml
+  - speedtest-cli         #
+  - termtosvg             # libxml2 and libxslt
+  - terraform             #
+
+homebrew_taps:
+  - argoproj/tap
+  - johanhaleby/kubetail
+  - tektoncd/tools
+  - weaveworks/tap
+
+homebrew_additional_packages:
+  - argoproj/tap/argocd
+  - johanhaleby/kubetail/kubetail
+  - tektoncd/tools/tektoncd-cli
+  - weaveworks/tap/eksctl
+
+npm_packages:
+  - "@vuepress/plugin-back-to-top"
+  - "@vuepress/plugin-medium-zoom"
+  - auto-changelog
+  - markdown-link-check
+  - markdown-spellcheck
+  - markdownlint-cli
+  - prettier
+  - release-it
+  - vuepress
+  - vuepress-plugin-seo
+
+pip_packages:
+  - gitlint

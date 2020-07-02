@@ -1,0 +1,70 @@
+(disable_dotfiles) {
+  # Disables access to dotfiles for "browse"
+  status 403 /forbidden
+  rewrite {
+    r   /\.(.*)
+    to  /forbidden
+  }
+}
+
+
+https://{{ my_hostname }} http:// http://{{ my_hostname }} {
+  root /var/www/{{ my_hostname }}
+  log stdout
+  browse /files/
+
+  import disable_dotfiles
+
+  webdav /webdav {
+    scope /var/www/{{ my_hostname }}/files
+    modify false
+    block dotfiles
+  }
+
+  tls {{ cloudflare_email }} {
+    ca https://acme-staging-v02.api.letsencrypt.org/directory
+    dns cloudflare
+  }
+}
+
+http://webdav.{{ my_hostname }} {
+  root /var/www/{{ my_hostname }}
+  log stdout
+  webdav / {
+    scope /var/www/{{ my_hostname }}/files
+    modify false
+    block dotfiles
+  }
+}
+
+http://iso.{{ my_hostname }} {
+  root /var/www/{{ my_hostname }}/files/iso
+  log stdout
+  import disable_dotfiles
+  log stdout
+  browse
+}
+
+http://videos.{{ my_hostname }} {
+  root /var/www/{{ my_hostname }}/files/videos
+  log stdout
+  import disable_dotfiles
+  log stdout
+  browse
+}
+
+http://music.{{ my_hostname }} {
+  root /var/www/{{ my_hostname }}/files/music
+  log stdout
+  import disable_dotfiles
+  log stdout
+  browse
+}
+
+https://localhost https://127.0.0.1 {
+  root /var/www/{{ my_hostname }}/
+  log stdout
+  import disable_dotfiles
+  log stdout
+  tls self_signed
+}

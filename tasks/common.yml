@@ -424,7 +424,7 @@
       value: 'false'
     - section: General
       option: LastDatabases
-      value: "{{ ansible_user_dir }}/data/keepass2.kdbx"
+      value: "{{ ansible_user_dir }}/Documents/keepass2.kdbx"
     - section: General
       option: LastKeyFiles
       value: '@Variant(\0\0\0\x1c\0\0\0\x2\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
@@ -722,11 +722,6 @@
 # Secrets
 ###################################################
 
-- name: Create data directory
-  file:
-    path: ~/data
-    state: directory
-
 - name: Secrets
   block:
     - name: Copy oci directory to home
@@ -757,16 +752,16 @@
     # Secrets coppied from local disk
     ###################################################
 
-    - name: Copy ~/data/secret_variables
+    - name: Copy ~/Documents/secret_variables
       copy:
         src: ~/data/secret_variables
-        dest: ~/data/secret_variables
+        dest: ~/Documents/secret_variables
         mode: 0600
 
     - name: Copy KeePass data
       copy:
         src: ~/data/{{ item }}
-        dest: ~/data/{{ item }}
+        dest: ~/Documents/{{ item }}
         mode: 0600
       loop:
         - keepass2.kdbx
@@ -779,15 +774,6 @@
 ###############################
 # Test data
 ###############################
-
-- name: Create Movies, Music, Pictures directories
-  file:
-    path: ~/{{ item }}
-    state: directory
-  loop:
-    - Movies
-    - Music
-    - Pictures
 
 - name: Download Sintel movie
   get_url:
