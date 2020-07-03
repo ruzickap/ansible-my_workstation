@@ -33,13 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Ansible packages
+      - name: Install Ansible
         run: |
-          pip3 install --user ansible
-          ln -s /Users/runner/Library/Python/3.7/bin/ansible /usr/local/bin/ansible
-          ln -s /Users/runner/Library/Python/3.7/bin/ansible-playbook /usr/local/bin/ansible-playbook
+          brew install ansible
 
       - name: Run Ansible
         run: |
           echo "test password" > vault-my_workstation.password
-          ansible-playbook --skip-tags secrets,interactive,skip_test --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --skip-tags secrets,interactive,skip_test -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
