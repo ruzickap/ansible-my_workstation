@@ -22,17 +22,16 @@
       command: "{{ item }}"
       changed_when: false
       loop:
-        - scutil --set ComputerName "{{ hostname }}"
-        - scutil --set HostName "{{ hostname }}"
-        - scutil --set LocalHostName "{{ hostname }}"
+        - scutil --set ComputerName "{{ my_hostname.split(".")[0] }}"
+        - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
+        - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
 
     - name: Set NetBIOSName
       osx_defaults:
         domain: /Library/Preferences/SystemConfiguration/com.apple.smb.server
         key: NetBIOSName
         type: string
-        value: "{{ hostname }}"
-      become: true
+        value: "{{ my_hostname.split('.')[0] }}"
 
     - name: "Set hibernation mode to not back memory up to persistent storage"
       command: "pmset -a hibernatemode 0"
@@ -367,7 +366,7 @@
       alias history="history -i"
 
       source ~/lib/oracle-cli/lib/python3.7/site-packages/oci_cli/bin/oci_autocomplete.sh
-      source ~/data/secret_variables
+      source ~/Documents/secret_variables
 
       # Simpler prompt when using Midnight Commander
       if ps $PPID |grep mc; then

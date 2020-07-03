@@ -2,8 +2,8 @@
 
 TMP_ISO="/tmp/iso"
 TMP_ISO2="/tmp/iso2"
-DESTINATION="${HOME}/data2/iso/"
-ISO_SOURCE="${HOME}/data2/iso/Fedora-Server-netinst-x86_64-32-1.6.iso"
+DESTINATION="${HOME}/Documents/iso/"
+ISO_SOURCE="${HOME}/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6.iso"
 VOLUME_LABEL=$(isoinfo -d -i "${ISO_SOURCE}" | awk -F': ' '/Volume id:/ { print $2 }')
 BOOT_PARAMS="inst.ks=hd:LABEL=${VOLUME_LABEL}:/fedora-ks.cfg"
 DESTINATION_FILE_NAME="$(basename "${ISO_SOURCE}" .iso)-my.iso"
@@ -28,7 +28,7 @@ sed -i.orig \
   -e "s|menu default|#menu default|" \
 ${TMP_ISO}/isolinux/isolinux.cfg ${TMP_ISO}/isolinux/grub.conf
 
-tar czhf ${TMP_ISO}/fedora_workstation.tar.gz ../../ansible-fedora_workstation
+tar czhf ${TMP_ISO}/fedora_workstation.tar.gz ../../ansible-my_workstation
 
 cp ../kickstart_file/fedora-ks.cfg "${TMP_ISO}/"
 

@@ -1,0 +1,6 @@
+<!DOCTYPE kpartgui>
+<kpartgui version="25" name="session">
+ <ActionProperties>
+  <Action name="edit_copy" shortcut="Ctrl+Shift+C; Ctrl+Ins"/>
+ </ActionProperties>
+</kpartgui>

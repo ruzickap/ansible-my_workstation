@@ -7,7 +7,7 @@ Configure my laptop with Ansible
 Download Fedora Server Netinst iso image:
 
 ```bash
-wget https://download.fedoraproject.org/pub/fedora/linux/releases/32/Server/x86_64/iso/Fedora-Server-netinst-x86_64-32-1.6.iso -O ~/data2/iso/
+wget https://download.fedoraproject.org/pub/fedora/linux/releases/32/Server/x86_64/iso/Fedora-Server-netinst-x86_64-32-1.6.iso -O ~/Documents/iso/
 ```
 
 Rebuild the iso image:
@@ -19,7 +19,7 @@ Rebuild the iso image:
 Put generated image to USB stick:
 
 ```bash
-dd if=~/data2/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=8M
+dd if=~/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=8M
 ```
 
 Boot the USB stick...

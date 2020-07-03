@@ -1,0 +1,1201 @@
+###############################
+# Run as root
+###############################
+
+- name: Run tasks as root
+  block:
+    - name: Change hostname
+      hostname:
+        name: "{{ my_hostname }}"
+
+    - name: Set fact about primary disk device used by KDE Plasma
+      shell: |
+        set -o pipefail
+        lsblk -o NAME,MAJ:MIN,TYPE | sed -n 's/^\([^ ]*\) *\([^:]*\):\([^ ]*\).*disk$/\1_(\2%3A\3)/p'
+      changed_when: false
+      register: primary_disk_device_number_kde_plasma
+
+    - name: Disable weak dependencies
+      ini_file:
+        path: /etc/dnf/dnf.conf
+        section: main
+        option: install_weak_deps
+        value: 'false'
+
+    - name: Upgrade all packages
+      dnf:
+        name: '*'
+        state: latest
+
+    - name: Install packages
+      dnf:
+        name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages}}"
+
+    - name: Install rpmfusion repositories
+      dnf:
+        name: "{{ rpmfusion_repositories }}"
+
+    - name: Import key for Codium repository
+      rpm_key:
+        key: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+
+    - name: Add Codium repository
+      yum_repository:
+        name: gitlab.com_paulcarroty_vscodium_repo
+        description: gitlab.com_paulcarroty_vscodium_repo
+        baseurl: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/repos/rpms/
+        gpgcheck: yes
+        gpgkey: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+
+    - name: Add gbt repository
+      yum_repository:
+        name: gbt_release
+        description: gbt
+        baseurl: https://packagecloud.io/gbt/release/el/7/$basearch
+        repo_gpgcheck: yes
+        gpgcheck: yes
+        gpgkey: "https://packagecloud.io/gbt/release/gpgkey https://packagecloud.io/gbt/release/gpgkey/gbt-release-4C6E79EFF45439B6.pub.gpg"
+
+    - name: Install additional packages
+      dnf:
+        name: "{{ dnf_additional_packages }}"
+
+    - name: Get package facts
+      package_facts:
+
+    - name: Switch to runlevel 5 by default (graphical.target)
+      file:
+        src: /lib/systemd/system/graphical.target
+        dest: /etc/systemd/system/default.target
+        state: link
+        force: yes
+
+    - name: Disable mouse in mc
+      copy:
+        src: files/etc/profile.d/my-mc.sh
+        dest: /etc/profile.d/
+        mode: 0755
+
+    - name: Create directory for mc inside ~/.config
+      file:
+        path: ~/.config/mc/
+        state: directory
+        mode: 0700
+
+    - name: Copy MC extensions settings
+      copy:
+        src: files/home/myusername/.config/mc/mc.ext
+        dest: ~/.config/mc/mc.ext
+
+    - name: Put private SSH keys for ssh sever to /etc/ssh/
+      copy:
+        src: files/etc/ssh/{{ item }}
+        dest: /etc/ssh/{{ item }}
+        owner: root
+        group: ssh_keys
+        mode: 0640
+      loop:
+        - ssh_host_ecdsa_key
+        - ssh_host_ed25519_key
+        - ssh_host_rsa_key
+      tags: secrets
+
+    - name: Put public SSH keys for ssh sever to /etc/ssh/
+      copy:
+        src: files/etc/ssh/{{ item }}
+        dest: /etc/ssh/{{ item }}
+        owner: root
+        group: root
+        mode: 0644
+      loop:
+        - ssh_host_ecdsa_key.pub
+        - ssh_host_ed25519_key.pub
+        - ssh_host_rsa_key.pub
+
+    - name: Configure ssh client globally
+      copy:
+        src: files/etc/ssh/ssh_config.d/10-my_ssh.conf
+        dest: /etc/ssh/ssh_config.d/10-my_ssh.conf
+
+    - name: Set format for history command
+      copy:
+        src: files/etc/profile.d/history_format.sh
+        dest: /etc/profile.d/
+
+    - name: Tweak vim
+      blockinfile:
+        marker: '" {mark} ANSIBLE MANAGED BLOCK'
+        dest: /etc/vimrc
+        block: |
+          set laststatus=2
+          set statusline=%F%m%r%h%w\ (%{&ff}){\%Y}[%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}
+
+    - name: Tweak logrotate (/etc/logrotate.conf)
+      blockinfile:
+        dest: /etc/logrotate.conf
+        insertafter: "^create"
+        block: |
+          compress
+          compresscmd /usr/bin/xz
+          compressoptions -9
+          uncompresscmd /usr/bin/unxz
+          compressext .xz
+
+    - name: Enable services during boot
+      service:
+        name: "{{ item }}"
+        enabled: yes
+      loop: "{{ enable_boot_services }}"
+
+    - name: Disable services during boot
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop: "{{ disable_boot_services }}"
+
+    - name: Disable masked services
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        masked: yes
+      loop: "{{ mask_services }}"
+
+    - name: Enable Nested KVM
+      replace:
+        dest: /etc/modprobe.d/kvm.conf
+        regexp: '^#options kvm_intel nested=1'
+        replace: 'options kvm_intel nested=1'
+
+    - name: Chnage kernel settings using sysctl
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/10-my.conf
+      loop:
+        - name: 'kernel.panic'
+          value: 10
+        - name: 'net.ipv4.ip_forward'
+          value: 1
+        - name: 'net.ipv4.conf.default.rp_filter'
+          value: 1
+        - name: 'net.ipv4.conf.all.rp_filter'
+          value: 1
+
+    - name: Change prompt in lftp
+      replace:
+        dest: /etc/lftp.conf
+        regexp: '^#set prompt'
+        replace: 'set prompt'
+
+    - name: Add {{ ansible_user_id }} user
+      user:
+        name: "{{ ansible_user_id }}"
+        comment: "Petr Ruzicka"
+        groups: docker,libvirt,lp,printadmin,wireshark,wheel
+        password: "{{ fedora_username_password | password_hash('sha512') }}"
+      changed_when: false
+      tags: secrets
+
+    - name: Configure dnf-automatic
+      ini_file:
+        path: /etc/dnf/automatic.conf
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - section: commands
+          option: apply_updates
+          value: "yes"
+        - section: commands
+          option: download_updates
+          value: "yes"
+        - section: emitters
+          option: emit_via
+          value: email
+        - section: email
+          option: email_from
+          value: root@{{ ansible_fqdn }}
+        - section: command_email
+          option: email_from
+          value: root@{{ ansible_fqdn }}
+
+    - name: Blacklist pcspkr kernel module
+      kernel_blacklist:
+        name: pcspkr
+        blacklist_file: /etc/modprobe.d/blacklist-pcspkr.conf
+
+    - name: Change libvirt-guests parameters
+      ini_file:
+        path: /etc/sysconfig/libvirt-guests
+        no_extra_spaces: yes
+        section: null
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: ON_SHUTDOWN
+          value: shutdown
+        - option: SHUTDOWN_TIMEOUT
+          value: 60
+        - option: PARALLEL_SHUTDOWN
+          value: 10
+
+    - name: Chnage sddm config file (/etc/sddm.conf)
+      ini_file:
+        path: /etc/sddm.conf
+        no_extra_spaces: yes
+        section: Autologin
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: Session
+          value: plasma.desktop
+        - option: User
+          value: "{{ ansible_user_id }}"
+
+    - name: Create cron.d entries
+      cron:
+        name: "{{ item.name }}"
+        weekday: "{{ item.weekday }}"
+        minute: "{{ item.minute }}"
+        hour: "{{ item.hour }}"
+        user: "{{ item.user }}"
+        job: "{{ item.job }}"
+        cron_file: "{{ item.cron_file }}"
+        disabled: "{{ item.disabled }}"
+      loop:
+        - name: 'backup'
+          weekday: '*'
+          minute: 0
+          hour: 1
+          user: 'root'
+          job: 'nice {{ ansible_user_dir }}/Documents/backups/backup.sh'
+          cron_file: 'backup'
+          disabled: true
+      loop_control:
+        label: "{{ item.name }} - {{ item.cron_file }}"
+
+    - name: Create mount points
+      file:
+        path: "{{ item.name }}"
+        state: directory
+      loop: "{{ fstab_entries }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Add mount points to fstab
+      mount:
+        name: "{{ item.name }}"
+        src: "{{ item.src }}"
+        fstype: "{{ item.fstype }}"
+        opts: "{{ item.opts }}"
+        state: present
+      loop: "{{ fstab_entries }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Disable suspend when lid is closed
+      ini_file:
+        path: /etc/systemd/logind.conf
+        section: Login
+        option: HandleLidSwitch
+        value: ignore
+      notify: reload systemctl
+
+    - name: Create /etc/systemd/journald.conf.d directory
+      file:
+        path: /etc/systemd/journald.conf.d
+        state: directory
+
+    - name: Forward journald to /dev/tty12
+      ini_file:
+        path: /etc/systemd/journald.conf.d/fw-tty12.conf
+        no_extra_spaces: yes
+        section: Journal
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: ForwardToConsole
+          value: "yes"
+        - option: TTYPath
+          value: /dev/tty12
+        - option: MaxLevelConsole
+          value: info
+      notify: reload systemctl
+
+    - name: Configure journald
+      ini_file:
+        path: /etc/systemd/journald.conf.d/journal-size.conf
+        section: Journal
+        option: SystemMaxUse
+        value: 50M
+      notify: reload systemctl
+
+    - name: Add loop module to load during boot
+      copy:
+        dest: /etc/modules-load.d/loop.conf
+        content: loop
+
+    - name: Configuring NetworkManager to use randomized MAC-addresses
+      ini_file:
+        path: /etc/NetworkManager/conf.d/00-macrandomize.conf
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - section: device
+          option: wifi.scan-rand-mac-address
+          value: "yes"
+        - section: connection
+          option: wifi.cloned-mac-address
+          value: preserve
+        - section: connection
+          option: connection.stable-id
+          value: ${CONNECTION}/${BOOT}
+
+    - name: Configure .bashrc for root
+      blockinfile:
+        dest: /root/.bashrc
+        block: |
+          PS1='\[\033[01;31m\]\h\[\033[01;34m\] \w #\[\033[00m\] '
+          alias dos2unix="sed -i 's/\r$//' "
+          alias unix2dos="awk 'sub(\"$\",\"\r\")' "
+          alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+
+    - name: Add caddy group
+      group:
+        name: caddy
+        system: yes
+
+    - name: Add caddy user
+      user:
+        name: caddy
+        shell: /sbin/nologin
+        home: /var/lib/caddy
+        create_home: no
+        password: '!'
+        comment: Caddy web server
+        group: caddy
+        system: yes
+
+    - name: Check if /usr/local/bin/caddy exixts
+      stat:
+        path: /usr/local/bin/caddy
+      register: caddy
+
+    - block:
+        - name: Download and install latest caddy
+          unarchive:
+            src: https://caddyserver.com/download/linux/amd64?license=personal&plugins={{ caddy_plugins | join(',') }}
+            dest: /tmp/
+            remote_src: yes
+            creates: /usr/local/bin/caddy
+
+        - name: Move caddy binary to /usr/local/bin
+          copy:
+            src: /tmp/caddy
+            remote_src: yes
+            mode: 0755
+            dest: /usr/local/bin/caddy
+
+      when: not caddy.stat.exists
+
+    - name: Get caddy systemd service file
+      template:
+        src: files/etc/systemd/system/caddy.service.j2
+        dest: /etc/systemd/system/caddy.service
+      notify: reload systemctl
+
+    - name: Create systemd symlink for service caddy
+      file:
+        src: /etc/systemd/system/caddy.service
+        dest: /etc/systemd/system/multi-user.target.wants/caddy.service
+        state: link
+      notify: reload systemctl
+
+    - name: Create /etc/caddy/conf.d directory
+      file:
+        path: /etc/caddy/conf.d
+        state: directory
+
+    - name: Create /var/lib/caddy directory
+      file:
+        path: /var/lib/caddy
+        owner: caddy
+        group: caddy
+        mode: "u=rwx,g=rx,o="
+        state: directory
+
+    - name: Add Caddy config files to /etc/caddy/
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: 0644
+      loop:
+        - src: files/etc/caddy/conf.d/ansible_fqdn.conf.j2
+          dest: /etc/caddy/conf.d/{{ ansible_fqdn }}.conf
+        - src: files/etc/caddy/caddy.conf.j2
+          dest: /etc/caddy/caddy.conf
+        - src: files/etc/caddy/envfile.j2
+          dest: /etc/caddy/envfile
+      tags: secrets
+
+    - name: Create html directory for web pages
+      file:
+        path: /var/www/{{ ansible_fqdn }}
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        recurse: yes
+        state: directory
+      changed_when: false
+
+    - name: Upload index.html into web space
+      copy:
+        dest: /var/www/{{ ansible_fqdn }}/index.html
+        content: Nothing is here...
+
+    - name: Configure NTP
+      ini_file:
+        path: /etc/systemd/timesyncd.conf
+        no_extra_spaces: yes
+        section: Time
+        option: NTP
+        value: ntp.nic.cz
+      notify: reload systemctl
+
+    - name: Add CloudFlare DNS update script for NetworkManager
+      copy:
+        src: files/etc/NetworkManager/dispatcher.d/05-cloudflare_dns
+        dest: /etc/NetworkManager/dispatcher.d/05-cloudflare_dns
+        mode: 0755
+
+    - name: Configure plymouth
+      ini_file:
+        path: /etc/plymouth/plymouthd.conf
+        no_extra_spaces: yes
+        section: Daemon
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      loop:
+        - option: Theme
+          value: "{{ plymouth_theme }}"
+        - option: ShowDelay
+          value: 0
+      notify: plymouth rebuild initrd
+
+    # https://fedoramagazine.org/docker-and-fedora-32/
+    # "unified_cgroup_hierarchy" is needed for docker / moby
+    # Check in new Fedora 33 if this is still needed !!!!
+    - name: Modify grub settings
+      replace:
+        dest: /etc/default/grub
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      with_items:
+        - regexp: 'rhgb quiet"'
+          replace: 'rhgb quiet systemd.unified_cgroup_hierarchy=0 rootflags=discard splash=quiet"'
+      notify: grub2 config
+
+    - name: Add Open wifi accounts
+      command: nmcli connection add con-name "{{ item }}" type wifi ifname "{{ wifi_interface }}" ssid "{{ item }}" 802-11-wireless.mac-address-randomization always
+      args:
+        creates: /etc/sysconfig/network-scripts/ifcfg-{{ item | regex_replace(' ','_') }}
+      loop: "{{ open_wifi }}"
+      when: wifi_interface|length > 0
+      tags: secrets
+
+    - name: Add WPA/WPA2 Enterprise wifi accounts
+      command: nmcli connection add con-name "{{ item.ssid }}" type wifi ifname "{{ wifi_interface }}" ssid "{{ item.ssid }}" -- wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 802-1x.identity "{{ item.identity }}" 802-1x.password "{{ item.password }}"
+      args:
+        creates: /etc/sysconfig/network-scripts/ifcfg-{{ item.ssid | regex_replace(' ','_') }}
+      loop: "{{ wpa_enterprise_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+      when: wifi_interface|length > 0
+      tags: secrets
+
+    - name: Add WPA/WPA2 Personal wifi accounts
+      command: nmcli connection add con-name "{{ item.ssid }}" type wifi ifname "{{ wifi_interface }}" ssid "{{ item.ssid }}" -- wifi-sec.key-mgmt wpa-psk 802-11-wireless-security.psk "{{ item.password }}"
+      args:
+        creates: /etc/sysconfig/network-scripts/ifcfg-{{ item.ssid | regex_replace(' ','_') }}
+      loop: "{{ wpa_personal_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+      when: wifi_interface|length > 0
+      tags: secrets
+
+    - name: Create bash completition file for rclone
+      command: rclone genautocomplete bash
+      args:
+        creates: /etc/bash_completion.d/rclone
+
+    - name: Find latest version of Vagrant
+      uri:
+        url: https://checkpoint-api.hashicorp.com/v1/check/vagrant
+        return_content: yes
+      register: vagrant_uri
+
+    - name: Install Vagrant
+      dnf:
+        name: "https://releases.hashicorp.com/vagrant/{{ vagrant_uri.json.current_version }}/vagrant_{{ vagrant_uri.json.current_version }}_{{ ansible_architecture }}.rpm"
+      when: ansible_facts.packages.vagrant is not defined
+
+    - name: Import Zoom key
+      rpm_key:
+        key: https://zoom.us/linux/download/pubkey
+
+    - name: Install Zoom
+      dnf:
+        name: https://zoom.us/client/latest/zoom_x86_64.rpm
+      when: ansible_facts.packages.zoom is not defined
+
+    # Check in Ansible 2.10 - if it can be done better
+    - name: Change LUKS key
+      shell: echo -e "xxxx\n{{ fedora_disk_encryption_passphrase }}\n{{ fedora_disk_encryption_passphrase }}\n" | cryptsetup luksChangeKey /dev/{{ ansible_device_links.masters | first }} --force-password
+      ignore_errors: true
+      changed_when: false
+      tags: secrets
+
+  become: true
+
+###############################
+# Run as {{ ansible_user_id }}
+###############################
+
+- name: Create Documents, Movies, Music, Pictures directories
+  file:
+    path: ~/{{ item }}
+    state: directory
+  loop:
+    - Documents
+    - Movies
+    - Music
+    - Pictures
+
+- name: Install Homebrew
+  shell: echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  args:
+    creates: /home/linuxbrew/.linuxbrew/bin/brew
+
+- name: Install Homebrew taps
+  homebrew_tap:
+    name: "{{ homebrew_taps | join(',') }}"
+  environment:
+    PATH: /home/linuxbrew/.linuxbrew/bin/:{{ ansible_env.PATH }}
+
+- name: Upgrade all Homebrew packages
+  homebrew:
+    update_homebrew: yes
+    upgrade_all: yes
+    path: /home/linuxbrew/.linuxbrew/bin
+
+- name: Install Homebrew packages
+  homebrew:
+    name: "{{ homebrew + homebrew_additional_packages }}"
+    path: /home/linuxbrew/.linuxbrew/bin
+
+- name: Create KDE autostart directory for scripts
+  file:
+    path: ~/.config/autostart-scripts
+    state: directory
+
+- name: Link KDE startup script
+  file:
+    src: ~/bin/kde_startup.sh
+    dest: ~/.config/autostart-scripts/kde_startup.sh
+    state: link
+    follow: no
+    force: yes
+
+- name: Create direcotries for konsole config (KDE)
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - ~/.local/share/kxmlgui5/konsole
+    - ~/.local/share/konsole
+
+- name: Configure Konsole (konsolerc)
+  ini_file:
+    path: ~/.config/konsolerc
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Desktop Entry
+      option: DefaultProfile
+      value: Shell.profile
+    - section: KonsoleWindow
+      option: ShowMenuBarByDefault
+      value: 'false'
+    - section: KonsoleWindow
+      option: ShowWindowTitleOnTitleBar
+      value: 'true'
+    - section: MainWindow
+      option: MenuBar
+      value: "Disabled"
+    - section: TabBar
+      option: TabBarVisibility
+      value: ShowTabBarWhenNeeded
+
+- name: Copy Konsole settings
+  copy:
+    src: files/home/myusername/.local/share/kxmlgui5/konsole/sessionui.rc
+    dest: ~/.local/share/kxmlgui5/konsole/sessionui.rc
+    mode: 0600
+
+- name: Configure Konsole Profile (Shell.profile)
+  ini_file:
+    path: ~/.local/share/konsole/Shell.profile
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Appearance
+      option: Font
+      value: 'Monospace,13,-1,5,50,0,0,0,0,0'
+    - section: Appearance
+      option: ColorScheme
+      value: 'Linux'
+    - section: General
+      option: DimWhenInactive
+      value: 'true'
+    - section: General
+      option: Name
+      value: 'Shell'
+    - section: Interaction Options
+      option: CopyTextAsHTML
+      value: 'false'
+    - section: Interaction Options
+      option: TrimTrailingSpacesInSelectedText
+      value: 'true'
+    - section: Interaction Options
+      option: UnderlineLinksEnabled
+      value: 'false'
+    - section: Scrolling
+      option: HistorySize
+      value: 100000
+    - section: Scrolling
+      option: ScrollFullPage
+      value: '1'
+    - section: Terminal Features
+      option: 'FlowControlEnabled'
+      value: 'false'
+
+# Adding the cz layout to KDE - will break Alt+A in mc
+- name: Configure Keyboard layout settings (kxkbrc)
+  ini_file:
+    path: ~/.config/kxkbrc
+    no_extra_spaces: yes
+    section: Layout
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: DisplayNames
+      value: ","
+    - option: LayoutList
+      value: "us,cz(qwerty_bksl)"
+    - option: Use
+      value: 'true'
+
+- name: Powerdevil configuration (powerdevilrc)
+  ini_file:
+    path: ~/.config/powerdevilrc
+    no_extra_spaces: yes
+    section: BatteryManagement
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: BatteryCriticalAction
+      value: 0
+    - option: BatteryCriticalLevel
+      value: 3
+
+- name: Chnage PowerManagement settings
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+  loop:
+    - src: files/home/myusername/.config/powermanagementprofilesrc
+      dest: ~/.config/powermanagementprofilesrc
+
+- name: Chnage Desktop Effects settings
+  ini_file:
+    path: ~/.config/kwinrc
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Desktops
+      option: Number
+      value: 6
+    - section: Desktops
+      option: Rows
+      value: 2
+    - section: Plugins
+      option: mousemarkEnabled
+      value: 'true'
+    - section: TabBox
+      option: DesktopLayout
+      value: org.kde.breeze.desktop
+    - section: TabBox
+      option: DesktopListLayout
+      value: org.kde.breeze.desktop
+    - section: TabBox
+      option: LayoutName
+      value: org.kde.breeze.desktop
+    - section: Windows
+      option: ElectricBorders
+      value: 1
+    - section: org.kde.kdecoration2
+      option: library
+      value: org.kde.breeze
+    - section: org.kde.kdecoration2
+      option: ButtonsOnLeft
+      value: MSF
+    - section: NightColor
+      option: Active
+      value: 'true'
+
+- name: Configure ksmserverrc - logout without confirmation
+  ini_file:
+    path: ~/.config/ksmserverrc
+    no_extra_spaces: yes
+    section: General
+    option: confirmLogout
+    value: 'false'
+    mode: 0600
+
+- name: Chnage Desktop Sessions settings
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+  loop:
+    - src: files/home/myusername/.config/kdeglobals
+      dest: ~/.config/kdeglobals
+
+- name: Disable usage of KDE indexing feature - systemsettingsrc and baloofilerc
+  ini_file:
+    path: "{{ item }}"
+    no_extra_spaces: yes
+    section: Basic Settings
+    option: Indexing-Enabled
+    value: 'false'
+    mode: 0600
+  loop:
+    - ~/.config/systemsettingsrc
+    - ~/.config/baloofilerc
+
+- name: Enable Touchpad acceleration
+  ini_file:
+    path: ~/.config/touchpadxlibinputrc
+    no_extra_spaces: yes
+    section: SynPS/2 Synaptics TouchPad
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: pointerAcceleration
+      value: 0.6
+
+- name: Configure plasma theme
+  ini_file:
+    path: ~/.config/plasmarc
+    no_extra_spaces: yes
+    section: Theme
+    option: name
+    value: breeze-dark
+    mode: 0600
+
+- name: Configure plasma calendar holiday regions
+  ini_file:
+    path: ~/.config/plasma_calendar_holiday_regions
+    no_extra_spaces: yes
+    section: General
+    option: selectedRegions
+    value: cz_cs
+    mode: 0600
+
+- name: Configure Plasma (desktop, taskbar) - plasma-org.kde.plasma.desktop-appletsrc
+  template:
+    src: files/home/myusername/.config/plasma-org.kde.plasma.desktop-appletsrc.j2
+    dest: ~/.config/plasma-org.kde.plasma.desktop-appletsrc
+    mode: 0600
+
+- name: Configure Plasma (desktop, taskbar) - kactivitymanagerdrc + kactivitymanagerd-statsrc
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+  loop:
+    - src: files/home/myusername/.config/kactivitymanagerdrc
+      dest: ~/.config/kactivitymanagerdrc
+    - src: files/home/myusername/.config/kactivitymanagerd-statsrc
+      dest: ~/.config/kactivitymanagerd-statsrc
+
+- name: Disable kwallet
+  ini_file:
+    path: ~/.config/kwalletrc
+    no_extra_spaces: yes
+    section: Wallet
+    option: First Use
+    value: 'false'
+    mode: 0600
+
+- name: Configure Plasma screen locking - kscreenlockerrc
+  ini_file:
+    path: ~/.config/kscreenlockerrc
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Daemon
+      option: Autolock
+      value: 'false'
+    - section: Greeter
+      option: Theme
+      value: org.kde.breezedark.desktop
+    - section: Greeter
+      option: WallpaperPlugin
+      value: org.kde.haenau
+
+- name: Configure dolphin
+  ini_file:
+    path: ~/.config/dolphinrc
+    no_extra_spaces: yes
+    section: General
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: BrowseThroughArchives
+      value: 'true'
+    - option: ConfirmClosingMultipleTabs
+      value: 'false'
+    - option: EditableUrl
+      value: 'true'
+    - option: GlobalViewProps
+      value: 'true'
+    - option: ShowFullPath
+      value: 'true'
+    - option: SplitView
+      value: 'true'
+
+- name: Configure gwenview
+  ini_file:
+    path: ~/.config/gwenviewrc
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: ImageView
+      option: AnimationMethod
+      value: 'DocumentView::GLAnimation'
+    - section: ImageView
+      option: MouseWheelBehavior
+      value: 'MouseWheelBehavior::Zoom'
+    - section: ImageView
+      option: ZoomMode
+      value: 'ZoomMode::KeepSame'
+    - section: SideBar
+      option: PreferredMetaInfoKeyList
+      value: Exif.Image.Software,Exif.GPSInfo.GPSLatitude,Exif.Image.DateTime,Xmp.dc.title,Xmp.dc.description,Xmp.tiff.Artist,Xmp.xmp.Keywords
+
+- name: Configure Okular
+  ini_file:
+    path: ~/.config/okularpartrc
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: PageView
+      option: TrimMargins
+      value: 'true'
+
+- name: Create ~/.config/vokoscreen directory
+  file:
+    path: ~/.config/vokoscreen
+    recurse: yes
+    state: directory
+
+- name: Vokoscreen configuration
+  ini_file:
+    path: ~/.config/vokoscreen/vokoscreen.conf
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Audio
+      option: AudioOnOff
+      value: 0
+    - section: Miscellaneous
+      option: Countdown
+      value: 5
+    - section: Miscellaneous
+      option: Minimized
+      value: 2
+    - section: Videooptions
+      option: Videocodec
+      value: libx265
+    - section: Videooptions
+      option: X264Lossless
+      value: 0
+
+- name: Create directory for GTK3 configuration
+  file:
+    path: ~/.config/gtk-3.0
+    state: directory
+
+- name: Create GTK3 configuration
+  ini_file:
+    path: ~/.config/gtk-3.0/settings.ini
+    no_extra_spaces: yes
+    section: Settings
+    option: gtk-application-prefer-dark-theme
+    value: 'true'
+    mode: 0600
+
+- name: Configure file associations (MIME)
+  ini_file:
+    path: ~/.config/mimeapps.list
+    no_extra_spaces: yes
+    section: Default Applications
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - option: text/html
+      value: chromium-browser.desktop
+    - option: x-scheme-handler/http
+      value: chromium-browser.desktop
+    - option: x-scheme-handler/https
+      value: chromium-browser.desktop
+    - option: x-scheme-handler/about
+      value: chromium-browser.desktop
+    - option: application/x-extension-html
+      value: chromium-browser.desktop
+    - option: application/x-extension-shtml
+      value: chromium-browser.desktop
+    - option: application/x-extension-xhtml
+      value: chromium-browser.desktop
+    - option: application/xhtml+xml
+      value: chromium-browser.desktop
+
+- name: Configure Meld
+  dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+  loop:
+    - key: /org/gnome/meld/indent-width
+      value: "4"
+    - key: /org/gnome/meld/highlight-current-line
+      value: 'true'
+    - key: /org/gnome/meld/style-scheme
+      value: "'cobalt'"
+    - key: /org/gnome/meld/show-line-numbers
+      value: 'true'
+    - key: /org/gnome/meld/insert-spaces-instead-of-tabs
+      value: 'true'
+    - key: /org/gnome/meld/highlight-syntax
+      value: 'true'
+
+- name: Configure Virtual Manager
+  dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+  loop:
+    - key: /org/virt-manager/virt-manager/vmlist-fields/host-cpu-usage
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/vmlist-fields/memory-usage
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/vmlist-fields/network-traffic
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/vmlist-fields/disk-usage
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/new-vm/graphics-type
+      value: "'system'"
+    - key: /org/virt-manager/virt-manager/new-vm/cpu-default
+      value: "'host-model'"
+    - key: /org/virt-manager/virt-manager/console/resize-guest
+      value: "1"
+    - key: /org/virt-manager/virt-manager/console/scaling
+      value: "0"
+    - key: /org/virt-manager/virt-manager/confirm/unapplied-dev
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/confirm/removedev
+      value: 'false'
+    - key: /org/virt-manager/virt-manager/confirm/interface-power
+      value: 'false'
+    - key: /org/virt-manager/virt-manager/confirm/forcepoweroff
+      value: 'false'
+    - key: /org/virt-manager/virt-manager/stats/enable-memory-poll
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/stats/enable-net-poll
+      value: 'true'
+    - key: /org/virt-manager/virt-manager/stats/enable-disk-poll
+      value: 'true'
+
+- name: Configure hugin
+  ini_file:
+    path: ~/.hugin
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop:
+    - section: MainFrame
+      option: ShowStartTip
+      value: 0
+    - section: Assistant
+      option: autoAlign
+      value: 1
+    - section: AutoPano
+      option: Default
+      value: 1
+    - section: Celeste
+      option: Auto
+      value: 1
+    - section: Nona
+      option: UseGPU
+      value: 1
+
+- name: Configure LibreOffice
+  copy:
+    src: files/home/myusername/.config/libreoffice
+    dest: ~/.config/
+    mode: preserve
+
+- name: Copy kdeconnect configuration
+  copy:
+    src: files/home/myusername/.config/kdeconnect
+    dest: ~/.config/
+    mode: 0600
+  tags: secrets
+
+- name: Configure .bashrc for {{ ansible_user_id }}
+  blockinfile:
+    dest: ~/.bashrc
+    block: |
+      {% raw %}
+      HISTSIZE=100000
+      HISTFILESIZE=100000
+      alias dos2unix="sed -i 's/\r$//' "
+      alias unix2dos="awk 'sub(\"$\",\"\r\")' "
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+      alias k=kubectl
+      alias cat="bat -p --paging=never"
+      alias ip='ip -color=auto'
+      alias ls=exa
+
+      export RESTIC_ONEDRIVE_SECRETS_FILE="${HOME}/Documents/backups/restic-onedrive-secrets.json"
+
+      for COMPLETION in "/home/linuxbrew/.linuxbrew/etc/bash_completion.d/"*; do
+        source "$COMPLETION"
+      done
+
+      source /usr/share/fzf/shell/key-bindings.bash
+      source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source ~/Documents/secret_variables
+
+      if [ "${ASCIINEMA_REC}" = "1" ]; then
+        . /usr/share/git-core/contrib/completion/git-prompt.sh
+        PS1='\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]$([ "$(__git_ps1 %s)" != "master" ] && (echo -e " (\[\033[01;93m\]"$(__git_ps1 "%s")"\[\033[01;0m\])") || echo "")\$ '
+      else
+        export PS1='$(gbt $?)'
+        export GBT_CARS='Status, Dir, Git, Kubectl, Sign'
+        export GBT_CAR_DIR_BG=light_blue
+        export GBT_CAR_DIR_DEPTH='99'
+        export GBT_CAR_DIR_FG='white'
+        export GBT_CAR_DIR_FM='bold'
+        export GBT_CAR_DIR_FORMAT='{{ Dir }}'
+        export GBT_CAR_GIT_BG='light_yellow'
+        export GBT_CAR_GIT_STASH_SYMBOL_TEXT='⚑'
+        export GBT_CAR_GIT_FORMAT='{{ Icon }}{{ Head }}{{ Status }}{{ Stash }}'
+        export GBT_CAR_HOSTNAME_BG=blue
+        export GBT_CAR_HOSTNAME_FG=light_green
+        export GBT_CAR_HOSTNAME_FM='bold'
+        export GBT_CAR_HOSTNAME_FORMAT='{{ UserHost }}'
+        export GBT_CAR_HOSTNAME_USER_FG='light_yellow'
+        export GBT_CAR_KUBECTL_BG='blue'
+        export GBT_CAR_KUBECTL_FORMAT='{{ Icon }}[{{ Context }}]'
+        export GBT_CAR_SIGN_FORMAT='{{ Symbol }} '
+        export GBT_CAR_STATUS_FORMAT='{{ Symbol }}'
+      fi
+
+      eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+
+      PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${PATH}"
+      export PATH
+      {% endraw %}
+
+- name: List installed Vagrant Plugins
+  command: vagrant plugin list
+  register: vagrant_plugin_list
+  changed_when: false
+
+- name: Install Vagrant Plugins
+  command: vagrant plugin install {{ item }}
+  environment:
+    CONFIGURE_ARGS: 'with-libvirt-include=/usr/include/libvirt with-libvirt-lib=/usr/lib64'
+  loop: "{{ vagrant_plugins }}"
+  when: not vagrant_plugin_list.stdout is search(item)
+
+- name: Create ~/.local/share/applications/ directory
+  file:
+    path: ~/.local/share/applications/
+    recurse: yes
+    state: directory
+
+# https://wiki.archlinux.org/index.php/default_applications
+- name: Enable mime compatibility
+  file:
+    src: /usr/share/applications/mimeapps.list
+    dest: ~/.local/share/applications/mimeapps.list
+    state: link
+    force: yes
+
+- name: Create ~/.config/gpxsee directory
+  file:
+    path: ~/.config/gpxsee
+    recurse: yes
+    state: directory
+
+- name: GPXSee configuration
+  ini_file:
+    path: ~/.config/gpxsee/gpxsee.conf
+    no_extra_spaces: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: 0600
+  loop:
+    - section: Map
+      option: map
+      value: Open Street Map
+    - section: Options
+      option: pixmapCache
+      value: 16
+    - section: Options
+      option: useOpenGL
+      value: 'true'
+    - section: Settings
+      option: units
+      value: 0
