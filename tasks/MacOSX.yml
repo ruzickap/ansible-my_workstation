@@ -646,6 +646,7 @@
 - name: Set Aerial as default screensaver
   command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
   changed_when: false
+  tags: skip_test
 
 - name: Configure Meld
   osx_defaults:
@@ -751,6 +752,11 @@
     value: 'false'
 
 ############################ Interactive ############################
+
+- name: Interactive
+  pause:
+    prompt: "To continue with interactive tasks press ENTER"
+  tags: interactive
 
 - name: Install Virtualbox
   homebrew_cask:
