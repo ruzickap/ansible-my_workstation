@@ -1121,7 +1121,7 @@
       else
         export PS1='$(gbt $?)'
         export GBT_CARS='Status, Dir, Git, Kubectl, Sign'
-        export GBT_CAR_DIR_BG=light_blue
+        export GBT_CAR_DIR_BG='light_blue'
         export GBT_CAR_DIR_DEPTH='99'
         export GBT_CAR_DIR_FG='white'
         export GBT_CAR_DIR_FM='bold'

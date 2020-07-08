@@ -146,7 +146,6 @@
       loop:
         - root
         - "{{ ansible_user_id }}"
-      tags: user_specific
 
   become: true
 
@@ -399,7 +398,6 @@
     - name: Install oci
       command:
         cmd: /tmp/install.sh --rc-file-path /dev/null --accept-all-defaults
-
   when: not oci_stat.stat.exists
 
 - name: Create direcotry for KeePassxc settings
@@ -423,6 +421,9 @@
       option: AutoSaveOnExit
       value: 'false'
     - section: General
+      option: UpdateCheckMessageShown
+      value: 'true'
+    - section: General
       option: LastDatabases
       value: "{{ ansible_user_dir }}/Documents/keepass2.kdbx"
     - section: General
@@ -444,8 +445,8 @@
       option: Enabled
       value: 'true'
     - section: GUI
-      option: DarkTrayIcon
-      value: 'true'
+      option: CheckForUpdates
+      value: 'false'
     - section: GUI
       option: MinimizeOnStartup
       value: 'true'
@@ -691,7 +692,6 @@
     path: ~/
   when: npm_packages is defined
   loop: "{{ npm_packages }}"
-  tags: skip_test
 
 - name: Install pip packages
   pip:
