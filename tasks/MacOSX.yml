@@ -8,7 +8,7 @@
     huuid: "{{ ioreg_output.stdout }}"
 
 - name: Get wi-fi interface
-  shell: networksetup -listallhardwareports | awk '$3=="Wi-Fi" {getline; print $2}'
+  shell: networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; print $2 }'
   register: networksetup
   changed_when: false
 
@@ -18,6 +18,7 @@
 
 - name: Set Hostname + Disable sleeping
   block:
+    # https://apple.stackexchange.com/questions/125411/how-do-i-stop-my-computer-name-from-automatically-and-incorrectly-changing/
     - name: Set Hostname
       command: "{{ item }}"
       changed_when: false
@@ -26,12 +27,14 @@
         - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
         - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
 
+    # https://discussions.apple.com/thread/2457573
     - name: Set NetBIOSName
       osx_defaults:
         domain: /Library/Preferences/SystemConfiguration/com.apple.smb.server
         key: NetBIOSName
         type: string
         value: "{{ my_hostname.split('.')[0] }}"
+      changed_when: false
 
     - name: "Set hibernation mode to not back memory up to persistent storage"
       command: "pmset -a hibernatemode 0"
@@ -56,24 +59,33 @@
   homebrew_tap:
     name: "{{ homebrew_taps | join(',') }}"
 
+- name: Install Homebrew packages
+  homebrew:
+    name: "{{ homebrew_packages }}"
+
+- name: Create link from /usr/local/bin/pip3.8 /usr/local/bin/pip3
+  file:
+    src: /usr/local/bin/pip3.8
+    dest: /usr/local/bin/pip3
+    state: link
+
+- name: Update homebrew and upgrade all packages
+  homebrew:
+    update_homebrew: yes
+    upgrade_all: yes
+
 - name: Upgrade all Homebrew casks
   homebrew_cask:
     upgrade_all: yes
-  register: result
-  until: result is succeeded
 
 - name: Install Homebrew casks
   homebrew_cask:
     name: "{{ homebrew_casks }}"
     install_options: no-quarantine
 
-- name: Install Homebrew packages
-  homebrew:
-    name: "{{ homebrew_packages }}"
-
-- name: Set Python3 as default
+- name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
   set_fact:
-    ansible_python_interpreter: /usr/bin/python3
+    ansible_python_interpreter: /usr/local/bin/python3
 
 # Needs logout to be applied
 - name: Set scroll direction
@@ -296,10 +308,11 @@
   tags: user_specific
 
 - name: Set login picture 2
-  shell: |
-    dscl . delete ~ JPEGPhoto
-    dscl . delete ~ Picture
-    dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
+  command: "{{ item }}"
+  loop:
+    - dscl . delete /Users/{{ ansible_user_id }} JPEGPhoto
+    - dscl . delete /Users/{{ ansible_user_id }} Picture
+    - dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
   changed_when: false
   become: true
   tags: user_specific
@@ -334,8 +347,12 @@
   loop:
     - regexp: '^plugins=.*'
       replace: 'plugins=(autojump docker git vagrant-prompt)'
+    # robbyrussell is not used - using powerlevel10k
     - regexp: '^ZSH_THEME="robbyrussell"'
       replace: '# ZSH_THEME="robbyrussell"'
+    # Fix slows down copy-pasting
+    - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
+      replace: 'DISABLE_MAGIC_FUNCTIONS="true"'
 
 - name: Copy p10k-lean.zsh to ~/
   file:
@@ -365,7 +382,7 @@
       alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
-      source ~/lib/oracle-cli/lib/python3.7/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
       source ~/Documents/secret_variables
 
       # Simpler prompt when using Midnight Commander
@@ -405,14 +422,11 @@
       POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
       POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
 
-      # Fix slows down copy-pasting
-      DISABLE_MAGIC_FUNCTIONS=true
-
 - name: Create ~/.zshenv with PATH variable
   copy:
     dest: ~/.zshenv
     content: |
-      PATH=${HOME}/Library/Python/3.7/bin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
+      PATH=${HOME}/Library/Python/3.8/bin:/usr/local/sbin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
       export PATH
 
 - name: Remove all Dock items
@@ -646,7 +660,6 @@
 - name: Set Aerial as default screensaver
   command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
   changed_when: false
-  tags: skip_test
 
 - name: Configure Meld
   osx_defaults:
@@ -679,7 +692,6 @@
       changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
       register: networksetup
       loop: "{{ open_wifi }}"
-      when: open_wifi is defined
 
     - name: Add WPA/WPA2 Personal wifi accounts
       command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
@@ -688,7 +700,6 @@
       loop: "{{ wpa_personal_wifi }}"
       loop_control:
         label: "{{ item.ssid }}"
-      when: wpa_personal_wifi is defined
 
     - name: Unlock keychain (needed for "security add-generic-password")
       command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
@@ -703,11 +714,11 @@
       loop: "{{ wpa_enterprise_wifi }}"
       loop_control:
         label: "{{ item.ssid }}"
-      when: wpa_enterprise_wifi is defined
 
   when: wifi_interface != ""
-  tags: user_specific
-
+  tags:
+    - user_specific
+    - secrets
 
 - name: Create Library/LaunchAgents directory for brew autoupdate
   file:
@@ -751,20 +762,29 @@
     type: bool
     value: 'false'
 
+# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/
+- name: Turn on Touch-To-Click
+  osx_defaults:
+    host: currentHost
+    domain: NSGlobalDomain
+    key: com.apple.mouse.tapBehavior
+    type: int
+    value: 1
+  become: true
+
 ############################ Interactive ############################
 
-- name: Interactive
-  pause:
-    prompt: "To continue with interactive tasks press ENTER"
-  tags: interactive
-
-- name: Install Virtualbox
+- name: Install Virtualbox - manually enable Oracle VirtualBox in "Security & Privacy" tab
   homebrew_cask:
     name: "{{ item }}"
   loop:
     - virtualbox
     - virtualbox-extension-pack
   ignore_errors: yes
+
+- name: Interactive
+  pause:
+    prompt: "To continue with interactive tasks press ENTER"
   tags: interactive
 
 - name: Run Applications which needs some manual tasks (approvals)
@@ -776,9 +796,6 @@
     - open -a Itsycal
     - open -a Rectangle
     - open -a MenuMeters
-    # Enable Oracle VirtualBox in "Security & Privacy" tab
-    - open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
-  tags: interactive
 
 - name: Allow programs to be started after login
   command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'

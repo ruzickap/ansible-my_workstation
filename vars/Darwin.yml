@@ -95,6 +95,7 @@ homebrew_packages:
 
 homebrew_casks:
   - aerial
+  - avibrazil-rdm
   - chromium
   - darktable
   - digikam
@@ -113,7 +114,6 @@ homebrew_casks:
   - meld
   - menumeters                                   # https://member.ipmu.jp/yuji.tachikawa/MenuMetersElCapitan/
   - mpv
-  - onyx
   - qbittorrent
   - rectangle                                    # https://github.com/rxhanson/Rectangle
   - slack
