@@ -150,13 +150,20 @@
     type: bool
     value: false
 
+- name: Search the current folder by default
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXDefaultSearchScope
+    type: string
+    value: "SCcf"
+
 # https://www.defaults-write.com/add-a-message-to-the-login-screen/
 - name: Add a message to the login screen
   osx_defaults:
     domain: /Library/Preferences/com.apple.loginwindow
     key: LoginwindowText
     type: string
-    value: "Mirantis"
+    value: "{{ email }}"
   become: yes
 
 # https://www.defaults-write.com/disable-screenshots-shadow-mac/
@@ -604,7 +611,7 @@
       type: bool
       value: 'false'
 
-- name: Start screensaver after 3 mins
+- name: Start screensaver after 5 mins
   osx_defaults:
     host: currentHost
     domain: com.apple.screensaver
@@ -762,25 +769,30 @@
     type: bool
     value: 'false'
 
-# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/
-- name: Turn on Touch-To-Click
+- name: Show the full URL in the address bar
   osx_defaults:
-    host: currentHost
-    domain: NSGlobalDomain
-    key: com.apple.mouse.tapBehavior
-    type: int
-    value: 1
-  become: true
+    domain: com.apple.Safari
+    key: ShowFullURLInSmartSearchField
+    type: bool
+    value: "true"
+
+- name: Show website icons in tabs
+  osx_defaults:
+    domain: com.apple.Safari
+    key: ShowIconsInTabs
+    type: bool
+    value: "true"
 
 ############################ Interactive ############################
 
 - name: Install Virtualbox - manually enable Oracle VirtualBox in "Security & Privacy" tab
   homebrew_cask:
-    name: "{{ item }}"
-  loop:
-    - virtualbox
-    - virtualbox-extension-pack
+    name: virtualbox
   ignore_errors: yes
+
+- name: Open Security & Privacy preferences
+  command: open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
+  changed_when: false
 
 - name: Interactive
   pause:
@@ -802,3 +814,10 @@
   changed_when: false
   loop: "{{ login_items_enabled }}"
   tags: interactive
+
+- name: Install VirtualBox and it's extension pack
+  homebrew_cask:
+    name: "{{ item }}"
+  loop:
+    - virtualbox
+    - virtualbox-extension-pack

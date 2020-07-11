@@ -14,7 +14,7 @@
       lineinfile:
         dest: /etc/aliases
         regexp: ^root:\s+
-        line: "root:           petr.ruzicka@gmail.com"
+        line: "root:           {{ email }}"
       notify: newaliases
       tags: user_specific
 
@@ -704,12 +704,11 @@
 # Run as user
 ###############################
 
-- name: Configure .forward to petr.ruzicka@gmail.com
-  lineinfile:
+- name: Configure .forward to {{ email }}
+  copy:
     dest: ~/.forward
-    regexp: '^petr.ruzicka@gmail.com'
-    line: 'petr.ruzicka@gmail.com'
-    create: yes
+    content: |
+      {{ email }}
   tags: user_specific
 
 - name: Configure git
@@ -735,12 +734,6 @@
         src: files/home/myusername/.config/rclone
         dest: ~/.config/
         mode: 0600
-
-    # - name: Copy syncthing configuration
-    #   copy:
-    #     src: files/home/myusername/.config/syncthing
-    #     dest: ~/.config/
-    #     mode: 0600
 
     - name: Copy asciinema configuration
       copy:
@@ -784,21 +777,21 @@
       file: Sintel.2010.1080p.mkv
     - url: https://download.blender.org/durian/subs/sintel_cz.srt
       file: Sintel.2010.1080p.srt
-  tags: skip_test
+  tags: test_data
 
 - name: Download Music test data
   unarchive:
     src: https://www.zvirecihudba.cz/albums/sound-of-the-year/Nahravka-roku_Sound-of-the-Year_mp3.zip
     dest: ~/Music/
     remote_src: yes
-  tags: skip_test
+  tags: test_data
 
 - name: Download raw fotos to ~/Pictures/
   unarchive:
     src: http://sulasula.com/lr/raw.zip
     dest: ~/Pictures/
     remote_src: yes
-  tags: skip_test
+  tags: test_data
 
 - name: Download fotos to ~/Pictures/
   get_url:
@@ -825,4 +818,4 @@
       file: sony_a9_ii_62.arw
     - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_68.arw
       file: sony_a9_ii_68.arw
-  tags: skip_test
+  tags: test_data
