@@ -1,6 +1,9 @@
 # ansible-my_workstation
 
-Configure my laptop with Ansible
+![fedora](https://github.com/ruzickap/ansible-my_workstation/workflows/fedora/badge.svg)
+![macos](https://github.com/ruzickap/ansible-my_workstation/workflows/macos/badge.svg)
+
+Configure my laptop with Ansible.
 
 ## Fedora
 
@@ -25,7 +28,7 @@ dd if=~/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=
 Boot the USB stick...
 
 After the installation finish use `xxxx` as password to unlock the Disk (LUKS)
-and login as `pruzicka` with `xxxx` password. Then run
+and login as `pruzicka` with `xxxx` password. Then run command:
 
 ```bash
 /var/tmp/run.sh
@@ -38,13 +41,13 @@ Install new MacOS Catalina 10.5 and enable ssh server:
 * System Preferences from the Apple menu -> System Preferences -> Sharing
   -> Remote Login (checkbox)
 
-You can also use command line way:
+You can also do it the command line way:
 
 ```bash
 sudo systemsetup -setremotelogin on
 ```
 
-Use [Ansible](https://www.ansible.com/) to install the software:
+Use [Ansible](https://www.ansible.com/) to install+configure the software:
 
 ```bash
 ./run_ansible_macos_workstation-local.sh
