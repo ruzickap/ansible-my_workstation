@@ -12,7 +12,6 @@ on:
       - tasks/common.yml
       - vars/Linux.yml
       - vars/common.yml
-      - vars/secrets.yml.vault
   push:
     branches:
       - master
@@ -25,7 +24,6 @@ on:
       - tasks/common.yml
       - vars/Linux.yml
       - vars/common.yml
-      - vars/secrets.yml.vault
 
 env:
   MYUSER: pruzicka
@@ -59,8 +57,3 @@ jobs:
       - name: Ansible
         run: |
           ansible-playbook --user="${MYUSER}" --skip-tags secrets,interactive,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD} ansible_python_interpreter=/usr/bin/python3" main.yml -i "127.0.0.1,"
-
-      - name: Destroy VM
-        if: ${{ always() }}
-        run: |
-          vagrant destroy --force

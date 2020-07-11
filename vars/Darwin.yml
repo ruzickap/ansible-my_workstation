@@ -1,4 +1,4 @@
-login_picture_url: https://www.gravatar.com/avatar/{{ 'petr.ruzicka@gmail.com' | hash('md5') }}?s=500
+login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500
 
 # Items to add to the dock
 dock_add_items:
@@ -100,22 +100,23 @@ homebrew_casks:
   - darktable
   - digikam
   - firefox
-  - fluor                                        # https://github.com/Pyroh/Fluor
+  - fluor                                        # Automatically change the behavior of the keyboard's fn keys
   - gpxsee
   - homebrew/cask-fonts/font-meslolg-nerd-font   # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
   - iterm2
-  - itsycal                                      # https://www.mowglii.com/itsycal/
+  - itsycal                                      # Tiny menu bar calendar
   - jdownloader
-  - kap                                          # Capture screen https://getkap.co/
+  - kap                                          # Screen recorder
   - keepassxc
-  - keepingyouawake                              # https://github.com/newmarcel/KeepingYouAwake
+  - keepingyouawake                              # Prevents your Mac from going to sleep
   - mactex-no-gui
   - meld
-  - menumeters                                   # https://member.ipmu.jp/yuji.tachikawa/MenuMetersElCapitan/
+  - menumeters                                   # Set of CPU, memory, disk, and network monitoring tools for Mac OS X
   - mpv
   - qbittorrent
-  - rectangle                                    # https://github.com/rxhanson/Rectangle
+  - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
+  - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
   - slack
   - vagrant
   - vagrant-manager
