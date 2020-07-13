@@ -29,7 +29,7 @@
 
     - name: Install packages
       dnf:
-        name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages}}"
+        name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
 
     - name: Install rpmfusion repositories
       dnf:
@@ -573,7 +573,9 @@
     - Pictures
 
 - name: Install Homebrew
-  shell: echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  shell: |
+    set -o pipefail
+    echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   args:
     creates: /home/linuxbrew/.linuxbrew/bin/brew
 

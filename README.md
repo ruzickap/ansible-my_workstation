@@ -49,3 +49,12 @@ Use [Ansible](https://www.ansible.com/) to install the software:
 ```bash
 ./run_ansible_macos_workstation-local.sh
 ```
+
+### Configurations which needs to be done manually
+
+There are few things which can not be done via scripts and must be done
+manually in Catalina:
+
+* Tap to click configuration: [https://osxdaily.com/2014/01/28/enable-tap-to-click-mac-trackpad/](https://osxdaily.com/2014/01/28/enable-tap-to-click-mac-trackpad/)
+* Internet accounts
+* Google Chrome
