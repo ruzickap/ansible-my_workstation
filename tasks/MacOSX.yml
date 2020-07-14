@@ -1,5 +1,7 @@
 - name: Get IOPlatformUUID / Hardware UUID
-  shell: ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/ { print $(NF-1) }'
+  shell: |
+    set -o pipefail
+    ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/ { print $(NF-1) }'
   changed_when: false
   register: ioreg_output
 
@@ -8,7 +10,9 @@
     huuid: "{{ ioreg_output.stdout }}"
 
 - name: Get wi-fi interface
-  shell: networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; print $2 }'
+  shell: |
+    set -o pipefail
+    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; print $2 }'
   register: networksetup
   changed_when: false
 
@@ -51,7 +55,9 @@
   become: true
 
 - name: Install Homebrew
-  shell: echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  shell: |
+    set -o pipefail
+    echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   args:
     creates: /usr/local/bin/brew
 
@@ -341,10 +347,20 @@
     - /usr/local/share/zsh/site-functions
     - /usr/local/share/zsh
 
-- name: Install fzf
-  shell: yes | /usr/local/opt/fzf/install
-  args:
-    creates: ~/.fzf.zsh
+- name: Put fzf configuration in place (~/.fzf.zsh)
+  copy:
+    dest: ~/.fzf.zsh
+    content: |
+      # Setup fzf
+      if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
+        export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
+      fi
+
+      # Auto-completion
+      [[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
+
+      # Key bindings
+      source "/usr/local/opt/fzf/shell/key-bindings.zsh"
 
 - name: Chnage ~/.zshrc
   replace:
@@ -389,6 +405,7 @@
       alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
+      source ~/.fzf.zsh
       source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
       source ~/Documents/secret_variables
 
@@ -442,7 +459,7 @@
   notify: Restart Dock
 
 - name: Add Dock items
-  shell: dockutil --add '{{ item }}' --no-restart
+  command: dockutil --add '{{ item }}' --no-restart
   register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
@@ -722,7 +739,7 @@
       loop_control:
         label: "{{ item.ssid }}"
 
-  when: wifi_interface != ""
+  when: wifi_interface
   tags:
     - user_specific
     - secrets
@@ -782,6 +799,32 @@
     key: ShowIconsInTabs
     type: bool
     value: "true"
+
+# https://github.com/mathiasbynens/custom.keylayout/issues/7
+- name: Add Czech keyboard
+  osx_defaults:
+    domain: com.apple.HIToolbox
+    key: AppleEnabledInputSources
+    type: array
+    value:
+      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>0</integer><key>KeyboardLayout Name</key><string>U.S.</string></dict>'
+      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>30778</integer><key>KeyboardLayout Name</key><string>Czech-QWERTY</string></dict>'
+  changed_when: false
+
+- name: Automatically keep my Mac up to date
+  osx_defaults:
+    domain: "{{ item.domain }}"
+    key: "{{ item.key }}"
+    type: bool
+    value: "true"
+  loop:
+    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
+      key: AutomaticallyInstallMacOSUpdates
+    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
+      key: AutomaticCheckEnabled
+    - domain: /Library/Preferences/com.apple.commerce.plist
+      key: AutoUpdate
+  become: yes
 
 ############################ Interactive ############################
 
