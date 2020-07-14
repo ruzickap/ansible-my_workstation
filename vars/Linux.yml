@@ -253,6 +253,7 @@ homebrew:
   - aws-iam-authenticator #
   - azure-cli             # many dependencies
   - diff-so-fancy         #
+  - fd
   - gh                    #
   - hadolint              # gmp
   - helm                  #

@@ -42,6 +42,7 @@ homebrew_packages:
   - diff-so-fancy
   - dockutil                                     # Command line tool for managing dock items
   - exa
+  - fd
   - fdupes                                       # pcre2
   - fzf
   - gh
