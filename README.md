@@ -61,3 +61,4 @@ manually in Catalina:
 * Tap to click configuration: [https://osxdaily.com/2014/01/28/enable-tap-to-click-mac-trackpad/](https://osxdaily.com/2014/01/28/enable-tap-to-click-mac-trackpad/)
 * Internet accounts
 * Google Chrome
+* Enable Night Shift

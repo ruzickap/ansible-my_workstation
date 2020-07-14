@@ -115,7 +115,9 @@ homebrew_casks:
   - menumeters                                   # Set of CPU, memory, disk, and network monitoring tools for Mac OS X
   - mpv
   - qbittorrent
+  - qlmarkdown                                   # QuickLook generator for Markdown files
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
+  - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
   - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
   - slack
   - vagrant

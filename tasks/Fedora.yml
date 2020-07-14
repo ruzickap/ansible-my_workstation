@@ -397,7 +397,6 @@
             remote_src: yes
             mode: 0755
             dest: /usr/local/bin/caddy
-
       when: not caddy.stat.exists
 
     - name: Get caddy systemd service file
@@ -555,7 +554,6 @@
       ignore_errors: true
       changed_when: false
       tags: secrets
-
   become: true
 
 ###############################

@@ -28,6 +28,7 @@ on:
 jobs:
   macos-test:
     runs-on: macos-latest
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v2
 
