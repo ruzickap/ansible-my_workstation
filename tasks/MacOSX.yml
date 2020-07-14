@@ -40,15 +40,15 @@
         value: "{{ my_hostname.split('.')[0] }}"
       changed_when: false
 
-    - name: "Set hibernation mode to not back memory up to persistent storage"
-      command: "pmset -a hibernatemode 0"
+    - name: Set hibernation mode to not back memory up to persistent storage
+      command: pmset -a hibernatemode 0
       changed_when: false
 
-    - name: "Prevent MacOS from sleeping"
+    - name: Prevent MacOS from sleeping
       command: pmset -a sleep 0
       changed_when: false
 
-    - name: "Turn display off after 1 hour when running on power adapter"
+    - name: Turn display off after 1 hour when running on power adapter
       command: pmset -a displaysleep 60
       changed_when: false
 
@@ -738,7 +738,6 @@
       loop: "{{ wpa_enterprise_wifi }}"
       loop_control:
         label: "{{ item.ssid }}"
-
   when: wifi_interface
   tags:
     - user_specific
@@ -826,41 +825,74 @@
       key: AutoUpdate
   become: yes
 
+- name: Enable File Sharing (Samba)
+  command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
+  changed_when: '"service already loaded" not in launchctl_smbd.stdout'
+  register: launchctl_smbd
+  become: yes
+
+- name: Get list of all shared directories
+  command: sharing -l
+  changed_when: false
+  register: sharing
+
+# https://krypted.com/mac-os-x-server/setup-file-sharing-service-macos-10-13-high-sierra/
+- name: Share directories
+  command: sharing -a {{ item }} -g 000 -A {{ item | basename }}
+  when: item not in sharing.stdout
+  loop:
+    - "{{ ansible_user_dir }}/Music"
+  become: yes
+
+# https://krypted.com/mac-os-x/enable-smb-sharing-specified-users-macos/
+- name: Allow SMB to use user passwords
+  command: pwpolicy -u {{ ansible_user_id }} -sethashtypes SMB-NT on
+  changed_when: false
+  become: yes
+
 ############################ Interactive ############################
 
-- name: Install Virtualbox - manually enable Oracle VirtualBox in "Security & Privacy" tab
-  homebrew_cask:
-    name: virtualbox
-  ignore_errors: yes
+- name: Check if VirtualBox is installed
+  stat:
+    path: /usr/local/bin/virtualbox
+  register: stat_virtualbox
 
-- name: Open Security & Privacy preferences
-  command: open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
-  changed_when: false
+- name: Interactive tasks (skip if VirtualBox was already installed)
+  block:
+    - name: Install Virtualbox - manually enable Oracle VirtualBox in "Security & Privacy" tab
+      homebrew_cask:
+        name: virtualbox
+      ignore_errors: yes
 
-- name: Interactive
-  pause:
-    prompt: "To continue with interactive tasks press ENTER"
-  tags: interactive
+    - name: Open Security & Privacy preferences
+      command: open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
+      changed_when: false
 
-- name: Run Applications which needs some manual tasks (approvals)
-  command: "{{ item }}"
-  changed_when: false
-  loop:
-    - chromium --make-default-browser
-    - open -a Fluor
-    - open -a Itsycal
-    - open -a Rectangle
-    - open -a MenuMeters
+    - name: Interactive
+      pause:
+        prompt: "To continue with interactive tasks press ENTER"
+      tags: interactive
 
-- name: Allow programs to be started after login
-  command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
-  changed_when: false
-  loop: "{{ login_items_enabled }}"
-  tags: interactive
+    - name: Run Applications which needs some manual tasks (approvals)
+      command: "{{ item }}"
+      changed_when: false
+      loop:
+        - chromium --make-default-browser
+        - open -a Fluor
+        - open -a Itsycal
+        - open -a Rectangle
+        - open -a MenuMeters
 
-- name: Install VirtualBox and it's extension pack
-  homebrew_cask:
-    name: "{{ item }}"
-  loop:
-    - virtualbox
-    - virtualbox-extension-pack
+    - name: Allow programs to be started after login
+      command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
+      changed_when: false
+      loop: "{{ login_items_enabled }}"
+      tags: interactive
+
+    - name: Install VirtualBox and it's extension pack
+      homebrew_cask:
+        name: "{{ item }}"
+      loop:
+        - virtualbox
+        - virtualbox-extension-pack
+  when: not stat_virtualbox.stat.exists

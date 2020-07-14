@@ -759,7 +759,6 @@
       loop:
         - keepass2.kdbx
         - keepass.key
-
   tags:
     - secrets
     - user_specific
@@ -818,4 +817,13 @@
       file: sony_a9_ii_62.arw
     - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_68.arw
       file: sony_a9_ii_68.arw
+  tags: test_data
+
+- name: Download Documents
+  get_url:
+    url: "{{ item.url }}"
+    dest: "~/Documents/{{ item.url | basename }}"
+  loop:
+    - url: https://raw.githubusercontent.com/whomwah/qlstephen/master/LICENSE
+    - url: https://raw.githubusercontent.com/toland/qlmarkdown/master/sample.md
   tags: test_data
