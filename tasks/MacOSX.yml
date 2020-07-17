@@ -475,6 +475,13 @@
     - key: launchOnLogin
       value: 1
 
+- name: Skip main menu when Menumeters starts
+  osx_defaults:
+    domain: com.yujitach.MenuMeters
+    key: v2.0.7alertPresented
+    type: bool
+    value: 'true'
+
 - name: Configure MenuMeters
   osx_defaults:
     domain: com.ragingmenace.MenuMeters
@@ -881,7 +888,6 @@
         - open -a Fluor
         - open -a Itsycal
         - open -a Rectangle
-        - open -a MenuMeters
 
     - name: Allow programs to be started after login
       command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'

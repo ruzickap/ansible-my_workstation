@@ -217,6 +217,7 @@ dnf_qt_packages:
   - wireshark
 
 dnf_kde_packages:
+  - colord-kde
   - digikam
   - dolphin
   - gwenview
