@@ -112,7 +112,6 @@
     key: NSNavPanelExpandedStateForSaveMode
     type: bool
     value: true
-  notify: Refresh UI
 
 # https://www.mactrast.com/2017/03/show-status-bar-finder-macos-sierra/
 - name: Show status bar
@@ -121,7 +120,6 @@
     key: ShowStatusBar
     type: bool
     value: true
-  notify: Refresh UI
 
 # https://www.techjunkie.com/show-path-finder-title-bar/
 - name: Show path bar
@@ -130,7 +128,6 @@
     key: ShowPathbar
     type: bool
     value: true
-  notify: Refresh UI
 
 # https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
 - name: Use list view in all Finder windows by default
@@ -138,7 +135,6 @@
     domain: com.apple.finder
     key: FXPreferredViewStyle
     value: Nlsv
-  notify: Refresh UI
 
 # https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
 - name: Display full posix path in Finder title Bar
@@ -210,7 +206,6 @@
     key: orientation
     type: string
     value: left
-  notify: Restart Dock
 
 - name: Set the icon size of Dock items to {{ dock_icons_size }} pixels
   osx_defaults:
@@ -218,7 +213,6 @@
     key: tilesize
     type: float
     value: "{{ dock_icons_size }}"
-  notify: Restart Dock
 
 - name: Automatically hide and show the Dock
   osx_defaults:
@@ -226,7 +220,6 @@
     key: autohide
     type: bool
     value: true
-  notify: Restart Dock
 
 # https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
 - name: Start screenserver in bottom right corner
@@ -235,14 +228,12 @@
     key: wvous-br-corner
     type: int
     value: 5
-  notify: Restart Dock
 
 - name: Expand print panel by default
   osx_defaults:
     key: PMPrintingExpandedStateForPrint2
     type: bool
     value: true
-  notify: Refresh UI
 
 - name: Language & Region settings
   osx_defaults:
@@ -280,7 +271,6 @@
     type: string
     value: "d MMM H:mm"
   changed_when: false
-  notify: Refresh UI
 
 # https://osxdaily.com/2018/10/22/hide-show-recent-apps-mac-dock/
 - name: Hide 'recent applications' from dock
@@ -289,7 +279,6 @@
     key: show-recents
     type: bool
     value: "false"
-  notify: Restart Dock
 
 - name: Do not show the keyboard layout in status bar
   osx_defaults:
@@ -303,7 +292,6 @@
     key: AppleShowScrollBars
     type: string
     value: Always
-  notify: Refresh UI
 
 - name: Download Picture which will be used as login "Picture"
   get_url:
@@ -456,14 +444,12 @@
 - name: Remove all Dock items
   command: dockutil --remove all --no-restart
   changed_when: false
-  notify: Restart Dock
 
 - name: Add Dock items
   command: dockutil --add '{{ item }}' --no-restart
   register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
-  notify: Restart Dock
 
 - name: Configure Rectangle
   osx_defaults:
@@ -755,7 +741,7 @@
     path: ~/Library/LaunchAgents
     state: directory
 
-#https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
+# https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
 - name: Install brew autoupdate
   command: brew autoupdate --start --upgrade --enable-notification
   args:
