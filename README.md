@@ -53,6 +53,8 @@ Use [Ansible](https://www.ansible.com/) to install+configure the software:
 ./run_ansible_macos_workstation-local.sh
 ```
 
+Logout or better restart your MacOS.
+
 ### Configurations which needs to be done manually
 
 There are few things which can not be done via scripts and must be done
