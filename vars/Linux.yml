@@ -266,7 +266,6 @@ homebrew:
   - packer                #
   - pre-commit            # libyaml
   - speedtest-cli         #
-  - termtosvg             # libxml2 and libxslt
   - terraform             #
 
 homebrew_taps:
