@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DESTINATION_IP="172.19.84.77"
+DESTINATION_IP="172.19.84.75"
 MYUSER="pruzicka"
 PASSWORD="xxxx"
 
