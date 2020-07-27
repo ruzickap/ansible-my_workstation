@@ -63,6 +63,7 @@ homebrew_packages:
   - krew                                         # kubernetes-cli
   - kubectl
   - lftp                                         # libidn, openssl@1.1 and readline
+  - mas
   - mc                                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
   - nmap                                         # openssl@1.1
   - npm                                          # icu4c
@@ -79,7 +80,6 @@ homebrew_packages:
   - tektoncd/tools/tektoncd-cli
   - telnet
   - terminal-notifier                            # needed for the brew autoupdate
-  - termtosvg                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - terraform
   - tig                                          # readline
   - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc

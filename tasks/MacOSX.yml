@@ -1,13 +1,21 @@
-- name: Get IOPlatformUUID / Hardware UUID
+# - name: Get IOPlatformUUID / Hardware UUID
+#   shell: |
+#     set -o pipefail
+#     ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/ { print $(NF-1) }'
+#   changed_when: false
+#   register: ioreg_output
+
+- name: Get GeneratedUID for the current user
   shell: |
     set -o pipefail
-    ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/ { print $(NF-1) }'
+    dscl . -read /Users/{{ ansible_user_id }}/ GeneratedUID | awk '{ print $2 }'
   changed_when: false
-  register: ioreg_output
+  register: dscl_output
 
-- name: Set fact
+- name: Set facts
   set_fact:
-    huuid: "{{ ioreg_output.stdout }}"
+    # huuid: "{{ ioreg_output.stdout }}"
+    generateduid: "{{ dscl_output.stdout }}"
 
 - name: Get wi-fi interface
   shell: |
@@ -816,6 +824,20 @@
       key: AutomaticCheckEnabled
     - domain: /Library/Preferences/com.apple.commerce.plist
       key: AutoUpdate
+  become: yes
+
+# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
+- name: Enable tap-to-click
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: Clicking
+    type: int
+    value: 1
+
+# https://www.moldvan.com/keeping-night-shift-on-in-osx/
+- name: Enable Night Shift
+  command: /usr/libexec/PlistBuddy -c "Set :CBUser-{{ generateduid }}:CBBlueReductionStatus:BlueReductionMode 1" /private/var/root/Library/Preferences/com.apple.CoreBrightness.plist
+  changed_when: false
   become: yes
 
 - name: Enable File Sharing (Samba)
