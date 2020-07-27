@@ -52,12 +52,18 @@
       command: pmset -a hibernatemode 0
       changed_when: false
 
+    # https://medium.com/macoclock/how-to-prevent-macos-catalina-from-sleeping-when-connected-to-an-external-monitor-e2c876dadaf9
     - name: Prevent MacOS from sleeping
-      command: pmset -a sleep 0
+      command: pmset disablesleep 1
       changed_when: false
 
+    # https://eclecticlight.co/2017/01/20/power-management-in-detail-using-pmset/
     - name: Turn display off after 1 hour when running on power adapter
       command: pmset -a displaysleep 60
+      changed_when: false
+
+    - name: Turn display off after 5 minutes when running on battery
+      command: pmset -b displaysleep 5
       changed_when: false
 
   become: true
@@ -839,6 +845,8 @@
   command: /usr/libexec/PlistBuddy -c "Set :CBUser-{{ generateduid }}:CBBlueReductionStatus:BlueReductionMode 1" /private/var/root/Library/Preferences/com.apple.CoreBrightness.plist
   changed_when: false
   become: yes
+  # The file above doesn't exists in GitHub's MacOS instance
+  tags: skip_test
 
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
