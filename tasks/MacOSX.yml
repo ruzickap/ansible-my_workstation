@@ -891,11 +891,6 @@
       command: open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
       changed_when: false
 
-    - name: Interactive
-      pause:
-        prompt: "To continue with interactive tasks press ENTER"
-      tags: interactive
-
     - name: Run Applications which needs some manual tasks (approvals)
       command: "{{ item }}"
       changed_when: false
@@ -909,6 +904,11 @@
       command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
       changed_when: false
       loop: "{{ login_items_enabled }}"
+      tags: interactive
+
+    - name: Interactive
+      pause:
+        prompt: "To continue with interactive tasks press ENTER"
       tags: interactive
 
     - name: Install VirtualBox and it's extension pack

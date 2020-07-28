@@ -735,6 +735,12 @@
         dest: ~/.config/
         mode: 0600
 
+    - name: Copy gh configuration
+      copy:
+        src: files/home/myusername/.config/gh
+        dest: ~/.config/
+        mode: 0600
+
     - name: Copy asciinema configuration
       copy:
         src: files/home/myusername/.config/asciinema
