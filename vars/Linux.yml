@@ -22,10 +22,6 @@ vagrant_plugins:
   - vagrant-hostmanager
   - vagrant-libvirt
 
-caddy_plugins:
-  - http.webdav
-  - tls.dns.cloudflare
-
 fstab_entries:
   - name: "/mnt/winxp"
     src: "//192.168.124.71/test"
@@ -35,18 +31,6 @@ fstab_entries:
     src: "LABEL=data"
     fstype: "xfs"
     opts: "noatime,nodiratime,noauto"
-  - name: "/var/www/peru.xvx.cz/files/music"
-    src: "{{ ansible_user_dir }}/Music"
-    fstype: "none"
-    opts: "defaults,bind"
-  - name: "/var/www/peru.xvx.cz/files/iso"
-    src: "{{ ansible_user_dir }}/Documents/iso"
-    fstype: "none"
-    opts: "defaults,bind"
-  - name: "/var/www/peru.xvx.cz/files/videos"
-    src: "{{ ansible_user_dir }}/Videos"
-    fstype: "none"
-    opts: "defaults,bind"
   - name: "/mnt/raspi/movies"
     src: "//192.168.1.2/movies-rw"
     fstype: "cifs"
@@ -237,7 +221,7 @@ dnf_kde_packages:
 
 dnf_additional_packages:
   - akmod-VirtualBox                                   # X
-  - codium
+  - code
   - gbt
   - gstreamer1-libav                                   # X
   - kdenlive

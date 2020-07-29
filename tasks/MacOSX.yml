@@ -649,7 +649,7 @@
   osx_defaults:
     domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
     key: "{{ item.key }}"
-    type: "{{ item.type }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
     value: "{{ item.value }}"
   loop:
     - key: intVideoFormat
@@ -665,19 +665,17 @@
       type: int
       value: 3
     - key: checkForUpdates
-      type: bool
       value: "false"
     - key: updateWhileSaverMode
-      type: bool
       value: "false"
     - key: debugMode
-      type: bool
       value: "false"
     - key: updateWhileSaverMode
-      type: bool
       value: "false"
+    - key: timeMode
+      type: int
+      value: 1
     - key: logToDisk
-      type: bool
       value: "false"
 
 - name: Configure Aerial 2

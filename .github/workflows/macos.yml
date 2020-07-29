@@ -39,4 +39,4 @@ jobs:
       - name: Run Ansible
         run: |
           echo "test_password" > vault-my_workstation.password
-          ansible-playbook --skip-tags secrets,interactive,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
