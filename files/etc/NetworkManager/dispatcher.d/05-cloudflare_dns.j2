@@ -1,11 +1,12 @@
-#!/usr/bin/sh
+#jinja2:variable_start_string:'[%' , variable_end_string:'%]'
+#!/usr/bin/env sh
 
 INTERFACE="$1"
 EVENT="$2"
 
 # shellcheck disable=SC1091
 if echo "$INTERFACE" | grep -q -E '(^wlp|^enp)' && [ "$EVENT" = "up" ]; then
-  . /etc/caddy/envfile
+  . /home/[% ansible_user_id %]/Documents/secret_variables
   ansible -m setup -c local -i "localhost," localhost -a 'filter=ansible_default_ipv?' --tree /tmp/
   test "$(jq -r '.ansible_facts.ansible_default_ipv4.address' /tmp/localhost)" != "null" && ansible -m cloudflare_dns -c local -i "localhost," localhost --extra-vars @/tmp/localhost -a "zone=xvx.cz record=peru type=A value={{ ansible_facts.ansible_default_ipv4.address }} solo=true proxied=no account_email=${CLOUDFLARE_EMAIL} account_api_token=${CLOUDFLARE_API_KEY}" > /tmp/cloudflare_dns
   rm /tmp/localhost

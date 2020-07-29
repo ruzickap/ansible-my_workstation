@@ -35,17 +35,17 @@
       dnf:
         name: "{{ rpmfusion_repositories }}"
 
-    - name: Import key for Codium repository
+    - name: Import key for VS Code repository
       rpm_key:
-        key: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+        key: https://packages.microsoft.com/keys/microsoft.asc
 
-    - name: Add Codium repository
+    - name: Add VS Code repository
       yum_repository:
-        name: gitlab.com_paulcarroty_vscodium_repo
-        description: gitlab.com_paulcarroty_vscodium_repo
-        baseurl: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/repos/rpms/
+        name: vscode
+        description: Visual Studio Code
+        baseurl: https://packages.microsoft.com/yumrepos/vscode
         gpgcheck: yes
-        gpgkey: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
 
     - name: Add gbt repository
       yum_repository:
@@ -362,97 +362,6 @@
           alias unix2dos="awk 'sub(\"$\",\"\r\")' "
           alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
 
-    # - name: Add caddy group
-    #   group:
-    #     name: caddy
-    #     system: yes
-
-    # - name: Add caddy user
-    #   user:
-    #     name: caddy
-    #     shell: /sbin/nologin
-    #     home: /var/lib/caddy
-    #     create_home: no
-    #     password: '!'
-    #     comment: Caddy web server
-    #     group: caddy
-    #     system: yes
-
-    # - name: Check if /usr/local/bin/caddy exixts
-    #   stat:
-    #     path: /usr/local/bin/caddy
-    #   register: caddy
-
-    # - block:
-    #     - name: Download and install latest caddy
-    #       unarchive:
-    #         src: https://caddyserver.com/download/linux/amd64?license=personal&plugins={{ caddy_plugins | join(',') }}
-    #         dest: /tmp/
-    #         remote_src: yes
-    #         creates: /usr/local/bin/caddy
-
-    #     - name: Move caddy binary to /usr/local/bin
-    #       copy:
-    #         src: /tmp/caddy
-    #         remote_src: yes
-    #         mode: 0755
-    #         dest: /usr/local/bin/caddy
-    #   when: not caddy.stat.exists
-
-    # - name: Get caddy systemd service file
-    #   template:
-    #     src: files/etc/systemd/system/caddy.service.j2
-    #     dest: /etc/systemd/system/caddy.service
-    #   notify: reload systemctl
-
-    # - name: Create systemd symlink for service caddy
-    #   file:
-    #     src: /etc/systemd/system/caddy.service
-    #     dest: /etc/systemd/system/multi-user.target.wants/caddy.service
-    #     state: link
-    #   notify: reload systemctl
-
-    # - name: Create /etc/caddy/conf.d directory
-    #   file:
-    #     path: /etc/caddy/conf.d
-    #     state: directory
-
-    # - name: Create /var/lib/caddy directory
-    #   file:
-    #     path: /var/lib/caddy
-    #     owner: caddy
-    #     group: caddy
-    #     mode: "u=rwx,g=rx,o="
-    #     state: directory
-
-    # - name: Add Caddy config files to /etc/caddy/
-    #   template:
-    #     src: "{{ item.src }}"
-    #     dest: "{{ item.dest }}"
-    #     mode: 0644
-    #   loop:
-    #     - src: files/etc/caddy/conf.d/ansible_fqdn.conf.j2
-    #       dest: /etc/caddy/conf.d/{{ ansible_fqdn }}.conf
-    #     - src: files/etc/caddy/caddy.conf.j2
-    #       dest: /etc/caddy/caddy.conf
-    #     - src: files/etc/caddy/envfile.j2
-    #       dest: /etc/caddy/envfile
-    #   tags: secrets
-
-    - name: Create html directory for web pages
-      file:
-        path: /var/www/{{ ansible_fqdn }}
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        recurse: yes
-        state: directory
-      changed_when: false
-
-    - name: Upload index.html into web space
-      copy:
-        dest: /var/www/{{ ansible_fqdn }}/index.html
-        content: Nothing is here...
-
     - name: Configure NTP
       ini_file:
         path: /etc/systemd/timesyncd.conf
@@ -463,8 +372,8 @@
       notify: reload systemctl
 
     - name: Add CloudFlare DNS update script for NetworkManager
-      copy:
-        src: files/etc/NetworkManager/dispatcher.d/05-cloudflare_dns
+      template:
+        src: files/etc/NetworkManager/dispatcher.d/05-cloudflare_dns.j2
         dest: /etc/NetworkManager/dispatcher.d/05-cloudflare_dns
         mode: 0755
 

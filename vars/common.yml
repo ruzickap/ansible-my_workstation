@@ -1,10 +1,31 @@
 my_hostname: peru.xvx.cz
 email: petr.ruzicka@gmail.com
 
+# Directory where there are all the data (usually $HOME)
+data_source_dir: "~"
+
 github_username: ruzickap
 
-codium_extensions:
-  - adammaras.overtype
+# The directories which should be copy over
+home_data_directories:
+  - .ansible
+  - .ansible.cfg
+  - .aws
+  - .azure
+  - .bash_history
+  - .gnupg
+  - .lftp
+  - .oci
+  - .purple
+  - .ssh
+  - Documents # aaa
+  - Music
+  - Pictures # aaa
+  - Videos
+  - bin
+  - git
+
+code_extensions:
   - davidanson.vscode-markdownlint
   - dhoeric.ansible-vault
   - donjayamanne.githistory
@@ -13,7 +34,6 @@ codium_extensions:
   - haaaad.ansible
   - henriiik.vscode-sort
   - james-yu.latex-workshop
-  - lextudio.restructuredtext
   - marcostazi.VS-code-vagrantfile
   - HashiCorp.terraform
   - mde.select-highlight-minimap

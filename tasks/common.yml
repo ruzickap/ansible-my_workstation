@@ -143,6 +143,7 @@
       authorized_key:
         user: "{{ item }}"
         key: https://github.com/{{ github_username }}.keys
+        comment: "{{ email }}"
       loop:
         - root
         - "{{ ansible_user_id }}"
@@ -428,7 +429,7 @@
       value: "{{ ansible_user_dir }}/Documents/keepass2.kdbx"
     - section: General
       option: LastKeyFiles
-      value: '@Variant(\0\0\0\x1c\0\0\0\x2\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
+      value: '@Variant(\0\0\0\x1c\0\0\0\x3\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0L\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0H\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
     - section: General
       option: SSHAgent
       value: 'true'
@@ -675,16 +676,15 @@
       option: Non-Destructive Editing Enabled
       value: 'false'
 
-- name: Put VSCodium configuation in place
+- name: Put VS Code configuation in place
   copy:
-    src: files/home/myusername/.config/VSCodium
+    src: files/home/myusername/.config/Code
     dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
 
-# Not working right now (2020-07-01)
-# - name: Install the VSCodium extensions
-#   command: code --install-extension {{ item }}
-#   changed_when: false
-#   loop: "{{ codium_extensions }}"
+- name: Install the VS Code extensions
+  command: code --install-extension {{ item }}
+  changed_when: false
+  loop: "{{ code_extensions }}"
 
 - name: Install npm packages
   npm:
@@ -723,12 +723,6 @@
 
 - name: Secrets
   block:
-    - name: Copy oci directory to home
-      copy:
-        src: files/home/myusername/.oci
-        dest: ~/
-        mode: preserve
-
     - name: Copy rclone configuration
       copy:
         src: files/home/myusername/.config/rclone
@@ -751,22 +745,42 @@
     # Secrets coppied from local disk
     ###################################################
 
+    # Needed for shell (zsh/bash)
     - name: Copy ~/Documents/secret_variables
       copy:
-        src: ~/data/secret_variables
+        src: "{{ data_source_dir }}/Documents/secret_variables"
         dest: ~/Documents/secret_variables
         mode: 0600
+      tags: data
 
     - name: Copy KeePass data
       copy:
-        src: ~/data/{{ item }}
+        src: "{{ data_source_dir }}/Documents/{{ item }}"
         dest: ~/Documents/{{ item }}
         mode: 0600
       loop:
         - keepass2.kdbx
         - keepass.key
+      tags: data
+
+  no_log: true
   tags:
     - secrets
+    - user_specific
+
+###################################################
+# Data
+###################################################
+
+- name: Copy data (this will take a long time)
+  synchronize:
+    src: "{{ data_source_dir }}/{{ item }}"
+    dest: ~/
+    rsync_opts:
+      - "--quiet"
+  loop: "{{ home_data_directories }}"
+  tags:
+    - data
     - user_specific
 
 ###############################

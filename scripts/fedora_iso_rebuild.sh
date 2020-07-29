@@ -1,4 +1,6 @@
-#!/bin/bash -eux
+#!/usr/bin/env bash
+
+set -eux
 
 TMP_ISO="/tmp/iso"
 TMP_ISO2="/tmp/iso2"
