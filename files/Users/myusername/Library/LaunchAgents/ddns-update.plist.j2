@@ -1,0 +1,42 @@
+#jinja2:variable_start_string:'[%' , variable_end_string:'%]'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+
+    <key>Label</key>
+    <string>local.ddns-update</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>CLOUDFLARE_EMAIL</key>
+      <string>[% cloudflare_email %]</string>
+      <key>CLOUDFLARE_API_KEY</key>
+      <string>[% cloudflare_api_key %]</string>
+    </dict>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>bash</string>
+        <string>-c</string>
+        <string>/usr/local/bin/ansible -m setup -c local -i "localhost," localhost -a 'filter=ansible_default_ipv?' --tree /tmp/ ; test "$(/usr/local/bin/jq -r '.ansible_facts.ansible_default_ipv4.address' /tmp/localhost)" != "null" && /usr/local/bin/ansible -m cloudflare_dns -c local -i "localhost," localhost --extra-vars @/tmp/localhost -a "zone=[% my_hostname.split('.', 1)[1] %] record=[% my_hostname.split('.')[0] %] type=A value={{ ansible_facts.ansible_default_ipv4.address }} solo=true proxied=no account_email=${CLOUDFLARE_EMAIL} account_api_token=${CLOUDFLARE_API_KEY}"</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+      <string>/etc/resolv.conf</string>
+      <string>/Library/Preferences/SystemConfiguration/NetworkInterfaces.plist</string>
+      <string>/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/ddns-update.log</string>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/ddns-update.log</string>
+
+  </dict>
+</plist>
