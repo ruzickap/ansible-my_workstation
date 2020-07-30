@@ -787,63 +787,63 @@
 # Test data
 ###############################
 
-- name: Download Sintel movie
-  get_url:
-    url: "{{ item.url }}"
-    dest: ~/Movies/{{ item.file }}
-  loop:
-    - url: http://ftp.nluug.nl/pub/graphics/blender/demo/movies/Sintel.2010.1080p.mkv
-      file: Sintel.2010.1080p.mkv
-    - url: https://download.blender.org/durian/subs/sintel_cz.srt
-      file: Sintel.2010.1080p.srt
-  tags: test_data
+- name: Test data
+  block:
+    - name: Download Sintel movie
+      get_url:
+        url: "{{ item.url }}"
+        dest: ~/Movies/{{ item.file }}
+      loop:
+        - url: http://ftp.nluug.nl/pub/graphics/blender/demo/movies/Sintel.2010.1080p.mkv
+          file: Sintel.2010.1080p.mkv
+        - url: https://download.blender.org/durian/subs/sintel_cz.srt
+          file: Sintel.2010.1080p.srt
 
-- name: Download Music test data
-  unarchive:
-    src: https://www.zvirecihudba.cz/albums/sound-of-the-year/Nahravka-roku_Sound-of-the-Year_mp3.zip
-    dest: ~/Music/
-    remote_src: yes
-  tags: test_data
+    - name: Download Music test data
+      unarchive:
+        src: https://www.zvirecihudba.cz/albums/sound-of-the-year/Nahravka-roku_Sound-of-the-Year_mp3.zip
+        dest: ~/Music/
+        remote_src: yes
 
-- name: Download raw fotos to ~/Pictures/
-  unarchive:
-    src: http://sulasula.com/lr/raw.zip
-    dest: ~/Pictures/
-    remote_src: yes
-  tags: test_data
+    - name: Download raw fotos to ~/Pictures/
+      unarchive:
+        src: http://sulasula.com/lr/raw.zip
+        dest: ~/Pictures/
+        remote_src: yes
 
-- name: Download fotos to ~/Pictures/
-  get_url:
-    url: "{{ item.url }}"
-    dest: ~/Pictures/{{ item.file }}
-  loop:
-    - url: https://live.staticflickr.com/65535/49844398911_ea5a1feeeb_o_d.jpg
-      file: National_Museum_in_Prague.jpg
-    - url: https://live.staticflickr.com/65535/47970956713_2547df473c_o_d.jpg
-      file: Fishman_vs_ferry.jpg
-    - url: https://live.staticflickr.com/65535/32832598067_357d91774b_o_d.jpg
-      file: Sunrise_with_fishmans_boat.jpg
-    - url: https://live.staticflickr.com/7903/32619259957_593ca9d3e2_o_d.jpg
-      file: Cost_in_Soller.jpg
-    - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_01.nef
-      file: nikon_z7_01.nef
-    - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_47.nef
-      file: nikon_z7_47.nef
-    - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_64.cr3
-      file: canon_eos_r_64.cr3
-    - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_87.cr3
-      file: canon_eos_r_87.cr3
-    - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_62.arw
-      file: sony_a9_ii_62.arw
-    - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_68.arw
-      file: sony_a9_ii_68.arw
-  tags: test_data
+    - name: Download fotos to ~/Pictures/
+      get_url:
+        url: "{{ item.url }}"
+        dest: ~/Pictures/{{ item.file }}
+      loop:
+        - url: https://live.staticflickr.com/65535/49844398911_ea5a1feeeb_o_d.jpg
+          file: National_Museum_in_Prague.jpg
+        - url: https://live.staticflickr.com/65535/47970956713_2547df473c_o_d.jpg
+          file: Fishman_vs_ferry.jpg
+        - url: https://live.staticflickr.com/65535/32832598067_357d91774b_o_d.jpg
+          file: Sunrise_with_fishmans_boat.jpg
+        - url: https://live.staticflickr.com/7903/32619259957_593ca9d3e2_o_d.jpg
+          file: Cost_in_Soller.jpg
+        - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_01.nef
+          file: nikon_z7_01.nef
+        - url: https://img.photographyblog.com/reviews/nikon_z7/sample_images/nikon_z7_47.nef
+          file: nikon_z7_47.nef
+        - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_64.cr3
+          file: canon_eos_r_64.cr3
+        - url: https://img.photographyblog.com/reviews/canon_eos_r/photos/canon_eos_r_87.cr3
+          file: canon_eos_r_87.cr3
+        - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_62.arw
+          file: sony_a9_ii_62.arw
+        - url: https://img.photographyblog.com/reviews/sony_a9_ii/sample_images/sony_a9_ii_68.arw
+          file: sony_a9_ii_68.arw
 
-- name: Download Documents
-  get_url:
-    url: "{{ item.url }}"
-    dest: "~/Documents/{{ item.url | basename }}"
-  loop:
-    - url: https://raw.githubusercontent.com/whomwah/qlstephen/master/LICENSE
-    - url: https://raw.githubusercontent.com/toland/qlmarkdown/master/sample.md
+    - name: Download Documents
+      get_url:
+        url: "{{ item.url }}"
+        dest: "~/Documents/{{ item.url | basename }}"
+      loop:
+        - url: https://raw.githubusercontent.com/whomwah/qlstephen/master/LICENSE
+        - url: https://raw.githubusercontent.com/toland/qlmarkdown/master/sample.md
+
+  when: "'data' not in ansible_run_tags"
   tags: test_data

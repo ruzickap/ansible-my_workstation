@@ -72,6 +72,15 @@
   homebrew_tap:
     name: "{{ homebrew_taps | join(',') }}"
 
+- name: Update homebrew and upgrade all packages
+  homebrew:
+    update_homebrew: yes
+    upgrade_all: yes
+
+- name: Upgrade all Homebrew casks
+  homebrew_cask:
+    upgrade_all: yes
+
 - name: Install Homebrew packages
   homebrew:
     name: "{{ homebrew_packages }}"
@@ -81,15 +90,6 @@
     src: /usr/local/bin/pip3.8
     dest: /usr/local/bin/pip3
     state: link
-
-- name: Update homebrew and upgrade all packages
-  homebrew:
-    update_homebrew: yes
-    upgrade_all: yes
-
-- name: Upgrade all Homebrew casks
-  homebrew_cask:
-    upgrade_all: yes
 
 - name: Install Homebrew casks
   homebrew_cask:
@@ -656,7 +656,7 @@
       value: 1
     - key: timeMode
       type: int
-      value: 3
+      value: 1
     - key: checkForUpdates
       value: "false"
     - key: updateWhileSaverMode
@@ -665,9 +665,6 @@
       value: "false"
     - key: updateWhileSaverMode
       value: "false"
-    - key: timeMode
-      type: int
-      value: 1
     - key: logToDisk
       value: "false"
 
@@ -859,7 +856,7 @@
 
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
-  changed_when: '"service already loaded" not in launchctl_smbd.stdout'
+  changed_when: '"service already loaded" not in launchctl_smbd.stderr'
   register: launchctl_smbd
   become: yes
 
