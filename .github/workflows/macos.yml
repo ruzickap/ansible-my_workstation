@@ -32,6 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Update brew packages
+        run: |
+          brew update
+          brew upgrade
+
       - name: Install Ansible
         run: |
           brew install ansible
