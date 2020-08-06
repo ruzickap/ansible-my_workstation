@@ -5,7 +5,7 @@ dock_add_items:
   - /System/Applications/Mail.app
   - /System/Applications/Calendar.app
   - /Applications/iTerm.app
-  - /Applications/Chromium.app
+  - /Applications/Google Chrome.app
 
 # The Dock icons size
 dock_icons_size: 36.0
@@ -39,9 +39,11 @@ homebrew_packages:
   - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - bat
   - coreutils
+  - cdrtools                                     # Needed for mc to show iso details
   - diff-so-fancy
   - dockutil                                     # Command line tool for managing dock items
   - exa
+  - exiftool
   - fd
   - fdupes                                       # pcre2
   - fzf
@@ -97,13 +99,13 @@ homebrew_packages:
 homebrew_casks:
   - aerial
   - avibrazil-rdm
-  - chromium
   - darktable
   - digikam
   - firefox
   - fluor                                        # Automatically change the behavior of the keyboard's fn keys
+  - google-chrome
   - gpxsee
-  - homebrew/cask-fonts/font-meslolg-nerd-font   # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
+  - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
   - iterm2
   - itsycal                                      # Tiny menu bar calendar
@@ -115,6 +117,7 @@ homebrew_casks:
   - meld
   - menumeters                                   # Set of CPU, memory, disk, and network monitoring tools for Mac OS X
   - mpv
+  - mysides                                      # Application for managing OS X Finder sidebar favourites
   - qbittorrent
   - qlmarkdown                                   # QuickLook generator for Markdown files
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension

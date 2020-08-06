@@ -45,3 +45,15 @@ jobs:
         run: |
           echo "test_password" > vault-my_workstation.password
           ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
+
+      - name: Run Ansible 2
+        run: |
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
+          if grep -q 'changed=0.*failed=0' /tmp/ansible.log ; then
+            echo 'Idempotence test: pass'
+            exit 0
+          else
+            echo 'Idempotence test: fail'
+            grep -B 2 '^changed:' /tmp/ansible.log
+            exit 1
+          fi

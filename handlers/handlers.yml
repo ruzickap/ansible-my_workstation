@@ -18,3 +18,10 @@
   systemd:
     daemon_reload: yes
   become: true
+
+- name: Set login picture
+  shell: |
+    dscl . delete /Users/{{ ansible_user_id }} JPEGPhoto
+    dscl . delete /Users/{{ ansible_user_id }} Picture
+    dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
+  become: true

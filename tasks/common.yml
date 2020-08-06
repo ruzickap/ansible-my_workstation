@@ -9,6 +9,8 @@
         dest: /etc/hosts
         regexp: '^127.0.1.1'
         line: '127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}'
+      # MacOS is changing it's hostname
+      changed_when: false
 
     - name: Configure aliases
       lineinfile:
@@ -48,31 +50,20 @@
       notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
       tags:
         - secrets
-        - user_specific
-
-    - name: Check if printer is defined
-      command: lpstat -p
-      changed_when: false
-      ignore_errors: true
-      register: lpstat_output
-      tags: printer
 
     - name: Add printer and make it default
-      shell: lpadmin -p HP_LaserJet_500_colorMFP_M570dw -E -v {{ cups_printer_device_uri }} -m everywhere -L "1st floor near kitchen" -o DefaultPageSize=A4 -o Duplex=DuplexNoTumble && sleep 1
-      when: cups_printer_device_uri is defined and lpstat_output.stderr is search('No destinations added')
+      shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -m everywhere -L "1st floor near kitchen" -o DefaultPageSize=A4 -o Duplex=DuplexNoTumble && sleep 1
+      args:
+        creates: /etc/cups/ppd/{{ printer_name }}.ppd
+      register: lpadmin
+      when: cups_printer_device_uri is defined
       tags:
         - printer
         - skip_test
 
-    - name: Check if there is a default printer
-      command: lpstat -d
-      changed_when: false
-      register: lpstat_output
-      tags: printer
-
     - name: Set default printer
-      command: lpoptions -d HP_LaserJet_500_colorMFP_M570dw
-      when: cups_printer_device_uri is defined and lpstat_output.stdout is search('no system default destination')
+      command: lpoptions -d "{{ printer_name }}"
+      when: lpadmin.changed
       tags:
         - printer
         - skip_test
@@ -124,6 +115,36 @@
           option: navigate_with_arrows
           value: 'true'
 
+    - name: Copy the mc.ext to the ~/.config/mc/
+      copy:
+        src: "{% if ansible_system == 'Darwin' %}/usr/local/opt/mc{% endif %}/etc/mc/mc.ext"
+        dest: ~/.config/mc/mc.ext
+        remote_src: yes
+        force: no
+
+    - name: Use exiftool to show jpg files in MC (~/.config/mc/mc.ext)
+      replace:
+        path: ~/.config/mc/mc.ext
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop:
+        - regexp: 'View=%view{ascii} .*/image.sh view jpeg'
+          replace: 'View=%view{ascii} exiftool %f'
+
+    - name: Add configurations for MC (~/.config/mc/mc.ext)
+      blockinfile:
+        dest: ~/.config/mc/mc.ext
+        insertbefore: "### GIT Repo ###"
+        block: |
+          # GPX data
+          regex/i/\.gpx$
+              Open={% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null
+
+          # RAW images form camera
+          regex/i/\.(nef|orf|ori|dng|arw)$
+              Open={% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null
+              View=%view{ascii} exiftool %f
+
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       file:
         path: "{{ ansible_user_dir }}/.config/"
@@ -171,21 +192,23 @@
   file:
     path: ~/.terraform.d/plugins
     state: directory
+  register: terraform_plugins_dir
 
-- name: Get the details about latest version of Terrafrom providers
-  uri:
-    url: https://registry.terraform.io/v1/providers/hashicorp/{{ item }}
-  loop: "{{ terraform_providers }}"
-  register: terraform_providers_registry
+- name: Download Terraform plugins if they were not previously downloaded
+  block:
+    - name: Get the details about latest version of Terrafrom providers
+      uri:
+        url: https://registry.terraform.io/v1/providers/hashicorp/{{ item }}
+      loop: "{{ terraform_providers }}"
+      register: terraform_providers_registry
 
-- name: Download a and unpack Terrafrom provider
-  unarchive:
-    src: "https://releases.hashicorp.com/terraform-provider-{{ item.json.name }}/{{ item.json.version }}/terraform-provider-{{ item.json.name }}_{{ item.json.version }}_{{ ansible_system | lower }}_amd64.zip"
-    dest: ~/.terraform.d/plugins
-    remote_src: yes
-  loop: "{{ terraform_providers_registry.results }}"
-  loop_control:
-    label: "{{ item.json.name }} - {{ item.json.version }}"
+    - name: Download a and unpack Terrafrom provider
+      unarchive:
+        src: "https://releases.hashicorp.com/terraform-provider-{{ item.json.name }}/{{ item.json.version }}/terraform-provider-{{ item.json.name }}_{{ item.json.version }}_{{ ansible_system | lower }}_amd64.zip"
+        dest: ~/.terraform.d/plugins
+        remote_src: yes
+      loop: "{{ terraform_providers_registry.results }}"
+  when: terraform_plugins_dir.changed
 
 - name: Create VirtualBox config directory
   file:
@@ -382,7 +405,7 @@
     creates: ~/.krew/store/{{ item }}
   loop: "{{ krew_plugins }}"
 
-- name: Check if the oci was installed
+- name: Check if the oci was previously installed
   stat:
     path: ~/bin/oci
   register: oci_stat
@@ -426,10 +449,10 @@
       value: 'true'
     - section: General
       option: LastDatabases
-      value: "{{ ansible_user_dir }}/Documents/keepass2.kdbx"
+      value: "{{ ansible_user_dir }}/Documents/secrets/keepass2.kdbx"
     - section: General
       option: LastKeyFiles
-      value: '@Variant(\0\0\0\x1c\0\0\0\x3\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0r\0u\0z\0i\0\x63\0k\0\x61\0p\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0\x42\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0>\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x64\0\x61\0t\0\x61\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y\0\0\0L\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0H\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
+      value: '@Variant(\0\0\0\x1c\0\0\0\x1\0\0\0\\\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0X\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
     - section: General
       option: SSHAgent
       value: 'true'
@@ -745,28 +768,31 @@
     # Secrets coppied from local disk
     ###################################################
 
+    - name: Create ~/Documents/secrets directory
+      file:
+        path: ~/Documents/secrets
+        state: directory
+        mode: 0700
+
     # Needed for shell (zsh/bash)
-    - name: Copy ~/Documents/secret_variables
+    - name: Copy ~/Documents/secrets/secret_variables
       copy:
-        src: "{{ data_source_dir }}/Documents/secret_variables"
-        dest: ~/Documents/secret_variables
+        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
+        dest: ~/Documents/secrets/secret_variables
         mode: 0600
-      tags: data
 
     - name: Copy KeePass data
       copy:
-        src: "{{ data_source_dir }}/Documents/{{ item }}"
-        dest: ~/Documents/{{ item }}
+        src: "{{ data_source_dir }}/Documents/secrets/{{ item }}"
+        dest: ~/Documents/secrets/{{ item }}
         mode: 0600
       loop:
         - keepass2.kdbx
         - keepass.key
-      tags: data
 
   no_log: true
   tags:
     - secrets
-    - user_specific
 
 ###################################################
 # Data
@@ -781,7 +807,6 @@
   loop: "{{ home_data_directories }}"
   tags:
     - data
-    - user_specific
 
 ###############################
 # Test data

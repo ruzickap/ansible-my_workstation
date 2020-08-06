@@ -89,7 +89,8 @@
     "**/playbooks/**/*.yml": "ansible",
     "**/*ansible*/**/*.yml": "ansible",
     "**/vars/**/*.yml": "ansible",
-    "**/inventory/*/*": "ansible"
+    "**/inventory/*/*": "ansible",
+    "*.yml": "yaml"
   },
   "editor.selectionClipboard": false
 }
