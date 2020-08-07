@@ -6,6 +6,10 @@ data_source_dir: "~"
 
 github_username: ruzickap
 
+raspi_hostname: raspi.xvx.cz
+
+printer_name: HP_LaserJet_500_colorMFP_M570dw
+
 # The directories which should be copy over
 home_data_directories:
   - .ansible

@@ -76,17 +76,6 @@
         dest: /etc/profile.d/
         mode: 0755
 
-    - name: Create directory for mc inside ~/.config
-      file:
-        path: ~/.config/mc/
-        state: directory
-        mode: 0700
-
-    - name: Copy MC extensions settings
-      copy:
-        src: files/home/myusername/.config/mc/mc.ext
-        dest: ~/.config/mc/mc.ext
-
     - name: Put private SSH keys for ssh sever to /etc/ssh/
       copy:
         src: files/etc/ssh/{{ item }}
@@ -264,13 +253,13 @@
         cron_file: "{{ item.cron_file }}"
         disabled: "{{ item.disabled }}"
       loop:
-        - name: 'backup'
-          weekday: '*'
+        - name: backup
+          weekday: "*"
           minute: 0
           hour: 1
-          user: 'root'
-          job: 'nice {{ ansible_user_dir }}/Documents/backups/backup.sh'
-          cron_file: 'backup'
+          user: "{{ ansible_user_dir }}"
+          job: nice {{ ansible_user_dir }}/Documents/backups/backup.sh
+          cron_file: backup
           disabled: true
       loop_control:
         label: "{{ item.name }} - {{ item.cron_file }}"
@@ -399,7 +388,7 @@
         dest: /etc/default/grub
         regexp: "{{ item.regexp }}"
         replace: "{{ item.replace }}"
-      with_items:
+      loop:
         - regexp: 'rhgb quiet"'
           replace: 'rhgb quiet systemd.unified_cgroup_hierarchy=0 rootflags=discard splash=quiet"'
       notify: grub2 config
@@ -459,7 +448,7 @@
 
     # Check in Ansible 2.10 - if it can be done better
     - name: Change LUKS key
-      shell: echo -e "xxxx\n{{ fedora_disk_encryption_passphrase }}\n{{ fedora_disk_encryption_passphrase }}\n" | cryptsetup luksChangeKey /dev/{{ ansible_device_links.masters | first }} --force-password
+      shell: echo -e "{{ ansible_password }}\n{{ fedora_disk_encryption_passphrase }}\n{{ fedora_disk_encryption_passphrase }}\n" | cryptsetup luksChangeKey /dev/{{ ansible_device_links.masters | first }} --force-password
       ignore_errors: true
       changed_when: false
       tags: secrets
@@ -497,6 +486,7 @@
     update_homebrew: yes
     upgrade_all: yes
     path: /home/linuxbrew/.linuxbrew/bin
+  changed_when: false
 
 - name: Install Homebrew packages
   homebrew:
@@ -907,6 +897,8 @@
       value: chromium-browser.desktop
     - option: application/xhtml+xml
       value: chromium-browser.desktop
+    - option: application/x-gpx+xml
+      value: gpxsee.desktop
 
 - name: Configure Meld
   dconf:
@@ -1014,15 +1006,13 @@
       alias ip='ip -color=auto'
       alias ls=exa
 
-      export RESTIC_ONEDRIVE_SECRETS_FILE="${HOME}/Documents/backups/restic-onedrive-secrets.json"
-
       for COMPLETION in "/home/linuxbrew/.linuxbrew/etc/bash_completion.d/"*; do
         source "$COMPLETION"
       done
 
       source /usr/share/fzf/shell/key-bindings.bash
       source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
-      source ~/Documents/secret_variables
+      source ~/Documents/secrets/secret_variables
 
       if [ "${ASCIINEMA_REC}" = "1" ]; then
         . /usr/share/git-core/contrib/completion/git-prompt.sh

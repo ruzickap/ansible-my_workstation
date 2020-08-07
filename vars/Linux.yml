@@ -32,27 +32,27 @@ fstab_entries:
     fstype: "xfs"
     opts: "noatime,nodiratime,noauto"
   - name: "/mnt/raspi/movies"
-    src: "//192.168.1.2/movies-rw"
+    src: "//{{ raspi_hostname }}/movies-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/music"
-    src: "//192.168.1.2/music-rw"
+    src: "//{{ raspi_hostname }}/music-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/torrents"
-    src: "//192.168.1.2/torrents"
+    src: "//{{ raspi_hostname }}/torrents"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/backups"
-    src: "//192.168.1.2/backups-rw"
+    src: "//{{ raspi_hostname }}/backups-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
 
 rpmfusion_repositories:
   - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
   - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
 
-# sed 's/ - //; s/\s//g; s/\(.*\)#.*$/\1/' | tr "\n" " "
+# dnf install $(cat | sed 's/ - //; s/\s//g; s/\(.*\)#.*$/\1/' | tr "\n" " ")
 dnf_packages:
   - aircrack-ng
   - ansible
@@ -66,7 +66,6 @@ dnf_packages:
   - cifs-utils
   - cronie
   - dnf-automatic
-  - dosfstools
   - dpkg
   - ethtool
   - exa
@@ -77,7 +76,6 @@ dnf_packages:
   - gcc                                                # Needed for vagrant-libvirt plugin
   - git
   - git-crypt
-  - gnupg2
   - htop
   - hugo
   - iotop
@@ -145,7 +143,6 @@ dnf_packages:
   - zip
 
 dnf_graphical_packages:
-  - '@Multimedia'
   - cups
   - freerdp
   - gstreamer1-vaapi                                   # GPU acceleration (vokoscreenNG)
@@ -184,6 +181,7 @@ dnf_gtk3_packages:
   - libreoffice-draw
   - libreoffice-gallery-vrt-network-equipment
   - libreoffice-impress
+  - libreoffice-langpack-cs                            # Czech spellchecker
   - libreoffice-writer
   - libvirt-daemon-kvm                                 # Needed for virtualization + GTK3
   - meld
@@ -223,6 +221,8 @@ dnf_additional_packages:
   - akmod-VirtualBox                                   # X
   - code
   - gbt
+  - gstreamer1-plugins-bad-freeworld
+  - gstreamer1-plugins-ugly
   - gstreamer1-libav                                   # X
   - kdenlive
   - libva-intel-driver                                 # Needed for vaapi (mpv)

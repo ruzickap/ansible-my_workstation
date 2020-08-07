@@ -2,13 +2,8 @@
   shell: |
     set -o pipefail
     dscl . -read /Users/{{ ansible_user_id }}/ GeneratedUID | awk '{ print $2 }'
-  changed_when: false
   register: dscl_output
-
-- name: Set facts
-  set_fact:
-    # huuid: "{{ ioreg_output.stdout }}"
-    generateduid: "{{ dscl_output.stdout }}"
+  changed_when: false
 
 - name: Get wi-fi interface
   shell: |
@@ -17,9 +12,18 @@
   register: networksetup
   changed_when: false
 
-- name: Set fact
+- name: Set facts
   set_fact:
+    # huuid: "{{ ioreg_output.stdout }}"
+    generateduid: "{{ dscl_output.stdout }}"
     wifi_interface: "{{ networksetup.stdout }}"
+
+- name: Set secret facts
+  set_fact:
+    raspi_username: "{{ lookup('ini', 'username section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
+    raspi_password: "{{ lookup('ini', 'password section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
+  tags:
+    - secrets
 
 - name: Set Hostname + Disable sleeping
   block:
@@ -76,6 +80,7 @@
   homebrew:
     update_homebrew: yes
     upgrade_all: yes
+  changed_when: false
 
 - name: Upgrade all Homebrew casks
   homebrew_cask:
@@ -165,6 +170,32 @@
     key: FXDefaultSearchScope
     type: string
     value: "SCcf"
+
+- name: Keep folders on top
+  osx_defaults:
+    domain: com.apple.finder
+    key: _FXSortFoldersFirst
+    type: bool
+    value: "true"
+
+- name: Remove items from the Trash after 30 days
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXRemoveOldTrashItems
+    type: bool
+    value: "true"
+
+- name: Set a default folder when opening Finder ($HOME)
+  osx_defaults:
+    domain: com.apple.finder
+    key: "{{ item.key }}"
+    type: string
+    value: "{{ item.value }}"
+  loop:
+    - key: NewWindowTargetPath
+      value: file://{{ ansible_env.HOME }}/
+    - key: NewWindowTarget
+      value: PfHm
 
 # https://www.defaults-write.com/add-a-message-to-the-login-screen/
 - name: Add a message to the login screen
@@ -313,16 +344,7 @@
     content: |
       0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 2 dsAttrTypeStandard:RecordName externalbinary:dsAttrTypeStandard:JPEGPhoto
       {{ ansible_user_id }}:{{ ansible_user_dir }}/Pictures/login_picture.jpg
-  tags: user_specific
-
-- name: Set login picture 2
-  command: "{{ item }}"
-  loop:
-    - dscl . delete /Users/{{ ansible_user_id }} JPEGPhoto
-    - dscl . delete /Users/{{ ansible_user_id }} Picture
-    - dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
-  changed_when: false
-  become: true
+  notify: Set login picture
   tags: user_specific
 
 ################################################
@@ -402,7 +424,7 @@
 
       source ~/.fzf.zsh
       source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
-      source ~/Documents/secret_variables
+      source ~/Documents/secrets/secret_variables
 
       # Simpler prompt when using Midnight Commander
       if ps $PPID |grep mc; then
@@ -422,7 +444,7 @@
       # Configure configure Ctrl+w as delete in bash
       autoload -U select-word-style
       select-word-style bash
-      WORDCHARS='*?.[]~-_=&;!#$%^(){}<>\/\|'
+      WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:,|"'"'"
 
       # Add highlighters to zsh-syntax-highlighting (default is 'main')
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
@@ -445,8 +467,8 @@
   copy:
     dest: ~/.zshenv
     content: |
-      PATH=${HOME}/Library/Python/3.8/bin:/usr/local/sbin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
-      export PATH
+      export PATH=${HOME}/Library/Python/3.8/bin:/usr/local/sbin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
+      export MC_XDG_OPEN=open
 
 - name: Remove all Dock items
   command: dockutil --remove all --no-restart
@@ -461,12 +483,9 @@
 - name: Configure Rectangle
   osx_defaults:
     domain: com.knollsoft.Rectangle
-    key: "{{ item.key }}"
-    type: int
-    value: "{{ item.value }}"
-  loop:
-    - key: launchOnLogin
-      value: 1
+    key: launchOnLogin
+    type: bool
+    value: "true"
 
 - name: Skip main menu when Menumeters starts
   osx_defaults:
@@ -578,8 +597,12 @@
       value: "false"
     - key: FocusFollowsMouse
       value: "true"
+    - key: NoSyncTipsDisabled
+      value: "true"
     - key: OnlyWhenMoreTabs
       value: "false"
+    - key: QuitWhenAllWindowsClosed
+      value: "true"
     - key: SUEnableAutomaticChecks
       value: "false"
     - key: ThreeFingerEmulates
@@ -587,6 +610,8 @@
     - key: TabViewType
       type: int
       value: 1
+    - key: DoubleClickPerformsSmartSelection
+      value: "true"
 
 - name: Configure iTerm2 using PlistBuddy
   command: "{{ item }}"
@@ -735,7 +760,6 @@
         label: "{{ item.ssid }}"
   when: wifi_interface | bool
   tags:
-    - user_specific
     - secrets
 
 - name: Create Library/LaunchAgents directory for brew autoupdate
@@ -820,6 +844,14 @@
       key: AutoUpdate
   become: yes
 
+# https://osxdaily.com/2010/02/03/how-to-prevent-ds_store-file-creation/
+- name: Stop DS_Store File Creation on Network Volumes
+  osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: "true"
+
 # https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
 - name: Enable tap-to-click
   osx_defaults:
@@ -844,7 +876,6 @@
   no_log: true
   tags:
     - secrets
-    - user_specific
 
 - name: Activate ~/Library/LaunchAgents/ddns-update.plist
   command: launchctl load ~/Library/LaunchAgents/ddns-update.plist
@@ -852,7 +883,6 @@
   register: launchctl
   tags:
     - secrets
-    - user_specific
 
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
@@ -879,12 +909,45 @@
   changed_when: false
   become: yes
 
+- name: Configure SMB shares via automount
+  lineinfile:
+    path: /etc/auto_master
+    regexp: '^/-                      auto_smb        -nosuid,noowner'
+    line: '/-                      auto_smb        -nosuid,noowner'
+  become: yes
+
+- name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
+  file:
+    path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+    state: directory
+  become: yes
+
+# https://gist.github.com/rudelm/7bcc905ab748ab9879ea
+- name: Configure SMB shares via automount
+  copy:
+    dest: /etc/auto_smb
+    mode: 0600
+    content: |
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
+  become: yes
+  tags:
+    - secrets
+
+- name: Configure Finder sidebar favourites
+  shell: |
+    mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
+    mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
+  changed_when: false
+
 ############################ Interactive ############################
 
 - name: Check if VirtualBox is installed
-  stat:
-    path: /usr/local/bin/virtualbox
-  register: stat_virtualbox
+  command: brew cask ls
+  register: brew_casks
+  changed_when: false
 
 - name: Interactive tasks (skip if VirtualBox was already installed)
   block:
@@ -893,28 +956,25 @@
         name: virtualbox
       ignore_errors: yes
 
-    - name: Open Security & Privacy preferences
-      command: open -b com.apple.systempreferences /System/Library/PreferencePanes/Security.prefPane
-      changed_when: false
-
     - name: Run Applications which needs some manual tasks (approvals)
       command: "{{ item }}"
       changed_when: false
       loop:
-        - chromium --make-default-browser
+        - open -a "Google Chrome" --args --make-default-browser
         - open -a Fluor
         - open -a Itsycal
         - open -a Rectangle
 
+    - name: Interactive
+      pause:
+        prompt: "To continue with interactive tasks press ENTER"
+      tags: interactive
+
+    # MacOS will open several windows which needs to be confirmed otherwise it will fail
     - name: Allow programs to be started after login
       command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
       changed_when: false
       loop: "{{ login_items_enabled }}"
-      tags: interactive
-
-    - name: Interactive
-      pause:
-        prompt: "To continue with interactive tasks press ENTER"
       tags: interactive
 
     - name: Install VirtualBox and it's extension pack
@@ -923,4 +983,4 @@
       loop:
         - virtualbox
         - virtualbox-extension-pack
-  when: not stat_virtualbox.stat.exists
+  when: "'virtualbox' not in brew_casks.stdout"
