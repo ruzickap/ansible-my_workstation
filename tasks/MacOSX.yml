@@ -197,6 +197,14 @@
     - key: NewWindowTarget
       value: PfHm
 
+# https://www.makeuseof.com/tag/hidden-mac-settings-defaults-command/
+- name: Add the Quit Option to Finder
+  osx_defaults:
+    domain: com.apple.finder
+    key: QuitMenuItem
+    type: bool
+    value: "true"
+
 # https://www.defaults-write.com/add-a-message-to-the-login-screen/
 - name: Add a message to the login screen
   osx_defaults:
@@ -584,48 +592,54 @@
       type: int
       value: 65
 
-- name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
-  osx_defaults:
-    domain: com.googlecode.iterm2
-    key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
-    value: "{{ item.value }}"
-  loop:
-    - key: SmartPlacement
-      value: "true"
-    - key: PromptOnQuit
-      value: "false"
-    - key: FocusFollowsMouse
-      value: "true"
-    - key: NoSyncTipsDisabled
-      value: "true"
-    - key: OnlyWhenMoreTabs
-      value: "false"
-    - key: QuitWhenAllWindowsClosed
-      value: "true"
-    - key: SUEnableAutomaticChecks
-      value: "false"
-    - key: ThreeFingerEmulates
-      value: "true"
-    - key: TabViewType
-      type: int
-      value: 1
-    - key: DoubleClickPerformsSmartSelection
-      value: "true"
+- name: Check if iTerm2 config file is present (~/Library/Preferences/com.googlecode.iterm2.plist)
+  stat:
+    path: ~/Library/Preferences/com.googlecode.iterm2.plist
+  register: com_googlecode_iterm2_plist
 
-- name: Configure iTerm2 using PlistBuddy
-  command: "{{ item }}"
-  loop:
-    - open --background -a iTerm
-    - sleep 10
-    - osascript -e 'quit app "iTerm"'
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
-    - /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-  changed_when: false
+- name: Configure iTerm2
+  block:
+    - name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
+      osx_defaults:
+        domain: com.googlecode.iterm2
+        key: "{{ item.key }}"
+        type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+        value: "{{ item.value }}"
+      loop:
+        - key: SmartPlacement
+          value: "true"
+        - key: PromptOnQuit
+          value: "false"
+        - key: FocusFollowsMouse
+          value: "true"
+        - key: NoSyncTipsDisabled
+          value: "true"
+        - key: OnlyWhenMoreTabs
+          value: "false"
+        - key: QuitWhenAllWindowsClosed
+          value: "true"
+        - key: SUEnableAutomaticChecks
+          value: "false"
+        - key: ThreeFingerEmulates
+          value: "true"
+        - key: TabViewType
+          type: int
+          value: 1
+        - key: DoubleClickPerformsSmartSelection
+          value: "true"
+
+    - name: Configure iTerm2 using PlistBuddy
+      shell: |
+        open --background -a iTerm
+        sleep 10
+        osascript -e 'quit app "iTerm"'
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+  when: not com_googlecode_iterm2_plist.stat.exists
 
 - name: Configure Vagrant-manager
   osx_defaults:
@@ -663,47 +677,53 @@
   # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
   tags: skip_test
 
+- name: Check if Aerial config file is present
+  stat:
+    path: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost
+  register: com_JohnCoates_Aerial_plist
+
 - name: Configure Aerial
-  osx_defaults:
-    domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
-    key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
-    value: "{{ item.value }}"
-  loop:
-    - key: intVideoFormat
-      type: int
-      value: 1
-    - key: intOnBatteryMode
-      type: int
-      value: 1
-    - key: newViewingMode
-      type: int
-      value: 1
-    - key: timeMode
-      type: int
-      value: 1
-    - key: checkForUpdates
-      value: "false"
-    - key: updateWhileSaverMode
-      value: "false"
-    - key: debugMode
-      value: "false"
-    - key: updateWhileSaverMode
-      value: "false"
-    - key: logToDisk
-      value: "false"
+  block:
+    - name: Configure Aerial
+      osx_defaults:
+        domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
+        key: "{{ item.key }}"
+        type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+        value: "{{ item.value }}"
+      loop:
+        - key: intVideoFormat
+          type: int
+          value: 1
+        - key: intOnBatteryMode
+          type: int
+          value: 1
+        - key: newViewingMode
+          type: int
+          value: 1
+        - key: timeMode
+          type: int
+          value: 1
+        - key: checkForUpdates
+          value: "false"
+        - key: updateWhileSaverMode
+          value: "false"
+        - key: debugMode
+          value: "false"
+        - key: updateWhileSaverMode
+          value: "false"
+        - key: logToDisk
+          value: "false"
 
-- name: Configure Aerial 2
-  shell: |
-    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerBattery -string "{ \"corner\" : 2, \"disableWhenFull\" : true, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 20, \"isEnabled\" : true, \"mode\" : 1}"
-    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
-    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
-    defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
-  changed_when: false
+    - name: Configure Aerial 2
+      shell: |
+        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerBattery -string "{ \"corner\" : 2, \"disableWhenFull\" : true, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 20, \"isEnabled\" : true, \"mode\" : 1}"
+        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
+        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
+        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
 
-- name: Set Aerial as default screensaver
-  command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
-  changed_when: false
+    - name: Set Aerial as default screensaver
+      command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
+  when: not com_JohnCoates_Aerial_plist.stat.exists
 
 - name: Configure Meld
   osx_defaults:
@@ -958,7 +978,6 @@
 
     - name: Run Applications which needs some manual tasks (approvals)
       command: "{{ item }}"
-      changed_when: false
       loop:
         - open -a "Google Chrome" --args --make-default-browser
         - open -a Fluor
@@ -973,7 +992,6 @@
     # MacOS will open several windows which needs to be confirmed otherwise it will fail
     - name: Allow programs to be started after login
       command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
-      changed_when: false
       loop: "{{ login_items_enabled }}"
       tags: interactive
 

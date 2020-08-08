@@ -409,7 +409,6 @@
   stat:
     path: ~/bin/oci
   register: oci_stat
-  changed_when: false
 
 - name: Install oci
   block:
@@ -706,21 +705,20 @@
 
 - name: Install the VS Code extensions
   command: code --install-extension {{ item }}
-  changed_when: false
+  args:
+    creates: ~/.vscode/extensions
   loop: "{{ code_extensions }}"
 
 - name: Install npm packages
   npm:
     name: "{{ item }}"
     path: ~/
-  when: npm_packages is defined
   loop: "{{ npm_packages }}"
 
 - name: Install pip packages
   pip:
     name: "{{ item }}"
     extra_args: --user
-  when: pip_packages is defined
   loop: "{{ pip_packages }}"
 
 ###############################

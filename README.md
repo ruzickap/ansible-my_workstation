@@ -62,3 +62,11 @@ manually in Catalina:
 
 * Internet accounts (Gmail)
 * Google Chrome (Login to Google services)
+* IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
+
+## Notes
+
+Test pages:
+
+* [https://html5test.com/](https://html5test.com/)
+* [https://bitmovin.com/demos/drm](https://bitmovin.com/demos/drm)
