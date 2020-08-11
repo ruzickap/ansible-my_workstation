@@ -30,6 +30,7 @@ env:
   PASSWORD: xxxx
   ANSIBLE_HOST_KEY_CHECKING: False
   ANSIBLE_REMOTE_PORT: 2222
+  RAM: 4096
 
 jobs:
   fedora:
@@ -43,12 +44,10 @@ jobs:
           brew install ansible gnu-sed hudochenkov/sshpass/sshpass
 
       - name: Start Fedora VirtualBox VM
-        env:
-          RAM: 4096
         run: |
           vagrant init fedora/32-cloud-base
           gsed -i "/Vagrant.configure(\"2\") do |config|/a \ \ config.vm.provider \"virtualbox\" do |vb|\n \ \ \ \ vb.memory = \"${RAM}\"\n \ end" Vagrantfile
-          vagrant up
+          vagrant up || ( vagrant destroy --force && vagrant up )
 
       - name: Add main user to Fedora VirtualBox VM
         run: |

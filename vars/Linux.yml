@@ -247,6 +247,7 @@ homebrew:
   - kops                  # go 1.14 (compile)
   - krew                  #
   - kubectl               #
+  - oci-cli               # many dependencies
   - packer                #
   - pre-commit            # libyaml
   - speedtest-cli         #
