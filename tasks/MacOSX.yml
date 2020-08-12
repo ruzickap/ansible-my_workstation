@@ -76,18 +76,9 @@
   homebrew_tap:
     name: "{{ homebrew_taps | join(',') }}"
 
-- name: Update homebrew and upgrade all packages
-  homebrew:
-    update_homebrew: yes
-    upgrade_all: yes
-  changed_when: false
-
-- name: Upgrade all Homebrew casks
-  homebrew_cask:
-    upgrade_all: yes
-
 - name: Install Homebrew packages
   homebrew:
+    update_homebrew: yes
     name: "{{ homebrew_packages }}"
 
 - name: Create link from /usr/local/bin/pip3.8 /usr/local/bin/pip3
@@ -420,6 +411,19 @@
       setopt HIST_IGNORE_DUPS
       #add timestamp for each entry
       setopt EXTENDED_HISTORY
+      # Needed for Packer when calling ansible
+      export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+      # Use open command for Midnight Commander "open"
+      export MC_XDG_OPEN=open
+
+      # Use Python 3.8 insatell by Homebrew
+      export PATH="${HOME}/Library/Python/3.8/bin:${PATH}"
+
+      # Enable homebrew, find, sed, coreutils
+      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+
+      # Enable binaries for node, krew and ~/bin
+      export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${PATH}"
 
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
@@ -471,19 +475,12 @@
       POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
       POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
 
-- name: Create ~/.zshenv with PATH variable
-  copy:
-    dest: ~/.zshenv
-    content: |
-      export PATH=${HOME}/Library/Python/3.8/bin:/usr/local/sbin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/local/bin:${PATH}
-      export MC_XDG_OPEN=open
-
 - name: Remove all Dock items
-  command: dockutil --remove all --no-restart
+  command: /usr/local/bin/dockutil --remove all --no-restart
   changed_when: false
 
 - name: Add Dock items
-  command: dockutil --add '{{ item }}' --no-restart
+  command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
   register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
@@ -778,7 +775,7 @@
       loop: "{{ wpa_enterprise_wifi }}"
       loop_control:
         label: "{{ item.ssid }}"
-  when: wifi_interface | bool
+  when: wifi_interface == "en0"
   tags:
     - secrets
 
@@ -789,7 +786,7 @@
 
 # https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
 - name: Install brew autoupdate
-  command: brew autoupdate --start --upgrade --enable-notification
+  command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
   args:
     creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
 
@@ -958,14 +955,69 @@
 
 - name: Configure Finder sidebar favourites
   shell: |
-    mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
-    mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
+    /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
+    /usr/local/bin/mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
   changed_when: false
+
+- name: Configure JDownloader - GeneralSettings
+  copy:
+    dest: /Applications/JDownloader 2.0/cfg/org.jdownloader.settings.GeneralSettings.json
+    content: |
+      {
+        "maxsimultanedownloads" : 10,
+        "cleanupafterdownloadaction" : "CLEANUP_AFTER_PACKAGE_HAS_FINISHED",
+        "iffileexistsaction" : "SKIP_FILE",
+        "showcountdownonautostartdownloads" : false
+      }
+
+- name: Configure JDownloader - ExtractionExtension
+  copy:
+    dest: /Applications/JDownloader 2.0/cfg/org.jdownloader.extensions.extraction.ExtractionExtension.json
+    content: |
+      {
+        "deletearchivedownloadlinksafterextraction" : true,
+        "deletearchivefilesafterextractionaction" : "NULL",
+        "enabled" : true,
+        "iffileexistsaction" : "SKIP_FILE"
+      }
+
+- name: Create directory for Kap
+  file:
+    path: ~/Library/Application Support/Kap/plugins
+    state: directory
+
+
+- name: Configure Kap
+  copy:
+    dest: ~/Library/Application Support/Kap/config.json
+    content: |
+      {
+        "kapturesDir": "/Users/pruzicka/Movies",
+        "recordAudio": true,
+        "audioInputDeviceId": "AppleHDAEngineInput:1B,0,1,0:1"
+      }
+
+- name: Configure Kap plugins
+  copy:
+    dest: ~/Library/Application Support/Kap/plugins/package.json
+    content: |
+      {
+        "dependencies": {
+          "kap-do-not-disturb": "latest",
+          "kap-hide-desktop-icons": "latest"
+        }
+      }
+
+- name: Install Kap plugins
+  npm:
+    path: ~/Library/Application Support/Kap/plugins
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
 ############################ Interactive ############################
 
 - name: Check if VirtualBox is installed
-  command: brew cask ls
+  command: /usr/local/bin/brew cask ls
   register: brew_casks
   changed_when: false
 
@@ -982,6 +1034,7 @@
         - open -a "Google Chrome" --args --make-default-browser
         - open -a Fluor
         - open -a Itsycal
+        - open -a Kap
         - open -a Rectangle
 
     - name: Interactive

@@ -405,24 +405,6 @@
     creates: ~/.krew/store/{{ item }}
   loop: "{{ krew_plugins }}"
 
-- name: Check if the oci was previously installed
-  stat:
-    path: ~/bin/oci
-  register: oci_stat
-
-- name: Install oci
-  block:
-    - name: Download oci installer
-      get_url:
-        dest: /tmp/install.sh
-        url: "https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh"
-        mode: 0755
-
-    - name: Install oci
-      command:
-        cmd: /tmp/install.sh --rc-file-path /dev/null --accept-all-defaults
-  when: not oci_stat.stat.exists
-
 - name: Create direcotry for KeePassxc settings
   file:
     path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
@@ -705,6 +687,8 @@
 
 - name: Install the VS Code extensions
   command: code --install-extension {{ item }}
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
   args:
     creates: ~/.vscode/extensions
   loop: "{{ code_extensions }}"
@@ -713,12 +697,16 @@
   npm:
     name: "{{ item }}"
     path: ~/
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
   loop: "{{ npm_packages }}"
 
 - name: Install pip packages
   pip:
     name: "{{ item }}"
     extra_args: --user
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
   loop: "{{ pip_packages }}"
 
 ###############################

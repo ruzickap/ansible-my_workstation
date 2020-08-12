@@ -22,11 +22,6 @@
         option: install_weak_deps
         value: 'false'
 
-    - name: Upgrade all packages
-      dnf:
-        name: '*'
-        state: latest
-
     - name: Install packages
       dnf:
         name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
@@ -440,6 +435,8 @@
     - name: Import Zoom key
       rpm_key:
         key: https://zoom.us/linux/download/pubkey
+      register: result
+      until: result is succeeded
 
     - name: Install Zoom
       dnf:
@@ -1011,7 +1008,7 @@
       done
 
       source /usr/share/fzf/shell/key-bindings.bash
-      source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source /home/linuxbrew/.linuxbrew/opt/oci-cli/libexec/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
       source ~/Documents/secrets/secret_variables
 
       if [ "${ASCIINEMA_REC}" = "1" ]; then
@@ -1041,7 +1038,7 @@
 
       eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 
-      PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${PATH}"
+      PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/lib/qtchooser:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
       export PATH
       {% endraw %}
 

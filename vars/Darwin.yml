@@ -46,6 +46,7 @@ homebrew_packages:
   - exiftool
   - fd
   - fdupes                                       # pcre2
+  - findutils
   - fzf
   - gh
   - git-crypt                                    # openssl@1.1
@@ -69,6 +70,7 @@ homebrew_packages:
   - mc                                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
   - nmap                                         # openssl@1.1
   - npm                                          # icu4c
+  - oci-cli
   - packer
   - pre-commit                                   # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - pv

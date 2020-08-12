@@ -10,7 +10,7 @@ raspi_hostname: raspi.xvx.cz
 
 printer_name: HP_LaserJet_500_colorMFP_M570dw
 
-# The directories which should be copy over
+# The directories which should be copy over to new system
 home_data_directories:
   - .ansible
   - .ansible.cfg
@@ -22,9 +22,9 @@ home_data_directories:
   - .oci
   - .purple
   - .ssh
-  - Documents # aaa
+  - Documents
   - Music
-  - Pictures # aaa
+  - Pictures
   - Videos
   - bin
   - git
@@ -51,6 +51,7 @@ krew_plugins:
   - get-all
   - outdated
   - resource-capacity
+  - ssh-jump
   - tree
 
 terraform_providers:
