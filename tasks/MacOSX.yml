@@ -14,7 +14,6 @@
 
 - name: Set facts
   set_fact:
-    # huuid: "{{ ioreg_output.stdout }}"
     generateduid: "{{ dscl_output.stdout }}"
     wifi_interface: "{{ networksetup.stdout }}"
 
@@ -86,6 +85,7 @@
     src: /usr/local/bin/pip3.8
     dest: /usr/local/bin/pip3
     state: link
+    mode: u=rwx,g=rx,o=rx
 
 - name: Install Homebrew casks
   homebrew_cask:
@@ -262,9 +262,19 @@
 - name: Start screenserver in bottom right corner
   osx_defaults:
     domain: com.apple.dock
-    key: wvous-br-corner
+    key: "{{ item.key }}"
     type: int
-    value: 5
+    value: "{{ item.value }}"
+  loop:
+    - key: wvous-br-corner
+      value: 5
+    - key: wvous-br-modifier
+      # Control key
+      value: 262144
+    - key: wvous-bl-corner
+      value: 13
+    - key: wvous-bl-modifier
+      value: 262144
 
 - name: Expand print panel by default
   osx_defaults:
@@ -322,7 +332,7 @@
     domain: com.apple.TextInputMenu
     key: visible
     type: bool
-    value: false
+    value: "false"
 
 - name: Always show scrollbars
   osx_defaults:
@@ -343,8 +353,212 @@
     content: |
       0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 2 dsAttrTypeStandard:RecordName externalbinary:dsAttrTypeStandard:JPEGPhoto
       {{ ansible_user_id }}:{{ ansible_user_dir }}/Pictures/login_picture.jpg
+    mode: u=rw,g=r,o=r
   notify: Set login picture
   tags: user_specific
+
+- name: Configure wifi interface if exists
+  block:
+    - name: Add Open wifi accounts
+      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ open_wifi }}"
+
+    - name: Add WPA/WPA2 Personal wifi accounts
+      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ wpa_personal_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+
+    - name: Unlock keychain (needed for "security add-generic-password")
+      command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
+      changed_when: false
+
+    - name: Add WPA/WPA2 Enterprise wifi accounts
+      shell: |
+        security add-generic-password -a "{{ item.identity }}" -s "com.apple.network.eap.user.item.wlan.ssid.{{ item.ssid }}" -w "{{ item.password }}" -D "802.1X Password" -l "{{ item.ssid }}" -T "/System/Library/CoreServices/SystemUIServer.app" -T "group:///AirPort" -T "/System/Library/SystemConfiguration/EAPOLController.bundle/Contents/Resources/eapolclient" -T "/System/Library/CoreServices/WiFiAgent.app"
+        networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2E
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ wpa_enterprise_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+  when: wifi_interface|length > 0
+  tags:
+    - secrets
+
+# https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
+- name: Disable Reopen Windows When Logging Back
+  osx_defaults:
+    domain: com.apple.loginwindow
+    key: TALLogoutSavesState
+    type: bool
+    value: "false"
+
+- name: Show the full URL in the address bar
+  osx_defaults:
+    domain: com.apple.Safari
+    key: ShowFullURLInSmartSearchField
+    type: bool
+    value: "true"
+
+- name: Show website icons in tabs
+  osx_defaults:
+    domain: com.apple.Safari
+    key: ShowIconsInTabs
+    type: bool
+    value: "true"
+
+# https://github.com/mathiasbynens/custom.keylayout/issues/7
+- name: Add Czech keyboard
+  osx_defaults:
+    domain: com.apple.HIToolbox
+    key: AppleEnabledInputSources
+    type: array
+    value:
+      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>0</integer><key>KeyboardLayout Name</key><string>U.S.</string></dict>'
+      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>30778</integer><key>KeyboardLayout Name</key><string>Czech-QWERTY</string></dict>'
+  changed_when: false
+
+- name: Automatically keep my Mac up to date
+  osx_defaults:
+    domain: "{{ item.domain }}"
+    key: "{{ item.key }}"
+    type: bool
+    value: "true"
+  loop:
+    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
+      key: AutomaticallyInstallMacOSUpdates
+    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
+      key: AutomaticCheckEnabled
+    - domain: /Library/Preferences/com.apple.commerce.plist
+      key: AutoUpdate
+  become: yes
+
+# https://osxdaily.com/2010/02/03/how-to-prevent-ds_store-file-creation/
+- name: Stop DS_Store File Creation on Network Volumes
+  osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: "true"
+
+# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
+- name: Enable tap-to-click
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: Clicking
+    type: int
+    value: 1
+
+# https://www.moldvan.com/keeping-night-shift-on-in-osx/
+- name: Enable Night Shift
+  command: /usr/libexec/PlistBuddy -c "Set :CBUser-{{ generateduid }}:CBBlueReductionStatus:BlueReductionMode 1" /private/var/root/Library/Preferences/com.apple.CoreBrightness.plist
+  changed_when: false
+  become: yes
+  # The file above doesn't exists in GitHub's MacOS instance
+  tags: skip_test
+
+- name: Enable File Sharing (Samba)
+  command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
+  changed_when: '"service already loaded" not in launchctl_smbd.stderr'
+  register: launchctl_smbd
+  become: yes
+
+- name: Get list of all shared directories
+  command: sharing -l
+  changed_when: false
+  register: sharing
+
+# https://krypted.com/mac-os-x-server/setup-file-sharing-service-macos-10-13-high-sierra/
+- name: Share directories
+  command: sharing -a {{ item }} -g 000 -A {{ item | basename }}
+  when: item not in sharing.stdout
+  loop:
+    - "{{ ansible_user_dir }}/Music"
+  become: yes
+
+# https://krypted.com/mac-os-x/enable-smb-sharing-specified-users-macos/
+- name: Allow SMB to use user passwords
+  command: pwpolicy -u {{ ansible_user_id }} -sethashtypes SMB-NT on
+  changed_when: false
+  become: yes
+
+- name: Configure SMB shares via automount
+  lineinfile:
+    path: /etc/auto_master
+    regexp: '^/-                      auto_smb        -nosuid,noowner'
+    line: '/-                      auto_smb        -nosuid,noowner'
+    mode: u=rw,g=r,o=r
+  become: yes
+
+- name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
+  file:
+    path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+  become: yes
+
+# https://gist.github.com/rudelm/7bcc905ab748ab9879ea
+- name: Configure SMB shares via automount
+  copy:
+    dest: /etc/auto_smb
+    mode: 0600
+    content: |
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
+      /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
+  become: yes
+  tags:
+    - secrets
+
+- name: Configure Finder sidebar favourites
+  shell: |
+    /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
+    /usr/local/bin/mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
+  changed_when: false
+
+- name: Create ~/Library/LaunchAgents/ddns-update.plist
+  template:
+    src: files/Users/myusername/Library/LaunchAgents/ddns-update.plist.j2
+    dest: ~/Library/LaunchAgents/ddns-update.plist
+    mode: 0600
+  no_log: true
+  tags:
+    - secrets
+
+- name: Activate ~/Library/LaunchAgents/ddns-update.plist
+  command: launchctl load ~/Library/LaunchAgents/ddns-update.plist
+  changed_when: "'service already loaded' not in launchctl.stderr"
+  register: launchctl
+  tags:
+    - secrets
+
+- name: Create Library/LaunchAgents directory for brew autoupdate
+  file:
+    path: ~/Library/LaunchAgents
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+# https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
+- name: Install brew autoupdate
+  command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
+  args:
+    creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
+
+- name: Remove all Dock items
+  command: /usr/local/bin/dockutil --remove all --no-restart
+  changed_when: false
+
+- name: Add Dock items
+  command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
+  register: dock_add
+  changed_when: false
+  loop: "{{ dock_add_items }}"
 
 ################################################
 # ZSH + Oh My Zsh + Powerlevel10k + fzf
@@ -377,27 +591,30 @@
 
       # Key bindings
       source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+    mode: u=rw,g=r,o=r
 
 - name: Chnage ~/.zshrc
   replace:
     dest: ~/.zshrc
     regexp: "{{ item.regexp }}"
     replace: "{{ item.replace }}"
+    mode: u=rw,g=r,o=r
   loop:
     - regexp: '^plugins=.*'
-      replace: 'plugins=(autojump docker git vagrant-prompt)'
+      replace: plugins=(autojump docker git vagrant-prompt)
     # robbyrussell is not used - using powerlevel10k
     - regexp: '^ZSH_THEME="robbyrussell"'
       replace: '# ZSH_THEME="robbyrussell"'
     # Fix slows down copy-pasting
     - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
-      replace: 'DISABLE_MAGIC_FUNCTIONS="true"'
+      replace: DISABLE_MAGIC_FUNCTIONS="true"
 
 - name: Copy p10k-lean.zsh to ~/
   file:
     src: /usr/local/opt/powerlevel10k/config/p10k-lean.zsh
     dest: ~/.p10k.zsh
     state: link
+    mode: u=rw,g=r,o=r
 
 - name: Add commands to ~/.zshrc
   blockinfile:
@@ -435,8 +652,8 @@
       alias history="history -i"
 
       source ~/.fzf.zsh
-      source ~/lib/oracle-cli/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
       source ~/Documents/secrets/secret_variables
+      source /usr/local/opt/oci-cli/libexec/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
 
       # Simpler prompt when using Midnight Commander
       if ps $PPID |grep mc; then
@@ -475,15 +692,61 @@
       POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
       POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
 
-- name: Remove all Dock items
-  command: /usr/local/bin/dockutil --remove all --no-restart
-  changed_when: false
+################################################
+# Application configuration
+################################################
 
-- name: Add Dock items
-  command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
-  register: dock_add
-  changed_when: false
-  loop: "{{ dock_add_items }}"
+- name: Check if iTerm2 config file is present (~/Library/Preferences/com.googlecode.iterm2.plist)
+  stat:
+    path: ~/Library/Preferences/com.googlecode.iterm2.plist
+  register: com_googlecode_iterm2_plist
+
+- name: Configure iTerm2
+  block:
+    - name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
+      osx_defaults:
+        domain: com.googlecode.iterm2
+        key: "{{ item.key }}"
+        type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+        value: "{{ item.value }}"
+      loop:
+        - key: SmartPlacement
+          value: "true"
+        - key: PromptOnQuit
+          value: "false"
+        - key: FocusFollowsMouse
+          value: "true"
+        - key: NoSyncTipsDisabled
+          value: "true"
+        - key: OnlyWhenMoreTabs
+          value: "false"
+        - key: QuitWhenAllWindowsClosed
+          value: "true"
+        - key: SUEnableAutomaticChecks
+          value: "false"
+        - key: ThreeFingerEmulates
+          value: "true"
+        - key: TabViewType
+          type: int
+          value: 1
+        - key: DoubleClickPerformsSmartSelection
+          value: "true"
+
+    - name: Configure iTerm2 using PlistBuddy
+      shell: |
+        open --background -a iTerm
+        sleep 10
+        osascript -e 'quit app "iTerm"'
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Custom Directory\" \"Recycle\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Option Key Sends\" 2"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Right Option Key Sends\" 2"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+  when: not com_googlecode_iterm2_plist.stat.exists
 
 - name: Configure Rectangle
   osx_defaults:
@@ -497,7 +760,7 @@
     domain: com.yujitach.MenuMeters
     key: v2.0.7alertPresented
     type: bool
-    value: 'true'
+    value: "true"
 
 - name: Configure MenuMeters
   osx_defaults:
@@ -589,55 +852,6 @@
       type: int
       value: 65
 
-- name: Check if iTerm2 config file is present (~/Library/Preferences/com.googlecode.iterm2.plist)
-  stat:
-    path: ~/Library/Preferences/com.googlecode.iterm2.plist
-  register: com_googlecode_iterm2_plist
-
-- name: Configure iTerm2
-  block:
-    - name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
-      osx_defaults:
-        domain: com.googlecode.iterm2
-        key: "{{ item.key }}"
-        type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
-        value: "{{ item.value }}"
-      loop:
-        - key: SmartPlacement
-          value: "true"
-        - key: PromptOnQuit
-          value: "false"
-        - key: FocusFollowsMouse
-          value: "true"
-        - key: NoSyncTipsDisabled
-          value: "true"
-        - key: OnlyWhenMoreTabs
-          value: "false"
-        - key: QuitWhenAllWindowsClosed
-          value: "true"
-        - key: SUEnableAutomaticChecks
-          value: "false"
-        - key: ThreeFingerEmulates
-          value: "true"
-        - key: TabViewType
-          type: int
-          value: 1
-        - key: DoubleClickPerformsSmartSelection
-          value: "true"
-
-    - name: Configure iTerm2 using PlistBuddy
-      shell: |
-        open --background -a iTerm
-        sleep 10
-        osascript -e 'quit app "iTerm"'
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-  when: not com_googlecode_iterm2_plist.stat.exists
-
 - name: Configure Vagrant-manager
   osx_defaults:
     domain: lanayo.Vagrant-Manager
@@ -662,7 +876,7 @@
       value: true
     - key: SUEnableAutomaticChecks
       type: bool
-      value: 'false'
+      value: "false"
 
 - name: Start screensaver after 5 mins
   osx_defaults:
@@ -735,60 +949,16 @@
       type: int
       value: 4
     - key: /org/gnome/meld/highlight-current-line
-      value: 'true'
+      value: "true"
     - key: /org/gnome/meld/style-scheme
       type: string
       value: cobalt
     - key: /org/gnome/meld/show-line-numbers
-      value: 'true'
+      value: "true"
     - key: /org/gnome/meld/insert-spaces-instead-of-tabs
-      value: 'true'
+      value: "true"
     - key: /org/gnome/meld/highlight-syntax
-      value: 'true'
-
-- name: Configure wifi interface if exists
-  block:
-    - name: Add Open wifi accounts
-      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      loop: "{{ open_wifi }}"
-
-    - name: Add WPA/WPA2 Personal wifi accounts
-      command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      loop: "{{ wpa_personal_wifi }}"
-      loop_control:
-        label: "{{ item.ssid }}"
-
-    - name: Unlock keychain (needed for "security add-generic-password")
-      command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
-      changed_when: false
-
-    - name: Add WPA/WPA2 Enterprise wifi accounts
-      shell: |
-        security add-generic-password -a "{{ item.identity }}" -s "com.apple.network.eap.user.item.wlan.ssid.{{ item.ssid }}" -w "{{ item.password }}" -D "802.1X Password" -l "{{ item.ssid }}" -T "/System/Library/CoreServices/SystemUIServer.app" -T "group:///AirPort" -T "/System/Library/SystemConfiguration/EAPOLController.bundle/Contents/Resources/eapolclient" -T "/System/Library/CoreServices/WiFiAgent.app"
-        networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2E
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      loop: "{{ wpa_enterprise_wifi }}"
-      loop_control:
-        label: "{{ item.ssid }}"
-  when: wifi_interface == "en0"
-  tags:
-    - secrets
-
-- name: Create Library/LaunchAgents directory for brew autoupdate
-  file:
-    path: ~/Library/LaunchAgents
-    state: directory
-
-# https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
-- name: Install brew autoupdate
-  command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
-  args:
-    creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
+      value: "true"
 
 - name: Configure IINA
   osx_defaults:
@@ -801,163 +971,17 @@
       type: string
       value: mpv Default
     - key: enableAdvancedSettings
-      value: 'true'
+      value: "true"
     - key: useUserDefinedConfDir
-      value: 'true'
+      value: "true"
     - key: SUEnableAutomaticChecks
-      value: 'false'
+      value: "false"
     - key: maxVolume
       type: int
       value: 200
     - key: audioLanguage
       type: string
       value: "cs,cze,ces"
-
-# https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
-- name: Disable Reopen Windows When Logging Back
-  osx_defaults:
-    domain: com.apple.loginwindow
-    key: TALLogoutSavesState
-    type: bool
-    value: 'false'
-
-- name: Show the full URL in the address bar
-  osx_defaults:
-    domain: com.apple.Safari
-    key: ShowFullURLInSmartSearchField
-    type: bool
-    value: "true"
-
-- name: Show website icons in tabs
-  osx_defaults:
-    domain: com.apple.Safari
-    key: ShowIconsInTabs
-    type: bool
-    value: "true"
-
-# https://github.com/mathiasbynens/custom.keylayout/issues/7
-- name: Add Czech keyboard
-  osx_defaults:
-    domain: com.apple.HIToolbox
-    key: AppleEnabledInputSources
-    type: array
-    value:
-      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>0</integer><key>KeyboardLayout Name</key><string>U.S.</string></dict>'
-      - '<dict><key>InputSourceKind</key><string>Keyboard Layout</string><key>KeyboardLayout ID</key><integer>30778</integer><key>KeyboardLayout Name</key><string>Czech-QWERTY</string></dict>'
-  changed_when: false
-
-- name: Automatically keep my Mac up to date
-  osx_defaults:
-    domain: "{{ item.domain }}"
-    key: "{{ item.key }}"
-    type: bool
-    value: "true"
-  loop:
-    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
-      key: AutomaticallyInstallMacOSUpdates
-    - domain: /Library/Preferences/com.apple.SoftwareUpdate.plist
-      key: AutomaticCheckEnabled
-    - domain: /Library/Preferences/com.apple.commerce.plist
-      key: AutoUpdate
-  become: yes
-
-# https://osxdaily.com/2010/02/03/how-to-prevent-ds_store-file-creation/
-- name: Stop DS_Store File Creation on Network Volumes
-  osx_defaults:
-    domain: com.apple.desktopservices
-    key: DSDontWriteNetworkStores
-    type: bool
-    value: "true"
-
-# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
-- name: Enable tap-to-click
-  osx_defaults:
-    domain: com.apple.AppleMultitouchTrackpad
-    key: Clicking
-    type: int
-    value: 1
-
-# https://www.moldvan.com/keeping-night-shift-on-in-osx/
-- name: Enable Night Shift
-  command: /usr/libexec/PlistBuddy -c "Set :CBUser-{{ generateduid }}:CBBlueReductionStatus:BlueReductionMode 1" /private/var/root/Library/Preferences/com.apple.CoreBrightness.plist
-  changed_when: false
-  become: yes
-  # The file above doesn't exists in GitHub's MacOS instance
-  tags: skip_test
-
-- name: Create ~/Library/LaunchAgents/ddns-update.plist
-  template:
-    src: files/Users/myusername/Library/LaunchAgents/ddns-update.plist.j2
-    dest: ~/Library/LaunchAgents/ddns-update.plist
-    mode: 0600
-  no_log: true
-  tags:
-    - secrets
-
-- name: Activate ~/Library/LaunchAgents/ddns-update.plist
-  command: launchctl load ~/Library/LaunchAgents/ddns-update.plist
-  changed_when: "'service already loaded' not in launchctl.stderr"
-  register: launchctl
-  tags:
-    - secrets
-
-- name: Enable File Sharing (Samba)
-  command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
-  changed_when: '"service already loaded" not in launchctl_smbd.stderr'
-  register: launchctl_smbd
-  become: yes
-
-- name: Get list of all shared directories
-  command: sharing -l
-  changed_when: false
-  register: sharing
-
-# https://krypted.com/mac-os-x-server/setup-file-sharing-service-macos-10-13-high-sierra/
-- name: Share directories
-  command: sharing -a {{ item }} -g 000 -A {{ item | basename }}
-  when: item not in sharing.stdout
-  loop:
-    - "{{ ansible_user_dir }}/Music"
-  become: yes
-
-# https://krypted.com/mac-os-x/enable-smb-sharing-specified-users-macos/
-- name: Allow SMB to use user passwords
-  command: pwpolicy -u {{ ansible_user_id }} -sethashtypes SMB-NT on
-  changed_when: false
-  become: yes
-
-- name: Configure SMB shares via automount
-  lineinfile:
-    path: /etc/auto_master
-    regexp: '^/-                      auto_smb        -nosuid,noowner'
-    line: '/-                      auto_smb        -nosuid,noowner'
-  become: yes
-
-- name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
-  file:
-    path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-    state: directory
-  become: yes
-
-# https://gist.github.com/rudelm/7bcc905ab748ab9879ea
-- name: Configure SMB shares via automount
-  copy:
-    dest: /etc/auto_smb
-    mode: 0600
-    content: |
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
-  become: yes
-  tags:
-    - secrets
-
-- name: Configure Finder sidebar favourites
-  shell: |
-    /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
-    /usr/local/bin/mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
-  changed_when: false
 
 - name: Configure JDownloader - GeneralSettings
   copy:
@@ -969,6 +993,7 @@
         "iffileexistsaction" : "SKIP_FILE",
         "showcountdownonautostartdownloads" : false
       }
+    mode: u=rw,g=r,o=r
 
 - name: Configure JDownloader - ExtractionExtension
   copy:
@@ -980,12 +1005,13 @@
         "enabled" : true,
         "iffileexistsaction" : "SKIP_FILE"
       }
+    mode: u=rw,g=r,o=r
 
 - name: Create directory for Kap
   file:
     path: ~/Library/Application Support/Kap/plugins
     state: directory
-
+    mode: u=rwx,g=rx,o=rx
 
 - name: Configure Kap
   copy:
@@ -996,6 +1022,7 @@
         "recordAudio": true,
         "audioInputDeviceId": "AppleHDAEngineInput:1B,0,1,0:1"
       }
+    mode: u=rw,g=r,o=r
 
 - name: Configure Kap plugins
   copy:
@@ -1007,6 +1034,7 @@
           "kap-hide-desktop-icons": "latest"
         }
       }
+    mode: u=rw,g=r,o=r
 
 - name: Install Kap plugins
   npm:
@@ -1014,7 +1042,94 @@
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
-############################ Interactive ############################
+- name: Configure AltTab
+  osx_defaults:
+    domain: com.lwouis.alt-tab-macos
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: menubarIcon
+      value: 3
+    - key: maxScreenUsage
+      value: 100
+    - key: fadeOutAnimation
+      value: "true"
+    - key: hideSpaceNumberLabels
+      value: "true"
+    - key: hideStatusIcons
+      value: "true"
+    - key: iconSize
+      value: 20
+
+- name: Create Docker Desktop config directory
+  file:
+    path: ~/Library/Group Containers/group.com.docker
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+# https://stackoverflow.com/questions/54740934/is-there-any-way-to-enable-kubernetes-on-docker-for-mac-via-terminal
+- name: Configure Docker Desktop
+  copy:
+    dest: ~/Library/Group Containers/group.com.docker/settings.json
+    content: |
+      {
+        "analyticsEnabled": false,
+        "autoStart" : false,
+        "checkForUpdates": false,
+        "cpus": 4,
+        "diskSizeMiB": 20000,
+        "displayedTutorial" : true,
+        "memoryMiB": 4096,
+        "swapMiB": 0
+      }
+    mode: u=rw,g=r,o=r
+
+- name: Configure Stats
+  osx_defaults:
+    domain: eu.exelban.Stats
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    - key: CPU_widget
+      type: string
+      value: line_chart
+    - key: CPU_line_chart_label
+      value: "false"
+    - key: CPU_line_chart_box
+      value: "false"
+    - key: CPU_line_chart_frame
+      value: "true"
+    - key: CPU_line_chart_color
+      type: string
+      value: Based on utilization
+    - key: RAM_widget
+      type: string
+      value: line_chart
+    - key: RAM_line_chart_label
+      value: "false"
+    - key: RAM_line_chart_box
+      value: "false"
+    - key: RAM_line_chart_frame
+      value: "true"
+    - key: RAM_line_chart_color
+      type: string
+      value: Based on pressure
+    - key: Disk_widget
+      type: string
+      value: speed
+    - key: Disk_removable
+      value: "true"
+    - key: Battery_state
+      value: "false"
+    - key: Network_speed_icon
+      type: string
+      value: Character
+
+################################################
+# Interactive (can not be "automated")
+################################################
 
 - name: Check if VirtualBox is installed
   command: /usr/local/bin/brew cask ls
@@ -1031,6 +1146,8 @@
     - name: Run Applications which needs some manual tasks (approvals)
       command: "{{ item }}"
       loop:
+        - open -a AltTab
+        - open -a Docker
         - open -a "Google Chrome" --args --make-default-browser
         - open -a Fluor
         - open -a Itsycal
@@ -1039,7 +1156,7 @@
 
     - name: Interactive
       pause:
-        prompt: "To continue with interactive tasks press ENTER"
+        prompt: "Manually Approve/Configure all appliations/popups  and continue by pressing ENTER"
       tags: interactive
 
     # MacOS will open several windows which needs to be confirmed otherwise it will fail
