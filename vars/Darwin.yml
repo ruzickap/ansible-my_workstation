@@ -15,9 +15,7 @@ login_items_enabled:
   - Fluor
   - Itsycal
   - KeePassXC
-  - KeepingYouAwake
   - Stats
-  - Vagrant Manager
 
 homebrew_taps:
   - argoproj/tap
@@ -117,7 +115,6 @@ homebrew_casks:
   - jdownloader
   - kap                                          # Screen recorder
   - keepassxc
-  - keepingyouawake                              # Prevents your Mac from going to sleep
   - mactex-no-gui
   - meld
   - menumeters                                   # Set of CPU, memory, disk, and network monitoring tools for Mac OS X
@@ -131,7 +128,6 @@ homebrew_casks:
   - slack
   - stats
   - vagrant
-  - vagrant-manager
   - visual-studio-code
   - zoomus
 

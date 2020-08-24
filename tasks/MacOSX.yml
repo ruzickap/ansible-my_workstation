@@ -91,6 +91,8 @@
   homebrew_cask:
     name: "{{ homebrew_casks }}"
     install_options: no-quarantine
+  register: result
+  until: result is succeeded
 
 - name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
   set_fact:
@@ -790,18 +792,6 @@
     - key: com.ragingmenace.MenuMeterDisk
       value: 0
 
-- name: Configure KeepingYouAwake
-  osx_defaults:
-    domain: info.marcel-dierkes.KeepingYouAwake
-    key: "{{ item.key }}"
-    type: int
-    value: "{{ item.value }}"
-  loop:
-    - key: SUEnableAutomaticChecks
-      value: 0
-    - key: info.marcel-dierkes.KeepingYouAwake.LaunchAtLogin
-      value: 1
-
 - name: Add application to Fluor which should have FN keys enabled
   osx_defaults:
     domain: com.pyrolyse.Fluor
@@ -851,32 +841,6 @@
     - key: HighlightedDOWs
       type: int
       value: 65
-
-- name: Configure Vagrant-manager
-  osx_defaults:
-    domain: lanayo.Vagrant-Manager
-    key: "{{ item.key }}"
-    type: "{{ item.type }}"
-    value: "{{ item.value }}"
-  loop:
-    - key: terminalPreference
-      type: string
-      value: iTerm
-    - key: terminalEditorPreference
-      type: string
-      value: vim
-    - key: dontShowRunningVmCount
-      type: bool
-      value: true
-    - key: refreshEveryInterval
-      type: int
-      value: 5
-    - key: dontAnimateStatusIcon
-      type: bool
-      value: true
-    - key: SUEnableAutomaticChecks
-      type: bool
-      value: "false"
 
 - name: Start screensaver after 5 mins
   osx_defaults:
