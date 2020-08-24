@@ -13,6 +13,7 @@
         regexp: '^{{ ansible_user_id }} ALL='
         line: '{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL'
         validate: 'visudo -cf %s'
+        mode: 0440
       become: yes
 
     - name: Include secrets.yml

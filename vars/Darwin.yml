@@ -11,11 +11,12 @@ dock_add_items:
 dock_icons_size: 36.0
 
 login_items_enabled:
+  - AltTab
   - Fluor
   - Itsycal
   - KeePassXC
   - KeepingYouAwake
-  - MenuMeters
+  - Stats
   - Vagrant Manager
 
 homebrew_taps:
@@ -100,9 +101,11 @@ homebrew_packages:
 
 homebrew_casks:
   - aerial
+  - alt-tab
   - avibrazil-rdm
   - darktable
   - digikam
+  - docker
   - firefox
   - fluor                                        # Automatically change the behavior of the keyboard's fn keys
   - google-chrome
@@ -126,6 +129,7 @@ homebrew_casks:
   - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
   - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
   - slack
+  - stats
   - vagrant
   - vagrant-manager
   - visual-studio-code

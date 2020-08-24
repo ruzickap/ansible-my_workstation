@@ -81,6 +81,7 @@ dnf_packages:
   - iotop
   - iwl7260-firmware
   - jq
+  - latexmk
   - lensfun-tools
   - lftp
   - libvirt-daemon-config-network                      # Needed for Virtual Machine Manager - /etc/libvirt/qemu/networks/default.xml network configuration

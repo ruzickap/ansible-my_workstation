@@ -8,8 +8,9 @@
       lineinfile:
         dest: /etc/hosts
         regexp: '^127.0.1.1'
-        line: '127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}'
+        line: 127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}
       # MacOS is changing it's hostname
+        mode: u=rw,g=r,o=r
       changed_when: false
 
     - name: Configure aliases
@@ -17,6 +18,7 @@
         dest: /etc/aliases
         regexp: ^root:\s+
         line: "root:           {{ email }}"
+        mode: u=rw,g=r,o=r
       notify: newaliases
       tags: user_specific
 
@@ -26,6 +28,7 @@
         section: null
         option: "{{ item.option }}"
         value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
       loop:
         - option: inet_protocols
           value: ipv4
@@ -92,28 +95,29 @@
         section: "{{ item.section }}"
         option: "{{ item.option }}"
         value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
       loop:
         - section: Midnight-Commander
           option: auto_save_setup
-          value: 'false'
+          value: "false"
         - section: Midnight-Commander
           option: drop_menus
-          value: 'true'
+          value: "true"
         - section: Midnight-Commander
           option: editor_return_does_auto_indent
-          value: 'false'
+          value: "false"
         - section: Layout
           option: keybar_visible
-          value: 'false'
+          value: "false"
         - section: Layout
           option: menubar_visible
-          value: 'false'
+          value: "false"
         - section: Layout
           option: message_visible
-          value: 'false'
+          value: "false"
         - section: Panels
           option: navigate_with_arrows
-          value: 'true'
+          value: "true"
 
     - name: Copy the mc.ext to the ~/.config/mc/
       copy:
@@ -121,15 +125,17 @@
         dest: ~/.config/mc/mc.ext
         remote_src: yes
         force: no
+        mode: preserve
 
     - name: Use exiftool to show jpg files in MC (~/.config/mc/mc.ext)
       replace:
         path: ~/.config/mc/mc.ext
         regexp: "{{ item.regexp }}"
         replace: "{{ item.replace }}"
+        mode: u=rw,g=r,o=r
       loop:
-        - regexp: 'View=%view{ascii} .*/image.sh view jpeg'
-          replace: 'View=%view{ascii} exiftool %f'
+        - regexp: View=%view{ascii} .*/image.sh view jpeg
+          replace: View=%view{ascii} exiftool %f
 
     - name: Add configurations for MC (~/.config/mc/mc.ext)
       blockinfile:
@@ -151,6 +157,7 @@
         state: directory
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid | string }}"
+        mode: 0700
 
     - name: Copy mc configuration to to User's home direcotry
       copy:
@@ -159,6 +166,7 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid | string }}"
         remote_src: yes
+        mode: preserve
 
     - name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
       authorized_key:
@@ -187,11 +195,13 @@
   copy:
     src: files/home/myusername/.SpaceVim.d
     dest: ~/
+    mode: preserve
 
 - name: Create .terraform.d/plugins directory
   file:
     path: ~/.terraform.d/plugins
     state: directory
+    mode: u=rwx,g=rwx,o=rx
   register: terraform_plugins_dir
 
 - name: Download Terraform plugins if they were not previously downloaded
@@ -236,6 +246,7 @@
     allow_no_value: yes
     option: "{{ item.option }}"
     value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
   loop:
     - option: autofit-larger
       value: 100%x95%
@@ -284,6 +295,7 @@
   copy:
     src: files/home/myusername/.config/darktable
     dest: ~/.config/
+    mode: preserve
 
 - name: Configure darktable
   ini_file:
@@ -295,11 +307,11 @@
     mode: 0600
   loop:
     - option: send_to_trash
-      value: 'FALSE'
+      value: "false"
     - option: ask_before_delete
-      value: 'FALSE'
+      value: "false"
     - option: ask_before_remove
-      value: 'FALSE'
+      value: "false"
     - option: cache_memory
       value: 536870912
     - option: host_memory_limit
@@ -309,13 +321,13 @@
     - option: plugins/imageio/format/tiff/compresslevel
       value: 9
     - option: plugins/lighttable/export/high_quality_processing
-      value: 'TRUE'
+      value: "true"
     - option: ui_last/import_apply_metadata
-      value: 'TRUE'
+      value: "true"
     - option: ui_last/import_last_creator
-      value: 'Petr Ruzicka'
+      value: Petr Ruzicka
     - option: ui_last/import_last_rights
-      value: 'Creative Commons Attribution-ShareAlike (CC BY-SA)'
+      value: Creative Commons Attribution-ShareAlike (CC BY-SA)
     - option: plugins/darkroom/demosaic/quality
       value: at most PPG (reasonable)
     - option: plugins/lighttable/filmstrip/height
@@ -323,79 +335,79 @@
     - option: plugins/lighttable/images_in_row
       value: 6
     - option: lighttable/ui/expose_statuses
-      value: 'TRUE'
+      value: "true"
     - option: ui_last/grouping
-      value: 'TRUE'
+      value: "true"
     - option: lighttable/ui/bottom_visible
-      value: 'FALSE'
+      value: "false"
     - option: lighttable/ui/toolbar_bottom_visible
-      value: 'FALSE'
+      value: "false"
     - option: lighttable/ui/header_visible
-      value: 'FALSE'
+      value: "false"
     - option: plugins/darkroom/history/expanded
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/metadata_view/expanded
-      value: 'TRUE'
+      value: "true"
     - option: plugins/lighttable/metadata_view/expanded
-      value: 'TRUE'
+      value: "true"
     - option: plugins/lighttable/timeline/visible
-      value: 'FALSE'
+      value: "false"
     - option: ui_last/import_ignore_jpegs
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/basecurve/auto_apply
-      value: 'FALSE'
+      value: "false"
     - option: plugins/darkroom/ashift/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/atrous/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/basecurve/visible
-      value: 'FALSE'
+      value: "false"
     - option: plugins/darkroom/channelmixer/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colisa/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colorchecker/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colorcorrection/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colorreconstruct/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colorreconstruct/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/colorzones/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/defringe/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/filmicrgb/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/globaltonemap/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/graduatednd/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/grain/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/highpass/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/lowpass/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/monochrome/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/rawdenoise/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/retouch/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/shadhi/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/soften/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/splittoning/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/tonecurve/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/velvia/visible
-      value: 'TRUE'
+      value: "true"
     - option: plugins/darkroom/vignette/visible
-      value: 'TRUE'
+      value: "true"
 
 - name: Install krew plugins
   command: kubectl krew install {{ item }}
@@ -409,6 +421,7 @@
   file:
     path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
     state: directory
+    mode: u=rwx,g=rwx,o=rx
 
 - name: Copy KeePassxc settings
   ini_file:
@@ -421,13 +434,13 @@
   loop:
     - section: General
       option: AutoSaveAfterEveryChange
-      value: 'false'
+      value: "false"
     - section: General
       option: AutoSaveOnExit
-      value: 'false'
+      value: "false"
     - section: General
       option: UpdateCheckMessageShown
-      value: 'true'
+      value: "true"
     - section: General
       option: LastDatabases
       value: "{{ ansible_user_dir }}/Documents/secrets/keepass2.kdbx"
@@ -436,34 +449,34 @@
       value: '@Variant(\0\0\0\x1c\0\0\0\x1\0\0\0\\\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0X\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
     - section: General
       option: SSHAgent
-      value: 'true'
+      value: "true"
     - section: General
       option: UseGroupIconOnEntryCreation
-      value: 'true'
+      value: "true"
     - section: Browser
       option: AlwaysAllowAccess
-      value: 'true'
+      value: "true"
     - section: Browser
       option: Enabled
-      value: 'true'
+      value: "true"
     - section: FdoSecrets
       option: Enabled
-      value: 'true'
+      value: "true"
     - section: GUI
       option: CheckForUpdates
-      value: 'false'
+      value: "false"
     - section: GUI
       option: MinimizeOnStartup
-      value: 'true'
+      value: "true"
     - section: GUI
       option: MinimizeToTray
-      value: 'true'
+      value: "true"
     - section: GUI
       option: MonospaceNotes
-      value: 'true'
+      value: "true"
     - section: GUI
       option: ShowTrayIcon
-      value: 'true'
+      value: "true"
     - section: security
       option: lockdatabasescreenlock
       value: "false"
@@ -471,8 +484,8 @@
 - name: Create ~/.config/qBittorrent directory
   file:
     path: ~/.config/qBittorrent
-    recurse: yes
     state: directory
+    mode: u=rwx,g=rwx,o=rx
 
 - name: Configure qBittorrent
   ini_file:
@@ -481,43 +494,44 @@
     section: "{{ item.section }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
+    mode: u=rw,g=rw,o=r
   loop:
     - section: LegalNotice
       option: Accepted
-      value: 'true'
+      value: "true"
     - section: GUI
       option: Log\Enabled
-      value: 'false'
+      value: "false"
     - section: Preferences
       option: Downloads\SavePath
-      value: '/var/tmp/x/'
+      value: /var/tmp/x/
     - section: Preferences
       option: Advanced\confirmTorrentDeletion
-      value: 'false'
+      value: "false"
     - section: Preferences
       option: Connection\GlobalDLLimit
-      value: '300'
+      value: 300
     - section: Preferences
       option: Connection\GlobalUPLimit
-      value: '10'
+      value: 10
     - section: Preferences
       option: Connection\GlobalDLLimitAlt
-      value: '0'
+      value: 0
     - section: Preferences
       option: Connection\GlobalUPLimitAlt
-      value: '0'
+      value: 0
     - section: Preferences
       option: Queueing\MaxActiveDownloads
-      value: '11'
+      value: 11
     - section: Preferences
       option: Queueing\MaxActiveTorrents
-      value: '11'
+      value: 11
     - section: Preferences
       option: Connection\InterfaceListenIPv6
-      value: 'true'
+      value: "true"
     - section: Preferences
       option: General\SystrayEnabled
-      value: 'false'
+      value: "false"
 
 - name: Create link between qBittorrent.conf and qBittorrent.ini to make it compatible between Linux / MacOS
   file:
@@ -525,6 +539,7 @@
     dest: ~/.config/qBittorrent/qBittorrent.ini
     force: yes
     state: link
+    mode: u=rw,g=rw,o=r
 
 - name: Configure digikam
   ini_file:
@@ -537,79 +552,79 @@
   loop:
     - section: Album Settings
       option: Icon Show Comments
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Date
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Icon Show Fullscreen
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Image Format
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Modification Date
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Icon Show Name
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Icon Show Overlays
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Rating
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Resolution
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Icon Show Size
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Icon Show Tags
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Icon Show Title
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Item Left Click Action
       value: 1
     - section: Album Settings
       option: Show Album ToolTips
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Show Folder Tree View Items Count
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: Show ToolTips
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: ToolTips Show Album Caption
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show Album Category
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show Album Collection
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show Comments
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show File Date
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: ToolTips Show File Size
-      value: 'true'
+      value: "true"
     - section: Album Settings
       option: ToolTips Show Label Rating
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show Tags
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: ToolTips Show Titles
-      value: 'false'
+      value: "false"
     - section: Album Settings
       option: Theme
       value: Black Body
@@ -627,19 +642,19 @@
       value: QSQLITE
     - section: General Settings
       option: Clean core DB At Start
-      value: 'true'
+      value: "true"
     - section: General Settings
       option: Icon Theme
       value: breeze-dark
     - section: General Settings
       option: Show Splash
-      value: 'false'
+      value: "false"
     - section: General Settings
       option: Show Trash Delete Dialog
-      value: 'false'
+      value: "false"
     - section: General Settings
       option: Use Large Thumbs
-      value: 'true'
+      value: "true"
     - section: Image Properties SideBar
       option: EXIF Tags Filter
       value: Exif.GPSInfo.GPSLatitude,Exif.GPSInfo.GPSLongitude,Exif.Image.DateTime,Exif.Image.DateTimeOriginal,Exif.Photo.DateTimeDigitized,Exif.Photo.DateTimeOriginal
@@ -648,42 +663,43 @@
       value: 98
     - section: ImageViewer Settings
       option: TIFFCompression
-      value: 'true'
+      value: "true"
     - section: ImageViewer Settings
       option: SlideShowDelay
       value: 3
     - section: Import Settings
       option: Show ToolTips
-      value: 'true'
+      value: "true"
     - section: Import Settings
       option: ToolTips Show File Date
-      value: 'true'
+      value: "true"
     - section: Import Settings
       option: ToolTips Show File Size
-      value: 'true'
+      value: "true"
     - section: Metadata Settings
       option: Metadata Writing Mode
       value: 2
     - section: Metadata Settings
       option: Rescan File If Modified
-      value: 'true'
+      value: "true"
     - section: Metadata Settings
       option: Save EXIF Comments
-      value: 'true'
+      value: "true"
     - section: Metadata Settings
       option: Save Tags
-      value: 'true'
+      value: "true"
     - section: Metadata Settings
       option: Use XMP Sidecar For Reading
-      value: 'true'
+      value: "true"
     - section: Versioning Settings
       option: Non-Destructive Editing Enabled
-      value: 'false'
+      value: "false"
 
 - name: Put VS Code configuation in place
   copy:
     src: files/home/myusername/.config/Code
     dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
+    mode: preserve
 
 - name: Install the VS Code extensions
   command: code --install-extension {{ item }}
@@ -718,12 +734,14 @@
     dest: ~/.forward
     content: |
       {{ email }}
+    mode: u=rw,g=r,o=r
   tags: user_specific
 
 - name: Configure git
   copy:
     src: files/home/myusername/.gitconfig
     dest: ~/.gitconfig
+    mode: u=rw,g=r,o=r
   tags: user_specific
 
 ###################################################
