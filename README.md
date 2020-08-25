@@ -63,6 +63,7 @@ manually in Catalina:
 * Internet accounts (Gmail)
 * Google Chrome (Login to Google services)
 * IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
+* IINA - set as default video player
 
 ## Notes
 

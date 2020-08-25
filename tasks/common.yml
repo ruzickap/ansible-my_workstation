@@ -875,4 +875,6 @@
         - url: https://raw.githubusercontent.com/toland/qlmarkdown/master/sample.md
 
   when: "'data' not in ansible_run_tags"
-  tags: test_data
+  tags:
+    - never
+    - test_data

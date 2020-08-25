@@ -649,7 +649,7 @@
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
       alias k=kubectl
       alias cat="bat -p --paging=never"
-      alias ls=exa
+      alias ls="exa -g"
       alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
