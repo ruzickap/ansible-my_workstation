@@ -81,6 +81,7 @@
           termcapinfo xterm ti@:te@
           hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
           vbell off
+        mode: u=rw,g=r,o=r
 
     - name: Create directory for mc inside ~/.config
       file:
@@ -217,6 +218,7 @@
         src: "https://releases.hashicorp.com/terraform-provider-{{ item.json.name }}/{{ item.json.version }}/terraform-provider-{{ item.json.name }}_{{ item.json.version }}_{{ ansible_system | lower }}_amd64.zip"
         dest: ~/.terraform.d/plugins
         remote_src: yes
+        mode: u=rwx,g=rx,o=rx
       loop: "{{ terraform_providers_registry.results }}"
   when: terraform_plugins_dir.changed
 
@@ -830,15 +832,17 @@
 
     - name: Download Music test data
       unarchive:
-        src: https://www.zvirecihudba.cz/albums/sound-of-the-year/Nahravka-roku_Sound-of-the-Year_mp3.zip
+        src: http://www.nohavica.cz/cz/tvorba/blog/virtualky3/virtualky3.zip
         dest: ~/Music/
         remote_src: yes
+        mode: u=rw,g=rw,o=r
 
     - name: Download raw fotos to ~/Pictures/
       unarchive:
         src: http://sulasula.com/lr/raw.zip
         dest: ~/Pictures/
         remote_src: yes
+        mode: u=rw,g=rw,o=r
 
     - name: Download fotos to ~/Pictures/
       get_url:
