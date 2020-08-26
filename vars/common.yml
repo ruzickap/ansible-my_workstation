@@ -49,6 +49,7 @@ code_extensions:
   - yzhang.markdown-all-in-one
 
 krew_plugins:
+  - cert-manager
   - get-all
   - outdated
   - resource-capacity
