@@ -705,7 +705,7 @@
 
 - name: Configure iTerm2
   block:
-    - name: Configure iTerm2 to use ~/.config/iterm2/com.googlecode.iterm2.plist
+    - name: Configure iTerm2
       osx_defaults:
         domain: com.googlecode.iterm2
         key: "{{ item.key }}"
@@ -737,17 +737,17 @@
     - name: Configure iTerm2 using PlistBuddy
       shell: |
         open --background -a iTerm
-        sleep 10
         osascript -e 'quit app "iTerm"'
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Columns\" 120"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Custom Directory\" \"Recycle\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Non Ascii Font\" \"MesloLGLNerdFontComplete-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Normal Font\" \"MesloLGSNerdFontCompleteM-Regular 13\""  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Option Key Sends\" 2"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Right Option Key Sends\" 2"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Rows\" 33"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Scrollback Lines\" 100000"  ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c "Set :\"New Bookmarks\":0:\"Use Non-ASCII Font\" \"true\""  ~/Library/Preferences/com.googlecode.iterm2.plist
+        sleep 10
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                                    ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Custom Directory"       "Recycle"'                              ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Non Ascii Font"         "MesloLGLNerdFontComplete-Regular 13"'  ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Normal Font"            "MesloLGSNerdFontCompleteM-Regular 13"' ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Option Key Sends"       2'                                      ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Right Option Key Sends" 2'                                      ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                                     ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                                 ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Use Non-ASCII Font"     "true"'                                 ~/Library/Preferences/com.googlecode.iterm2.plist
   when: not com_googlecode_iterm2_plist.stat.exists
 
 - name: Configure Rectangle
