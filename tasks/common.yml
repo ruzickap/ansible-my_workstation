@@ -708,7 +708,7 @@
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
   args:
-    creates: ~/.vscode/extensions
+    creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
 
 - name: Install npm packages
