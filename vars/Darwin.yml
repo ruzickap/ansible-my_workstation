@@ -11,7 +11,6 @@ dock_icons_size: 36.0
 
 login_items_enabled:
   - AltTab
-  - Fluor
   - Itsycal
   - KeePassXC
   - Stats
@@ -105,7 +104,6 @@ homebrew_casks:
   - digikam
   - docker
   - firefox
-  - fluor                                        # Automatically change the behavior of the keyboard's fn keys
   - google-chrome
   - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
