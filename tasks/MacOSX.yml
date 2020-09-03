@@ -815,39 +815,6 @@
     - key: com.ragingmenace.MenuMeterDisk
       value: 0
 
-- name: Add application to Fluor which should have FN keys enabled
-  osx_defaults:
-    domain: com.pyrolyse.Fluor
-    key: AppRules
-    type: array
-    value:
-      - |
-        <dict>
-          <key>behavior</key>
-          <integer>2</integer>
-          <key>id</key>
-          <string>com.googlecode.iterm2</string>
-          <key>path</key>
-          <string>/Applications/iTerm.app</string>
-        </dict>
-      - |
-        <dict>
-          <key>behavior</key>
-          <integer>2</integer>
-          <key>id</key>
-          <string>org.virtualbox.app.VirtualBoxVM</string>
-          <key>path</key>
-          <string>/Applications/VirtualBox.app/Contents/Resources/VirtualBoxVM.app</string>
-        </dict>
-  changed_when: false
-
-- name: Use light menu icon for Fluor
-  osx_defaults:
-    domain: com.pyrolyse.Fluor
-    key: UseLightIcon
-    type: int
-    value: 1
-
 - name: Configure ItsycalApp
   osx_defaults:
     domain: com.mowglii.ItsycalApp
@@ -1132,7 +1099,6 @@
         - open -a AltTab
         - open -a Docker
         - open -a "Google Chrome" --args --make-default-browser
-        - open -a Fluor
         - open -a Itsycal
         - open -a Kap
         - open -a Rectangle
