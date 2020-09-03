@@ -9,7 +9,7 @@
 [core]
     compression = 9
     autocrlf = input
-    pager = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
+    pager = bat --style=plain
     editor = vim
 
 [receive]
@@ -73,3 +73,10 @@
     oldHighlight = red bold 52
     newNormal = green bold
     newHighlight = green bold 22
+
+[pager]
+    diff = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
+    show = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
+
+[merge]
+    tool = meld

@@ -48,18 +48,13 @@
       command: pmset -a hibernatemode 0
       changed_when: false
 
-    # https://medium.com/macoclock/how-to-prevent-macos-catalina-from-sleeping-when-connected-to-an-external-monitor-e2c876dadaf9
-    - name: Prevent MacOS from sleeping
-      command: pmset disablesleep 1
-      changed_when: false
-
     # https://eclecticlight.co/2017/01/20/power-management-in-detail-using-pmset/
     - name: Turn display off after 1 hour when running on power adapter
       command: pmset -a displaysleep 60
       changed_when: false
 
     - name: Turn display off after 5 minutes when running on battery
-      command: pmset -b displaysleep 5
+      command: pmset -b displaysleep 1
       changed_when: false
 
   become: true
@@ -313,6 +308,13 @@
     - key: KeyRepeat
       value: 2
 
+# https://www.digitalcitizen.life/change-keyboard-input-language-mac
+- name: Configure keyboard switching
+  shell: |
+    /usr/libexec/PlistBuddy -c "set :AppleSymbolicHotKeys:61:enabled true" ~/Library/Preferences/com.apple.symbolichotkeys.plist
+  changed_when: false
+  tags: skip_test
+
 - name: Change clock to 24hour mode
   osx_defaults:
     domain: com.apple.menuextra.clock
@@ -547,8 +549,10 @@
     mode: u=rwx,g=rx,o=rx
 
 # https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
+# Remove notification due to bug: https://github.com/DomT4/homebrew-autoupdate/issues/31
 - name: Install brew autoupdate
-  command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
+  # command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
+  command: /usr/local/bin/brew autoupdate --start --upgrade
   args:
     creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
 
@@ -618,6 +622,14 @@
     state: link
     mode: u=rw,g=r,o=r
 
+# Needed for bash scripts or ansible
+- name: Add path to binaries to ~/.bashrc
+  copy:
+    dest: ~/.bashrc
+    content: |
+      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+    mode: u=rw,g=r,o=r
+
 - name: Add commands to ~/.zshrc
   blockinfile:
     dest: ~/.zshrc
@@ -639,7 +651,10 @@
       export PATH="${HOME}/Library/Python/3.8/bin:${PATH}"
 
       # Enable homebrew, find, sed, coreutils
-      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+
+      # Enable man pages
+      export MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:/usr/local/opt/gnu-sed/libexec/gnuman:/usr/local/opt/gnu-tar/libexec/gnuman:/usr/local/opt/findutils/libexec/gnuman:/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
       # Enable binaries for node, krew and ~/bin
       export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${PATH}"
@@ -652,6 +667,7 @@
       alias ls="exa -g"
       alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
+      trash() { mv -fv "$@" ~/.Trash/ ; }
 
       source ~/.fzf.zsh
       source ~/Documents/secrets/secret_variables
@@ -753,9 +769,16 @@
 - name: Configure Rectangle
   osx_defaults:
     domain: com.knollsoft.Rectangle
-    key: launchOnLogin
+    key: "{{ item.key }}"
     type: bool
-    value: "true"
+    value: "{{ item.value }}"
+  loop:
+    - key: launchOnLogin
+      value: "true"
+    - key: hideMenubarIcon
+      value: "true"
+    - key: SUEnableAutomaticChecks
+      value: "false"
 
 - name: Skip main menu when Menumeters starts
   osx_defaults:
@@ -842,13 +865,13 @@
       type: int
       value: 65
 
-- name: Start screensaver after 5 mins
+- name: Start screensaver after 1 mins
   osx_defaults:
     host: currentHost
     domain: com.apple.screensaver
     key: idleTime
     type: int
-    value: 300
+    value: 60
   # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
   tags: skip_test
 
@@ -866,6 +889,11 @@
         type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
         value: "{{ item.value }}"
       loop:
+        - key: firstTimeSetup
+          value: "true"
+        - key: timeMode
+          type: int
+          value: 1
         - key: intVideoFormat
           type: int
           value: 1
@@ -875,18 +903,7 @@
         - key: newViewingMode
           type: int
           value: 1
-        - key: timeMode
-          type: int
-          value: 1
-        - key: checkForUpdates
-          value: "false"
-        - key: updateWhileSaverMode
-          value: "false"
         - key: debugMode
-          value: "false"
-        - key: updateWhileSaverMode
-          value: "false"
-        - key: logToDisk
           value: "false"
 
     - name: Configure Aerial 2
@@ -1025,6 +1042,8 @@
       value: "true"
     - key: iconSize
       value: 20
+    - key: spacesToShow
+      value: 1
 
 - name: Create Docker Desktop config directory
   file:

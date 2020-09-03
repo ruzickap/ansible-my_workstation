@@ -2,7 +2,6 @@ login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=5
 
 # Items to add to the dock
 dock_add_items:
-  - /System/Applications/Mail.app
   - /System/Applications/Calendar.app
   - /Applications/iTerm.app
   - /Applications/Google Chrome.app
@@ -18,19 +17,16 @@ login_items_enabled:
   - Stats
 
 homebrew_taps:
-  - argoproj/tap
   - beeftornado/rmtree
   - domt4/autoupdate
   - homebrew/cask-fonts
   - johanhaleby/kubetail
   - romkatv/powerlevel10k
-  - tektoncd/tools
-  - weaveworks/tap
 
 homebrew_packages:
   - ansible                                      # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
-  - argoproj/tap/argocd
+  - argocd
   - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - autojump
   - aws-iam-authenticator
@@ -50,6 +46,7 @@ homebrew_packages:
   - gh
   - git-crypt                                    # openssl@1.1
   - gnu-sed
+  - gnu-tar
   - gpg                                          # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl@1.1, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
   - hadolint
   - helm
@@ -67,6 +64,7 @@ homebrew_packages:
   - lftp                                         # libidn, openssl@1.1 and readline
   - mas
   - mc                                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
+  - mpg123                                       # needed for mc to display mp3 files
   - nmap                                         # openssl@1.1
   - npm                                          # icu4c
   - oci-cli
@@ -79,16 +77,18 @@ homebrew_packages:
   - romkatv/powerlevel10k/powerlevel10k          # ncurses, pcre and zsh
   - shellcheck
   - speedtest-cli
+  - hudochenkov/sshpass/sshpass                  # needed for ansible
   - syncthing
-  - tektoncd/tools/tektoncd-cli
+  - tektoncd-cli
   - telnet
   - terminal-notifier                            # needed for the brew autoupdate
   - terraform
+  - terraform-docs                               # needed for pre-commit hook
   - tig                                          # readline
   - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc
   - unrar
   - watch                                        # ncurses
-  - weaveworks/tap/eksctl
+  - eksctl
   - wget                                         # gettext, libunistring, libidn2 and openssl@1.1
   - xorriso
   - yamllint                                     # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
