@@ -17,9 +17,9 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>bash</string>
-        <string>-c</string>
-        <string>/usr/local/bin/ansible -m setup -c local -i "localhost," localhost -a 'filter=ansible_default_ipv?' --tree /tmp/ ; test "$(/usr/local/bin/jq -r '.ansible_facts.ansible_default_ipv4.address' /tmp/localhost)" != "null" && /usr/local/bin/ansible -m cloudflare_dns -c local -i "localhost," localhost --extra-vars @/tmp/localhost -a "zone=[% my_hostname.split('.', 1)[1] %] record=[% my_hostname.split('.')[0] %] type=A value={{ ansible_facts.ansible_default_ipv4.address }} solo=true proxied=no account_email=${CLOUDFLARE_EMAIL} account_api_token=${CLOUDFLARE_API_KEY}"</string>
+      <string>bash</string>
+      <string>-c</string>
+      <string>/usr/local/bin/ansible -m setup -c local -i "localhost," localhost -a 'filter=ansible_default_ipv?' --tree /tmp/ ; test "$(/usr/local/bin/jq -r '.ansible_facts.ansible_default_ipv4.address' /tmp/localhost)" != "null" && /usr/local/bin/ansible -m cloudflare_dns -c local -i "localhost," localhost --extra-vars @/tmp/localhost -a "zone=[% my_hostname.split('.', 1)[1] %] record=[% my_hostname.split('.')[0] %] type=A value={{ ansible_facts.ansible_default_ipv4.address }} solo=true proxied=no account_email=${CLOUDFLARE_EMAIL} account_api_token=${CLOUDFLARE_API_KEY}" ; rm /tmp/localhost</string>
     </array>
 
     <key>WatchPaths</key>
