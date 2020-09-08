@@ -62,10 +62,10 @@ homebrew_packages:
   - kind
   - kops                                         # kubernetes-cli
   - krew                                         # kubernetes-cli
-  - kubectl
+  - kubernetes-cli
   - lftp                                         # libidn, openssl@1.1 and readline
   - mas
-  - mc                                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
+  - midnight-commander                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
   - mpg123                                       # needed for mc to display mp3 files
   - nmap                                         # openssl@1.1
   - npm                                          # icu4c

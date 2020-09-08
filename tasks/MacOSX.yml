@@ -72,7 +72,6 @@
 
 - name: Install Homebrew packages
   homebrew:
-    update_homebrew: yes
     name: "{{ homebrew_packages }}"
 
 - name: Create link from /usr/local/bin/pip3.8 /usr/local/bin/pip3
