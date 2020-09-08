@@ -41,19 +41,20 @@ jobs:
         run: |
           brew install ansible
 
-      - name: Run Ansible
+      - name: Ansible
         run: |
           echo "test_password" > vault-my_workstation.password
           ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
 
-      - name: Run Ansible 2
+      - name: Ansible - Idempotence tests
         run: |
           ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
-          if grep -q 'changed=0.*failed=0' /tmp/ansible.log ; then
-            echo 'Idempotence test: pass'
+          # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
+          if [ $(grep 'changed=0.*failed=0' /tmp/ansible.log | wc -l) = 1 ] ; then
+            echo -e '\nIdempotence test: pass'
             exit 0
           else
-            echo 'Idempotence test: fail'
+            echo -e '\nIdempotence test: fail\n'
             grep -B 2 '^changed:' /tmp/ansible.log
             exit 1
           fi
