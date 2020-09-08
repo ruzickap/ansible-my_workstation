@@ -466,6 +466,12 @@
   # The file above doesn't exists in GitHub's MacOS instance
   tags: skip_test
 
+# https://apple.stackexchange.com/questions/285607/always-show-function-keys-on-control-strip-when-using-terminal
+- name: Enable function keys for apps
+  command: defaults write com.apple.touchbar.agent PresentationModePerApp -dict-add {{ item }} 'functionKeys'
+  loop: "{{ enable_function_keys_apps }}"
+  changed_when: false
+
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
   changed_when: '"service already loaded" not in launchctl_smbd.stderr'
@@ -530,7 +536,7 @@
   template:
     src: files/Users/myusername/Library/LaunchAgents/ddns-update.plist.j2
     dest: ~/Library/LaunchAgents/ddns-update.plist
-    mode: 0600
+    mode: 0644
   no_log: true
   tags:
     - secrets
@@ -542,12 +548,6 @@
   tags:
     - secrets
 
-- name: Create Library/LaunchAgents directory for brew autoupdate
-  file:
-    path: ~/Library/LaunchAgents
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
 # https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
 # Remove notification due to bug: https://github.com/DomT4/homebrew-autoupdate/issues/31
 - name: Install brew autoupdate
@@ -555,6 +555,12 @@
   command: /usr/local/bin/brew autoupdate --start --upgrade
   args:
     creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
+
+- name: Add backup Launch Agent
+  copy:
+    src: files/Users/myusername/Library/LaunchAgents/backup.plist
+    dest: ~/Library/LaunchAgents/
+    mode: u=rw,g=r,o=r
 
 - name: Remove all Dock items
   command: /usr/local/bin/dockutil --remove all --no-restart

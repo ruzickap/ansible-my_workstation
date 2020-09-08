@@ -60,10 +60,14 @@ Logout or better restart your MacOS.
 There are few things which can not be done via scripts and must be done
 manually in Catalina:
 
-* Internet accounts (Gmail)
+* iCloud - enable only "Find My Mac"
+* Internet Accounts - add Gmail account - enable "Calendars"
 * Google Chrome (Login to Google services)
 * IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
 * IINA - set as default video player
+* Enable Full Disk Access in Security & Privacy Preferences for
+  `~/Documents/backups/backup` binary
+* Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
 
 ## Notes
 
