@@ -20,7 +20,6 @@ login_items_enabled:
 
 homebrew_taps:
   - beeftornado/rmtree
-  - domt4/autoupdate
   - homebrew/cask-fonts
   - johanhaleby/kubetail
   - romkatv/powerlevel10k
@@ -45,11 +44,13 @@ homebrew_packages:
   - fdupes                                       # pcre2
   - findutils
   - fzf
+  - gawk
   - gh
   - git-crypt                                    # openssl@1.1
   - gnu-sed
   - gnu-tar
   - gnupg                                        # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl@1.1, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
+  - grep
   - hadolint
   - helm
   - htop                                         # ncurses
@@ -73,6 +74,7 @@ homebrew_packages:
   - packer
   - pre-commit                                   # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - pv
+  - qpdf                                         # needed for decrypt password protected PDFs
   - rclone
   - restic
   - rhash
@@ -84,7 +86,6 @@ homebrew_packages:
   - syncthing
   - tektoncd-cli
   - telnet
-  - terminal-notifier                            # needed for the brew autoupdate
   - terraform
   - terraform-docs                               # needed for pre-commit hook
   - tig                                          # readline

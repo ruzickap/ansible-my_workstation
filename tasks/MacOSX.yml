@@ -471,6 +471,13 @@
   loop: "{{ enable_function_keys_apps }}"
   changed_when: false
 
+- name: Show all devices in Disk Utility
+  osx_defaults:
+    domain: com.apple.DiskUtility
+    key: SidebarShowAllDevices
+    type: bool
+    value: "true"
+
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
   changed_when: '"service already loaded" not in launchctl_smbd.stderr'
@@ -525,6 +532,12 @@
   tags:
     - secrets
 
+- name: Create link from /System/Volumes/Data/mnt/{{ raspi_hostname }} to ~/Documents/
+  file:
+    src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+    dest: ~/Documents/{{ raspi_hostname }}
+    state: link
+
 - name: Configure Finder sidebar favourites
   shell: |
     /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
@@ -546,14 +559,6 @@
   register: launchctl
   tags:
     - secrets
-
-# https://newpush.com/2020/05/set-up-automatic-updates-for-brew-on-mac-os-x/
-# Remove notification due to bug: https://github.com/DomT4/homebrew-autoupdate/issues/31
-- name: Install brew autoupdate
-  # command: /usr/local/bin/brew autoupdate --start --upgrade --enable-notification
-  command: /usr/local/bin/brew autoupdate --start --upgrade
-  args:
-    creates: ~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist
 
 - name: Add backup Launch Agent
   copy:
@@ -632,7 +637,8 @@
   copy:
     dest: ~/.bashrc
     content: |
-      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+      MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
+      export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
     mode: u=rw,g=r,o=r
 
 - name: Add commands to ~/.zshrc
@@ -656,10 +662,12 @@
       export PATH="${HOME}/Library/Python/3.8/bin:${PATH}"
 
       # Enable homebrew, find, sed, coreutils
-      export PATH="/usr/local/bin:/usr/local/opt/findutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-tar/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+      MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
+      export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
 
       # Enable man pages
-      export MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:/usr/local/opt/gnu-sed/libexec/gnuman:/usr/local/opt/gnu-tar/libexec/gnuman:/usr/local/opt/findutils/libexec/gnuman:/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+      MY_GENERATED_MAN=$(for MAN in /usr/local/opt/*/libexec/gnuman; do echo -n "${MAN}:"; done)
+      export MANPATH="${MY_GENERATED_MAN}${MANPATH}"
 
       # Enable binaries for node, krew and ~/bin
       export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${PATH}"
@@ -854,6 +862,9 @@
 
 - name: Configure Aerial
   block:
+    - name: Set Aerial as default screensaver
+      command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
+
     - name: Configure Aerial
       osx_defaults:
         domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
@@ -861,22 +872,26 @@
         type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
         value: "{{ item.value }}"
       loop:
+        - key: enableManagement
+          value: "true"
         - key: firstTimeSetup
           value: "true"
-        - key: timeMode
+        - key: intVideoFormat
           type: int
           value: 1
-        - key: intVideoFormat
+        - key: timeMode
           type: int
           value: 1
         - key: intOnBatteryMode
           type: int
           value: 1
+        - key: debugMode
+          value: "false"
         - key: newViewingMode
           type: int
           value: 1
-        - key: debugMode
-          value: "false"
+        - key: hideFromTimeMachine
+          value: "true"
 
     - name: Configure Aerial 2
       shell: |
@@ -884,9 +899,6 @@
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
-
-    - name: Set Aerial as default screensaver
-      command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
   when: not com_JohnCoates_Aerial_plist.stat.exists
 
 - name: Configure Meld
