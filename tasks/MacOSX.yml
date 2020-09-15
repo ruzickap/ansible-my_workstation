@@ -478,10 +478,44 @@
     type: bool
     value: "true"
 
+- name: Create ~/Library/LaunchAgents/ddns-update.plist
+  template:
+    src: files/Users/myusername/Library/LaunchAgents/ddns-update.plist.j2
+    dest: ~/Library/LaunchAgents/ddns-update.plist
+    mode: 0644
+  no_log: true
+  tags:
+    - secrets
+
+- name: Activate ~/Library/LaunchAgents/ddns-update.plist
+  command: launchctl load ~/Library/LaunchAgents/ddns-update.plist
+  changed_when: "'service already loaded' not in launchctl.stderr"
+  register: launchctl
+  tags:
+    - secrets
+
+# https://szymonkrajewski.pl/macos-backup-restic/
+- name: Add backup Launch Agent
+  template:
+    src: files/Users/myusername/Library/LaunchAgents/backup.plist.j2
+    dest: ~/Library/LaunchAgents/backup.plist
+    mode: u=rw,g=r,o=r
+
+- name: Add brew_upgrade Launch Agent
+  template:
+    src: files/Users/myusername/Library/LaunchAgents/brew_upgrade.plist.j2
+    dest: ~/Library/LaunchAgents/brew_upgrade.plist
+    mode: u=rw,g=r,o=r
+
+- name: Activate ~/Library/LaunchAgents/brew_upgrade.plist
+  command: launchctl load ~/Library/LaunchAgents/brew_upgrade.plist
+  changed_when: "'service already loaded' not in launchctl.stderr"
+  register: launchctl
+
 - name: Enable File Sharing (Samba)
   command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
-  changed_when: '"service already loaded" not in launchctl_smbd.stderr'
-  register: launchctl_smbd
+  changed_when: '"service already loaded" not in launchctl.stderr'
+  register: launchctl
   become: yes
 
 - name: Get list of all shared directories
@@ -543,28 +577,6 @@
     /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
     /usr/local/bin/mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
   changed_when: false
-
-- name: Create ~/Library/LaunchAgents/ddns-update.plist
-  template:
-    src: files/Users/myusername/Library/LaunchAgents/ddns-update.plist.j2
-    dest: ~/Library/LaunchAgents/ddns-update.plist
-    mode: 0644
-  no_log: true
-  tags:
-    - secrets
-
-- name: Activate ~/Library/LaunchAgents/ddns-update.plist
-  command: launchctl load ~/Library/LaunchAgents/ddns-update.plist
-  changed_when: "'service already loaded' not in launchctl.stderr"
-  register: launchctl
-  tags:
-    - secrets
-
-- name: Add backup Launch Agent
-  copy:
-    src: files/Users/myusername/Library/LaunchAgents/backup.plist
-    dest: ~/Library/LaunchAgents/
-    mode: u=rw,g=r,o=r
 
 - name: Remove all Dock items
   command: /usr/local/bin/dockutil --remove all --no-restart
@@ -948,30 +960,6 @@
       type: string
       value: "cs,cze,ces"
 
-- name: Configure JDownloader - GeneralSettings
-  copy:
-    dest: /Applications/JDownloader 2.0/cfg/org.jdownloader.settings.GeneralSettings.json
-    content: |
-      {
-        "maxsimultanedownloads" : 10,
-        "cleanupafterdownloadaction" : "CLEANUP_AFTER_PACKAGE_HAS_FINISHED",
-        "iffileexistsaction" : "SKIP_FILE",
-        "showcountdownonautostartdownloads" : false
-      }
-    mode: u=rw,g=r,o=r
-
-- name: Configure JDownloader - ExtractionExtension
-  copy:
-    dest: /Applications/JDownloader 2.0/cfg/org.jdownloader.extensions.extraction.ExtractionExtension.json
-    content: |
-      {
-        "deletearchivedownloadlinksafterextraction" : true,
-        "deletearchivefilesafterextractionaction" : "NULL",
-        "enabled" : true,
-        "iffileexistsaction" : "SKIP_FILE"
-      }
-    mode: u=rw,g=r,o=r
-
 - name: Create directory for Kap
   file:
     path: ~/Library/Application Support/Kap/plugins
@@ -1028,6 +1016,8 @@
       value: 20
     - key: spacesToShow
       value: 1
+    - key: updatePolicy
+      value: 0
 
 - name: Create Docker Desktop config directory
   file:
