@@ -115,7 +115,6 @@ homebrew_casks:
   - iina
   - iterm2
   - itsycal                                      # Tiny menu bar calendar
-  - jdownloader
   - kap                                          # Screen recorder
   - keepassxc
   - mactex-no-gui

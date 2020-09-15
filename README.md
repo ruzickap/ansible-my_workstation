@@ -60,7 +60,7 @@ Logout or better restart your MacOS.
 There are few things which can not be done via scripts and must be done
 manually in Catalina:
 
-* iCloud - enable only "Find My Mac"
+* iCloud - enable "Find My Mac" only
 * Internet Accounts - add Gmail account - enable "Calendars"
 * Google Chrome (Login to Google services)
 * IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
