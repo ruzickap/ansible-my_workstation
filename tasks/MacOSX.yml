@@ -629,7 +629,7 @@
     mode: u=rw,g=r,o=r
   loop:
     - regexp: '^plugins=.*'
-      replace: plugins=(autojump docker git vagrant-prompt)
+      replace: plugins=(docker git vagrant-prompt)
     # robbyrussell is not used - using powerlevel10k
     - regexp: '^ZSH_THEME="robbyrussell"'
       replace: '# ZSH_THEME="robbyrussell"'

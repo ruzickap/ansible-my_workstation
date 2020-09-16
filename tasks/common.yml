@@ -758,7 +758,7 @@
         dest: ~/.config/
         mode: 0600
 
-    - name: Copy gh configuration
+    - name: Copy gh configuration files
       copy:
         src: files/home/myusername/.config/gh
         dest: ~/.config/

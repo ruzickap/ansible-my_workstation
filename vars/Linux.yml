@@ -58,7 +58,6 @@ dnf_packages:
   - ansible
   - ansible-lint
   - asciinema
-  - autojump
   - awscli
   - bash-completion
   - bat
@@ -75,7 +74,6 @@ dnf_packages:
   - fzf
   - gcc                                                # Needed for vagrant-libvirt plugin
   - git
-  - git-crypt
   - htop
   - hugo
   - iotop
@@ -237,9 +235,11 @@ dnf_additional_packages:
   - xorg-x11-drv-qxl                                   # Needed for Virtualization + X
 
 homebrew:
+  - argocd
   - aws-iam-authenticator #
   - azure-cli             # many dependencies
   - diff-so-fancy         #
+  - eksctl
   - gh                    #
   - hadolint              # gmp
   - helm                  #
@@ -252,19 +252,14 @@ homebrew:
   - packer                #
   - pre-commit            # libyaml
   - speedtest-cli         #
+  - tektoncd-cli
   - terraform             #
 
 homebrew_taps:
-  - argoproj/tap
   - johanhaleby/kubetail
-  - tektoncd/tools
-  - weaveworks/tap
 
 homebrew_additional_packages:
-  - argoproj/tap/argocd
   - johanhaleby/kubetail/kubetail
-  - tektoncd/tools/tektoncd-cli
-  - weaveworks/tap/eksctl
 
 npm_packages:
   - "@vuepress/plugin-back-to-top"

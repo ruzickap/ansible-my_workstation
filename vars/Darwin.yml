@@ -29,15 +29,15 @@ homebrew_packages:
   - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - argocd
   - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
-  - autojump
   - aws-iam-authenticator
   - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - bat
-  - coreutils
   - cdrtools                                     # Needed for mc to show iso details
+  - coreutils
   - diff-so-fancy
   - dockutil                                     # Command line tool for managing dock items
+  - eksctl
   - exa
   - exiftool
   - fd
@@ -46,7 +46,6 @@ homebrew_packages:
   - fzf
   - gawk
   - gh
-  - git-crypt                                    # openssl@1.1
   - gnu-sed
   - gnu-tar
   - gnupg                                        # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl@1.1, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
@@ -54,6 +53,7 @@ homebrew_packages:
   - hadolint
   - helm
   - htop                                         # ncurses
+  - hudochenkov/sshpass/sshpass                  # needed for ansible
   - hugo
   - imagemagick                                  # libpng, freetype, jpeg, libtiff, ghostscript, libde265, gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, docbook, docbook-xsl, gnu-getopt, xmlto, shared-mime-info, x265, libheif, liblqr, libomp, libtool, little-cms2, ilmbase, openexr, openjpeg and webp
   - iproute2mac
@@ -65,7 +65,6 @@ homebrew_packages:
   - krew                                         # kubernetes-cli
   - kubernetes-cli
   - lftp                                         # libidn, openssl@1.1 and readline
-  - mas
   - midnight-commander                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
   - mpg123                                       # needed for mc to display mp3 files
   - nmap                                         # openssl@1.1
@@ -82,7 +81,6 @@ homebrew_packages:
   - rsync
   - shellcheck
   - speedtest-cli
-  - hudochenkov/sshpass/sshpass                  # needed for ansible
   - syncthing
   - tektoncd-cli
   - telnet
@@ -92,7 +90,6 @@ homebrew_packages:
   - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc
   - unrar
   - watch                                        # ncurses
-  - eksctl
   - wget                                         # gettext, libunistring, libidn2 and openssl@1.1
   - xorriso
   - yamllint                                     # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
@@ -119,7 +116,6 @@ homebrew_casks:
   - keepassxc
   - mactex-no-gui
   - meld
-  - menumeters                                   # Set of CPU, memory, disk, and network monitoring tools for Mac OS X
   - mpv
   - mysides                                      # Application for managing OS X Finder sidebar favourites
   - qbittorrent

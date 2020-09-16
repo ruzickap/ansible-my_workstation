@@ -16,7 +16,7 @@ home_data_directories:
   - .ansible.cfg
   - .aws
   - .azure
-  - .bash_history
+  - .zsh_history
   - .gnupg
   - .lftp
   - .oci
