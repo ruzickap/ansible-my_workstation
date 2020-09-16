@@ -65,6 +65,7 @@ manually in Catalina:
 * Google Chrome (Login to Google services)
 * IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
 * IINA - set as default video player
+* iTerm2 - make iTerm2 default term
 * Enable Full Disk Access in Security & Privacy Preferences for
   `~/Documents/backups/backup` binary
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
