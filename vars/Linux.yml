@@ -231,6 +231,8 @@ dnf_additional_packages:
   - kdenlive
   - libva-intel-driver                                 # Needed for vaapi (mpv)
   - mpv                                                # X
+  - packer
+  - terraform
   - unrar
   - vagrant
   - VirtualBox                                         # QT 5
@@ -254,11 +256,9 @@ homebrew:
   - krew                  #
   - kubectl               #
   - oci-cli               # many dependencies
-  - packer                #
   - pre-commit            # libyaml
   - speedtest-cli         #
   - tektoncd-cli
-  - terraform             #
 
 homebrew_taps:
   - johanhaleby/kubetail
