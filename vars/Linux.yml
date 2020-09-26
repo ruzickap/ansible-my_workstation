@@ -48,6 +48,10 @@ fstab_entries:
     fstype: "cifs"
     opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
 
+rpmfusion_gpgp_keys:
+  - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-{{ ansible_distribution_version }}
+  - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-{{ ansible_distribution_version }}
+
 rpmfusion_repositories:
   - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
   - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
@@ -228,6 +232,7 @@ dnf_additional_packages:
   - libva-intel-driver                                 # Needed for vaapi (mpv)
   - mpv                                                # X
   - unrar
+  - vagrant
   - VirtualBox                                         # QT 5
 
   - virtualbox-guest-additions                         # Needed for Virtualization + X

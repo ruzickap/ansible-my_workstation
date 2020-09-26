@@ -27,6 +27,11 @@
       dnf:
         name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
 
+    - name: Install RPM Fusion GPG keys
+      rpm_key:
+        key: "{{ item }}"
+      loop: "{{ rpmfusion_gpgp_keys }}"
+
     - name: Install rpmfusion repositories
       dnf:
         name: "{{ rpmfusion_repositories }}"
@@ -52,9 +57,19 @@
         gpgcheck: yes
         gpgkey: "https://packagecloud.io/gbt/release/gpgkey https://packagecloud.io/gbt/release/gpgkey/gbt-release-4C6E79EFF45439B6.pub.gpg"
 
+    - name: Add Hashicorp repository
+      yum_repository:
+        name: hashicorp
+        description: Hashicorp Stable - $basearch
+        baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+        repo_gpgcheck: yes
+        gpgcheck: yes
+        gpgkey: https://rpm.releases.hashicorp.com/gpg
+
     - name: Install additional packages
       dnf:
         name: "{{ dnf_additional_packages }}"
+
 
     - name: Get package facts
       package_facts:
@@ -444,17 +459,6 @@
       command: rclone genautocomplete bash
       args:
         creates: /etc/bash_completion.d/rclone
-
-    - name: Find latest version of Vagrant
-      uri:
-        url: https://checkpoint-api.hashicorp.com/v1/check/vagrant
-        return_content: yes
-      register: vagrant_uri
-
-    - name: Install Vagrant
-      dnf:
-        name: "https://releases.hashicorp.com/vagrant/{{ vagrant_uri.json.current_version }}/vagrant_{{ vagrant_uri.json.current_version }}_{{ ansible_architecture }}.rpm"
-      when: ansible_facts.packages.vagrant is not defined
 
     - name: Import Zoom key
       rpm_key:
