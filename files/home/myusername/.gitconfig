@@ -3,41 +3,13 @@
     email = petr.ruzicka@gmail.com
     signingkey = 2BD87EC4BA898363
 
-[color]
-    ui = true
-
 [core]
-    compression = 9
-    autocrlf = input
-    pager = bat --style=plain
+    pager = delta
     editor = vim
 
-[receive]
-    denyCurrentBranch = warn
-
-[url "https://"]
-    insteadOf = git://
-
+# https://switowski.com/blog/configuring-git
 [push]
     default = current
-
-[color "branch"]
-    current = yellow reverse
-    local = yellow
-    remote = green
-
-[color "diff"]
-    meta = yellow
-    frag = magenta bold
-    old = red bold
-    new = green bold
-    whitespace = red reverse
-    commit = yellow bold
-
-[color "status"]
-    added = cyan bold
-    changed = yellow bold
-    untracked = green bold
 
 [alias]
     authors = log --pretty=format:'%an <%ae>'
@@ -68,15 +40,29 @@
 [commit]
     verbose = true
 
-[color "diff-highlight"]
-    oldNormal = red bold
-    oldHighlight = red bold 52
-    newNormal = green bold
-    newHighlight = green bold 22
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
 
-[pager]
-    diff = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
-    show = diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'
+[color "status"]
+    added = cyan bold
+    changed = yellow bold
+    untracked = green bold
 
 [merge]
     tool = meld
+
+# https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
+[submodule]
+    recurse = true
+
+# https://github.com/dandavison/delta
+[delta]
+    line-numbers = false
+    diff-so-fancy = true
+    hunk-header-decoration-style = ul brightblue
+
+# https://github.com/dandavison/delta#--color-moved-support
+[diff]
+    colorMoved = default

@@ -32,10 +32,11 @@ homebrew_packages:
   - aws-iam-authenticator
   - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
+  - bash
   - bat
   - cdrtools                                     # Needed for mc to show iso details
   - coreutils
-  - diff-so-fancy
+  - delta                                        # A viewer for git and diff output
   - dockutil                                     # Command line tool for managing dock items
   - eksctl
   - exa
@@ -81,7 +82,6 @@ homebrew_packages:
   - rsync
   - shellcheck
   - speedtest-cli
-  - syncthing
   - tektoncd-cli
   - telnet
   - terraform
@@ -91,6 +91,7 @@ homebrew_packages:
   - unrar
   - watch                                        # ncurses
   - wget                                         # gettext, libunistring, libidn2 and openssl@1.1
+  - wifi-password
   - xorriso
   - yamllint                                     # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - youtube-dl
