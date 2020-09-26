@@ -74,6 +74,7 @@ dnf_packages:
   - fzf
   - gcc                                                # Needed for vagrant-libvirt plugin
   - git
+  - git-delta
   - htop
   - hugo
   - iotop
@@ -238,7 +239,6 @@ homebrew:
   - argocd
   - aws-iam-authenticator #
   - azure-cli             # many dependencies
-  - diff-so-fancy         #
   - eksctl
   - gh                    #
   - hadolint              # gmp
