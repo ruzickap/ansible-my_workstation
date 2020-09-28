@@ -501,14 +501,14 @@
     dest: ~/Library/LaunchAgents/backup.plist
     mode: u=rw,g=r,o=r
 
-- name: Add brew_upgrade Launch Agent
+- name: Add pkgs_upgrade Launch Agent
   template:
-    src: files/Users/myusername/Library/LaunchAgents/brew_upgrade.plist.j2
-    dest: ~/Library/LaunchAgents/brew_upgrade.plist
+    src: files/Users/myusername/Library/LaunchAgents/pkgs_upgrade.plist.j2
+    dest: ~/Library/LaunchAgents/pkgs_upgrade.plist
     mode: u=rw,g=r,o=r
 
-- name: Activate ~/Library/LaunchAgents/brew_upgrade.plist
-  command: launchctl load ~/Library/LaunchAgents/brew_upgrade.plist
+- name: Activate ~/Library/LaunchAgents/pkgs_upgrade.plist
+  command: launchctl load ~/Library/LaunchAgents/pkgs_upgrade.plist
   changed_when: "'service already loaded' not in launchctl.stderr"
   register: launchctl
 
@@ -787,6 +787,8 @@
           value: 1
         - key: DoubleClickPerformsSmartSelection
           value: "true"
+        - key: AddNewTabAtEndOfTabs
+          value: "false"
 
     - name: Configure iTerm2 using PlistBuddy
       shell: |
