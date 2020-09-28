@@ -4,11 +4,13 @@
   <dict>
 
     <key>Label</key>
-    <string>local.brew_upgrade</string>
+    <string>local.pkgs_upgrade</string>
 
     <key>ProgramArguments</key>
     <array>
-      <string>{{ ansible_user_dir }}/bin/brew_upgrade.sh</string>
+      <string>/usr/bin/caffeinate</string>
+      <string>-ims</string>
+      <string>{{ ansible_user_dir }}/bin/pkgs_upgrade.sh</string>
     </array>
 
     <key>StartCalendarInterval</key>
@@ -20,10 +22,10 @@
     </dict>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/brew_upgrade.log</string>
+    <string>/tmp/pkgs_upgrade.log</string>
 
     <key>StandardOutPath</key>
-    <string>/tmp/brew_upgrade.log</string>
+    <string>/tmp/pkgs_upgrade.log</string>
 
   </dict>
 </plist>
