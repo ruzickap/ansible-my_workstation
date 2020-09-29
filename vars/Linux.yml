@@ -10,7 +10,6 @@ enable_boot_services:
   - syncthing@{{ ansible_user_id }}.service
 
 disable_boot_services:
-  - gssproxy
   - NetworkManager-wait-online
   - sssd
 

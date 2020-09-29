@@ -80,7 +80,6 @@
         dest: /etc/systemd/system/default.target
         state: link
         force: yes
-        mode: u=rw,g=r,o=r
 
     - name: Disable mouse in mc
       copy:
@@ -198,8 +197,6 @@
         - name: net.ipv4.ip_forward
           value: 1
         - name: net.ipv4.conf.default.rp_filter
-          value: 1
-        - name: net.ipv4.conf.all.rp_filter
           value: 1
 
     - name: Change prompt in lftp
@@ -524,7 +521,6 @@
     dest: ~/.config/autostart-scripts/kde_startup.sh
     state: link
     force: yes
-    mode: u=rwx,g=rx,o=rx
 
 - name: Create direcotries for konsole config (KDE)
   file:
@@ -891,7 +887,7 @@
     no_extra_spaces: yes
     section: Settings
     option: gtk-application-prefer-dark-theme
-    value: "true"
+    value: "1"
     mode: 0600
 
 - name: Configure file associations (MIME)

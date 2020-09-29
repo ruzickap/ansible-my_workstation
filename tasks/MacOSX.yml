@@ -79,7 +79,6 @@
     src: /usr/local/bin/pip3.8
     dest: /usr/local/bin/pip3
     state: link
-    mode: u=rwx,g=rx,o=rx
 
 - name: Install Homebrew casks
   homebrew_cask:
@@ -642,7 +641,6 @@
     src: /usr/local/opt/powerlevel10k/config/p10k-lean.zsh
     dest: ~/.p10k.zsh
     state: link
-    mode: u=rw,g=r,o=r
 
 # Needed for bash scripts or ansible
 - name: Add path to binaries to ~/.bashrc
@@ -1014,7 +1012,7 @@
   osx_defaults:
     domain: com.lwouis.alt-tab-macos
     key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    type: string
     value: "{{ item.value }}"
   loop:
     - key: menubarIcon
@@ -1033,6 +1031,8 @@
       value: 1
     - key: updatePolicy
       value: 0
+    - key: hideWindowlessApps
+      value: "true"
 
 - name: Create Docker Desktop config directory
   file:
