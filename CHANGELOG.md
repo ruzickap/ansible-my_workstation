@@ -1,5 +1,23 @@
 # Changelog
 
+## [v1.0.0](https://github.com/ruzickap/ansible-my_workstation/compare/v0.1.0...v1.0.0) (2020-09-29)
+
+- Remove Fluor [`#33`](https://github.com/ruzickap/ansible-my_workstation/pull/33)
+- Few fixes found during real MacOS usage [`#32`](https://github.com/ruzickap/ansible-my_workstation/pull/32)
+- CHANGELOG file update [`#31`](https://github.com/ruzickap/ansible-my_workstation/pull/31)
+- Improve KDE config files for Fedora 32 [`93e2580`](https://github.com/ruzickap/ansible-my_workstation/commit/93e25802f3192d843a3d211b4efe445c18582093)
+- Improve LaunchAgents backup and pkgs_upgrade [`9eb3798`](https://github.com/ruzickap/ansible-my_workstation/commit/9eb3798e086b951c64e24fa715e4642a9a832dea)
+- Use Hashicorp repository for Terraform and Packer [`7c5bb12`](https://github.com/ruzickap/ansible-my_workstation/commit/7c5bb12de09ee174979d044cd84308de00a072b3)
+- Add rpmfusion gpg keys [`00ff202`](https://github.com/ruzickap/ansible-my_workstation/commit/00ff202acf220fbbf71994223f5d860f2f7235d0)
+- Use delta instead of diff-so-fancy for git [`c875699`](https://github.com/ruzickap/ansible-my_workstation/commit/c87569980edd08b0d21c6f8f252f6e916f14b0e2)
+- Tweak Homebrew by adding env variables to .zshrc [`25310c9`](https://github.com/ruzickap/ansible-my_workstation/commit/25310c90863510a0455d3c0ee1ad522d781dcb05)
+- Fix gh-cli configuration, remove autojump, remove unused apps [`20ac697`](https://github.com/ruzickap/ansible-my_workstation/commit/20ac6975c1765c7b76766a804c3f6b9a71d9a2ac)
+- Add brew update, remove jdownloader [`63c34b3`](https://github.com/ruzickap/ansible-my_workstation/commit/63c34b362bb725b432e7a3fe71258ee83eb74ec9)
+- Fix Aerial, remove brew autoupdate, better PATH handling in zsh/bash [`9a55f8b`](https://github.com/ruzickap/ansible-my_workstation/commit/9a55f8ba14081338f85c51852637dc63b8a9deac)
+- Fix idempotence tests [`2e135ac`](https://github.com/ruzickap/ansible-my_workstation/commit/2e135ac68922e32f3abbc73df80e7b44f154d320)
+- Add backup and function keys for specific apps [`0c731e8`](https://github.com/ruzickap/ansible-my_workstation/commit/0c731e811c12a2e2b1f76ceee01d7703c2cd34cb)
+- Remove temporary file /tmp/localhost in ddns-update [`5a75337`](https://github.com/ruzickap/ansible-my_workstation/commit/5a75337c3ad078e24e7e5abc36211ee21a8848d8)
+
 ## v0.1.0 (2020-09-02)
 
 - Improve iTerm2 config tasks [`#30`](https://github.com/ruzickap/ansible-my_workstation/pull/30)
