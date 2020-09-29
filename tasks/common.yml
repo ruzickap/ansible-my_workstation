@@ -541,7 +541,6 @@
     dest: ~/.config/qBittorrent/qBittorrent.ini
     force: yes
     state: link
-    mode: u=rw,g=rw,o=r
 
 - name: Configure digikam
   ini_file:
