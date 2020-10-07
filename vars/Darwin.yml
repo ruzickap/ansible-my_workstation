@@ -36,7 +36,6 @@ homebrew_packages:
   - bat
   - cdrtools                                     # Needed for mc to show iso details
   - coreutils
-  - delta                                        # A viewer for git and diff output
   - dockutil                                     # Command line tool for managing dock items
   - eksctl
   - exa
@@ -47,6 +46,8 @@ homebrew_packages:
   - fzf
   - gawk
   - gh
+  - git-crypt
+  - git-delta                                    # A viewer for git and diff output
   - gnu-sed
   - gnu-tar
   - gnupg                                        # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl@1.1, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
