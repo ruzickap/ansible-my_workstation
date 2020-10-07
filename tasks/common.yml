@@ -51,11 +51,12 @@
         dest: /etc/postfix/sasl_passwd
         mode: 0600
       notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+      no_log: true
       tags:
         - secrets
 
     - name: Add printer and make it default
-      shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -m everywhere -L "1st floor near kitchen" -o DefaultPageSize=A4 -o Duplex=DuplexNoTumble && sleep 1
+      shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd && sleep 1
       args:
         creates: /etc/cups/ppd/{{ printer_name }}.ppd
       register: lpadmin
@@ -175,7 +176,6 @@
         key: https://github.com/{{ github_username }}.keys
         comment: "{{ email }}"
       loop:
-        - root
         - "{{ ansible_user_id }}"
 
   become: true
@@ -785,6 +785,7 @@
         src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
         dest: ~/Documents/secrets/secret_variables
         mode: 0600
+      tags: data
 
     - name: Copy KeePass data
       copy:
@@ -794,6 +795,7 @@
       loop:
         - keepass2.kdbx
         - keepass.key
+      tags: data
 
   no_log: true
   tags:

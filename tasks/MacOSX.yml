@@ -1,7 +1,7 @@
 - name: Get GeneratedUID for the current user
   shell: |
     set -o pipefail
-    dscl . -read /Users/{{ ansible_user_id }}/ GeneratedUID | awk '{ print $2 }'
+    dscl . -read {{ ansible_user_dir }}/ GeneratedUID | awk '{ print $2 }'
   register: dscl_output
   changed_when: false
 
@@ -34,6 +34,7 @@
         - scutil --set ComputerName "{{ my_hostname.split(".")[0] }}"
         - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
         - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
+      tags: company
 
     # https://discussions.apple.com/thread/2457573
     - name: Set NetBIOSName
@@ -43,6 +44,7 @@
         type: string
         value: "{{ my_hostname.split('.')[0] }}"
       changed_when: false
+      tags: company
 
     - name: Set hibernation mode to not back memory up to persistent storage
       command: pmset -a hibernatemode 0
@@ -179,7 +181,7 @@
     value: "{{ item.value }}"
   loop:
     - key: NewWindowTargetPath
-      value: file://{{ ansible_env.HOME }}/
+      value: file://{{ ansible_user_dir }}/
     - key: NewWindowTarget
       value: PfHm
 
@@ -199,6 +201,7 @@
     type: string
     value: "{{ email }}"
   become: yes
+  tags: company
 
 # https://www.defaults-write.com/disable-screenshots-shadow-mac/
 - name: Disable screenshot shadows on a Mac
@@ -439,6 +442,7 @@
     - domain: /Library/Preferences/com.apple.commerce.plist
       key: AutoUpdate
   become: yes
+  tags: company
 
 # https://osxdaily.com/2010/02/03/how-to-prevent-ds_store-file-creation/
 - name: Stop DS_Store File Creation on Network Volumes
@@ -464,11 +468,6 @@
   # The file above doesn't exists in GitHub's MacOS instance
   tags: skip_test
 
-# https://apple.stackexchange.com/questions/285607/always-show-function-keys-on-control-strip-when-using-terminal
-- name: Enable function keys for apps
-  command: defaults write com.apple.touchbar.agent PresentationModePerApp -dict-add {{ item }} 'functionKeys'
-  loop: "{{ enable_function_keys_apps }}"
-  changed_when: false
 
 - name: Show all devices in Disk Utility
   osx_defaults:
@@ -476,6 +475,12 @@
     key: SidebarShowAllDevices
     type: bool
     value: "true"
+
+- name: Change owner of Library/LaunchAgents (if needed)
+  file:
+    path: "{{ ansible_user_dir }}/Library/LaunchAgents"
+    owner: "{{ ansible_user_id }}"
+  become: true
 
 - name: Create ~/Library/LaunchAgents/ddns-update.plist
   template:
@@ -511,70 +516,69 @@
   changed_when: "'service already loaded' not in launchctl.stderr"
   register: launchctl
 
-- name: Enable File Sharing (Samba)
-  command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
-  changed_when: '"service already loaded" not in launchctl.stderr'
-  register: launchctl
-  become: yes
+- name: Configure Samba and Samba shares
+  block:
+    - name: Enable File Sharing (Samba)
+      command: launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
+      changed_when: '"service already loaded" not in launchctl.stderr'
+      register: launchctl
+      tags: company
 
-- name: Get list of all shared directories
-  command: sharing -l
-  changed_when: false
-  register: sharing
+    - name: Get list of all shared directories
+      command: sharing -l
+      changed_when: false
+      register: sharing
 
-# https://krypted.com/mac-os-x-server/setup-file-sharing-service-macos-10-13-high-sierra/
-- name: Share directories
-  command: sharing -a {{ item }} -g 000 -A {{ item | basename }}
-  when: item not in sharing.stdout
-  loop:
-    - "{{ ansible_user_dir }}/Music"
-  become: yes
+    # https://krypted.com/mac-os-x-server/setup-file-sharing-service-macos-10-13-high-sierra/
+    - name: Share directories
+      command: sharing -a {{ item }} -g 000 -A {{ item | basename }}
+      when: item not in sharing.stdout
+      loop:
+        - "{{ ansible_user_dir }}/Music"
 
-# https://krypted.com/mac-os-x/enable-smb-sharing-specified-users-macos/
-- name: Allow SMB to use user passwords
-  command: pwpolicy -u {{ ansible_user_id }} -sethashtypes SMB-NT on
-  changed_when: false
-  become: yes
+    # https://krypted.com/mac-os-x/enable-smb-sharing-specified-users-macos/
+    - name: Allow SMB to use user passwords
+      command: pwpolicy -u {{ ansible_user_id }} -sethashtypes SMB-NT on
+      changed_when: false
 
-- name: Configure SMB shares via automount
-  lineinfile:
-    path: /etc/auto_master
-    regexp: '^/-                      auto_smb        -nosuid,noowner'
-    line: '/-                      auto_smb        -nosuid,noowner'
-    mode: u=rw,g=r,o=r
-  become: yes
+    - name: Configure SMB shares via automount
+      lineinfile:
+        path: /etc/auto_master
+        regexp: '^/-                      auto_smb        -nosuid,noowner'
+        line: '/-                      auto_smb        -nosuid,noowner'
+        mode: u=rw,g=r,o=r
 
-- name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
-  file:
-    path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-  become: yes
+    - name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
+      file:
+        path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+        state: directory
+        mode: u=rwx,g=rx,o=rx
 
-# https://gist.github.com/rudelm/7bcc905ab748ab9879ea
-- name: Configure SMB shares via automount
-  copy:
-    dest: /etc/auto_smb
-    mode: 0600
-    content: |
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
-      /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
-  become: yes
-  tags:
-    - secrets
+    # https://gist.github.com/rudelm/7bcc905ab748ab9879ea
+    - name: Configure SMB shares via automount
+      copy:
+        dest: /etc/auto_smb
+        mode: 0600
+        content: |
+          /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
+          /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
+          /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
+          /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
+      tags:
+        - secrets
 
-- name: Create link from /System/Volumes/Data/mnt/{{ raspi_hostname }} to ~/Documents/
-  file:
-    src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-    dest: ~/Documents/{{ raspi_hostname }}
-    state: link
+    - name: Create link from /System/Volumes/Data/mnt/{{ raspi_hostname }} to ~/Documents/
+      file:
+        src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+        dest: "{{ ansible_user_dir }}/Documents/{{ raspi_hostname }}"
+        state: link
+
+  become: true
 
 - name: Configure Finder sidebar favourites
   shell: |
     /usr/local/bin/mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
-    /usr/local/bin/mysides add {{ ansible_user_id }} file:///Users/{{ ansible_user_id }}
+    /usr/local/bin/mysides add {{ ansible_user_id }} file://{{ ansible_user_dir }}
   changed_when: false
 
 - name: Remove all Dock items
@@ -984,7 +988,7 @@
     dest: ~/Library/Application Support/Kap/config.json
     content: |
       {
-        "kapturesDir": "/Users/pruzicka/Movies",
+        "kapturesDir": "{{ ansible_user_dir }}/Movies",
         "recordAudio": true,
         "audioInputDeviceId": "AppleHDAEngineInput:1B,0,1,0:1"
       }
@@ -1006,7 +1010,7 @@
   npm:
     path: ~/Library/Application Support/Kap/plugins
   environment:
-    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+    PATH: /usr/local/bin:{{ ansible_user_dir }}
 
 - name: Configure AltTab
   osx_defaults:
@@ -1143,3 +1147,9 @@
         - virtualbox
         - virtualbox-extension-pack
   when: "'virtualbox' not in brew_casks.stdout"
+
+# https://apple.stackexchange.com/questions/285607/always-show-function-keys-on-control-strip-when-using-terminal
+- name: Enable function keys for apps
+  command: defaults write com.apple.touchbar.agent PresentationModePerApp -dict-add {{ item }} 'functionKeys'
+  loop: "{{ enable_function_keys_apps }}"
+  changed_when: false
