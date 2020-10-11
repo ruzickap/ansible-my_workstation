@@ -194,7 +194,6 @@ dnf_qt_packages:
   - gpxsee
   - qtchooser                                          # Needed for spectacle
   - keepassxc
-  - qbittorrent
   - sayonara
   - sddm
   - sddm-breeze
