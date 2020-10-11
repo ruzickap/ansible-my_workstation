@@ -75,6 +75,7 @@ homebrew_packages:
   - packer
   - pre-commit                                   # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
   - pv
+  - qemu
   - qpdf                                         # needed for decrypt password protected PDFs
   - rclone
   - restic
@@ -104,6 +105,7 @@ homebrew_casks:
   - aerial
   - alt-tab
   - avibrazil-rdm
+  - box-sync
   - darktable
   - digikam
   - docker
@@ -120,12 +122,13 @@ homebrew_casks:
   - meld
   - mpv
   - mysides                                      # Application for managing OS X Finder sidebar favourites
-  - qbittorrent
   - qlmarkdown                                   # QuickLook generator for Markdown files
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
   - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
   - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
+  - slack
   - stats
+  - tigervnc-viewer
   - vagrant
   - visual-studio-code
   - zoomus
