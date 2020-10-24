@@ -88,6 +88,7 @@
     install_options: no-quarantine
   register: result
   until: result is succeeded
+  tags: packages
 
 - name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
   set_fact:
@@ -676,6 +677,9 @@
       # Use open command for Midnight Commander "open"
       export MC_XDG_OPEN=open
 
+      # Disable pager for AWS CLI (https://stackoverflow.com/questions/60122188/how-to-turn-off-the-pager-for-aws-cli-return-value)
+      export AWS_PAGER=""
+
       # Remove the quarantine flag when it installs a package
       export HOMEBREW_CASK_OPTS="--no-quarantine"
       # Use bat for the brew cat command
@@ -685,8 +689,8 @@
       # Fail on the failure of installation from a bottle rather than falling back to building from source
       export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
 
-      # Use Python 3.8 insatell by Homebrew
-      export PATH="${HOME}/Library/Python/3.8/bin:${PATH}"
+      # Use Python 3.9 insatell by Homebrew
+      export PATH="${HOME}/Library/Python/3.9/bin:${PATH}"
 
       # Enable homebrew, find, sed, coreutils
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
@@ -711,7 +715,7 @@
 
       source ~/.fzf.zsh
       source ~/Documents/secrets/secret_variables
-      source /usr/local/opt/oci-cli/libexec/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source /usr/local/opt/oci-cli/libexec/lib/python3.9/site-packages/oci_cli/bin/oci_autocomplete.sh
 
       # Simpler prompt when using Midnight Commander
       if ps $PPID |grep mc; then

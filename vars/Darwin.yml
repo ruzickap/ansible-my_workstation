@@ -7,6 +7,7 @@ dock_add_items:
 
 enable_function_keys_apps:
   - com.googlecode.iterm2
+  - com.tigervnc.tigervnc
   - org.virtualbox.app.VirtualBox
 
 # The Dock icons size
@@ -105,12 +106,11 @@ homebrew_casks:
   - aerial
   - alt-tab
   - avibrazil-rdm
-  - box-sync
   - darktable
   - digikam
   - docker
-  - firefox
-  - google-chrome
+  # - firefox
+  # - google-chrome
   - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
@@ -126,12 +126,11 @@ homebrew_casks:
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
   - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
   - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
-  - slack
   - stats
   - tigervnc-viewer
   - vagrant
   - visual-studio-code
-  - zoomus
+  # - zooomus
 
 npm_packages:
   - "@vuepress/plugin-back-to-top"

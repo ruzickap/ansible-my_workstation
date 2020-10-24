@@ -41,16 +41,23 @@ Install new MacOS Catalina 10.5 and enable ssh server:
 * System Preferences from the Apple menu -> System Preferences -> Sharing
   -> Remote Login (checkbox)
 
-You can also do it the command line way:
+  You can also do it the command line way:
 
-```bash
-sudo systemsetup -setremotelogin on
-```
+  ```bash
+  sudo systemsetup -setremotelogin on
+  ```
+
+* Remove all applications which were preinstalled like "Google Chrome", "Zoom",
+  "Slack", "Box Sync" or `~/.vim`.
+
+* Ensure `sudo su` will give you the "root" access.
 
 Use [Ansible](https://www.ansible.com/) to install+configure the software:
 
 ```bash
 ./run_ansible_macos_workstation-local.sh
+# or
+./run_ansible_my_workstation-local-mac.sh
 ```
 
 Logout or better restart your MacOS.
@@ -66,7 +73,7 @@ manually in Catalina:
 * IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
 * IINA - set as default video player
 * iTerm2 - make iTerm2 default term
-* Enable Full Disk Access in Security & Privacy Preferences for
+* Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
   `~/Documents/backups/backup` binary
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
 
