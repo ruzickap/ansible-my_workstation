@@ -56,7 +56,7 @@
         - secrets
 
     - name: Add printer and make it default
-      shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd && sleep 1
+      shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd -o auth-info-required=negotiate && sleep 1
       args:
         creates: /etc/cups/ppd/{{ printer_name }}.ppd
       register: lpadmin
