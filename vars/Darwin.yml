@@ -9,6 +9,7 @@ enable_function_keys_apps:
   - com.googlecode.iterm2
   - com.tigervnc.tigervnc
   - org.virtualbox.app.VirtualBox
+  - org.virtualbox.app.VirtualBoxVM
 
 # The Dock icons size
 dock_icons_size: 36.0
@@ -68,6 +69,7 @@ homebrew_packages:
   - krew                                         # kubernetes-cli
   - kubernetes-cli
   - lftp                                         # libidn, openssl@1.1 and readline
+  - markdownlint-cli
   - midnight-commander                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
   - mpg123                                       # needed for mc to display mp3 files
   - nmap                                         # openssl@1.1
@@ -106,6 +108,7 @@ homebrew_casks:
   - aerial
   - alt-tab
   - avibrazil-rdm
+  - blackhole
   - darktable
   - digikam
   - docker
@@ -118,6 +121,7 @@ homebrew_casks:
   - itsycal                                      # Tiny menu bar calendar
   - kap                                          # Screen recorder
   - keepassxc
+  - homebrew/cask-drivers/logitech-options
   - mactex-no-gui
   - meld
   - mpv
@@ -138,7 +142,6 @@ npm_packages:
   - auto-changelog
   - markdown-link-check
   - markdown-spellcheck
-  - markdownlint-cli
   - release-it
   - vuepress
   - vuepress-plugin-seo
