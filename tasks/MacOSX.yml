@@ -76,9 +76,9 @@
   homebrew:
     name: "{{ homebrew_packages }}"
 
-- name: Create link from /usr/local/bin/pip3.8 /usr/local/bin/pip3
+- name: Create link from /usr/local/bin/pip3.9 /usr/local/bin/pip3
   file:
-    src: /usr/local/bin/pip3.8
+    src: /usr/local/bin/pip3.9
     dest: /usr/local/bin/pip3
     state: link
 

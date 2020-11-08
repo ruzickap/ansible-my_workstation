@@ -39,13 +39,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Update brew
+        run: |
+          brew update
+
       - name: Install brew packages
         run: |
           brew install ansible gnu-sed hudochenkov/sshpass/sshpass
 
       - name: Start Fedora VirtualBox VM
         run: |
-          vagrant init fedora/32-cloud-base
+          vagrant init fedora/33-cloud-base
           gsed -i "/Vagrant.configure(\"2\") do |config|/a \ \ config.vm.provider \"virtualbox\" do |vb|\n \ \ \ \ vb.memory = \"${RAM}\"\n \ end" Vagrantfile
           vagrant up || ( vagrant destroy --force && vagrant up )
 
@@ -60,7 +64,7 @@ jobs:
 
       - name: Ansible - Idempotence tests
         run: |
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD} ansible_python_interpreter=/usr/bin/python3" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
           # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
           if [ $(grep 'changed=0.*failed=0' /tmp/ansible.log | wc -l) = 1 ] ; then
             echo -e '\nIdempotence test: pass'
