@@ -10,12 +10,10 @@ enable_boot_services:
   - syncthing@{{ ansible_user_id }}.service
 
 disable_boot_services:
-  - NetworkManager-wait-online
   - sssd
 
 mask_services:
   - systemd-journald-audit.socket
-  - systemd-networkd-wait-online.service
 
 vagrant_plugins:
   - vagrant-hostmanager
@@ -46,10 +44,6 @@ fstab_entries:
     src: "//{{ raspi_hostname }}/backups-rw"
     fstype: "cifs"
     opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
-
-rpmfusion_gpgp_keys:
-  - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-{{ ansible_distribution_version }}
-  - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-{{ ansible_distribution_version }}
 
 rpmfusion_repositories:
   - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
@@ -244,7 +238,7 @@ homebrew:
   - argocd
   - aws-iam-authenticator #
   - azure-cli             # many dependencies
-  - eksctl
+  - eksctl                #
   - gh                    #
   - hadolint              # gmp
   - helm                  #
@@ -253,10 +247,11 @@ homebrew:
   - kops                  # go 1.14 (compile)
   - krew                  #
   - kubectl               #
+  - markdownlint-cli      #
   - oci-cli               # many dependencies
   - pre-commit            # libyaml
   - speedtest-cli         #
-  - tektoncd-cli
+  - tektoncd-cli          #
 
 homebrew_taps:
   - johanhaleby/kubetail
@@ -270,7 +265,6 @@ npm_packages:
   - auto-changelog
   - markdown-link-check
   - markdown-spellcheck
-  - markdownlint-cli
   - prettier
   - release-it
   - vuepress

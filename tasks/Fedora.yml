@@ -27,14 +27,10 @@
       dnf:
         name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
 
-    - name: Install RPM Fusion GPG keys
-      rpm_key:
-        key: "{{ item }}"
-      loop: "{{ rpmfusion_gpgp_keys }}"
-
     - name: Install rpmfusion repositories
       dnf:
         name: "{{ rpmfusion_repositories }}"
+        disable_gpg_check: yes
 
     - name: Import key for VS Code repository
       rpm_key:
@@ -1030,7 +1026,7 @@
       done
 
       source /usr/share/fzf/shell/key-bindings.bash
-      source /home/linuxbrew/.linuxbrew/opt/oci-cli/libexec/lib/python3.8/site-packages/oci_cli/bin/oci_autocomplete.sh
+      source /home/linuxbrew/.linuxbrew/opt/oci-cli/libexec/lib/python3.9/site-packages/oci_cli/bin/oci_autocomplete.sh
       source ~/Documents/secrets/secret_variables
 
       if [ "${ASCIINEMA_REC}" = "1" ]; then
