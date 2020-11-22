@@ -108,6 +108,7 @@ homebrew_casks:
   - aerial
   - alt-tab
   - avibrazil-rdm
+  - aws-vault
   - blackhole
   - darktable
   - digikam
@@ -119,13 +120,13 @@ homebrew_casks:
   - iina
   - iterm2
   - itsycal                                      # Tiny menu bar calendar
-  - kap                                          # Screen recorder
   - keepassxc
   - homebrew/cask-drivers/logitech-options
   - mactex-no-gui
   - meld
   - mpv
   - mysides                                      # Application for managing OS X Finder sidebar favourites
+  - obs
   - qlmarkdown                                   # QuickLook generator for Markdown files
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
   - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
