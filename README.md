@@ -76,6 +76,12 @@ manually in Catalina:
 * Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
   `~/Documents/backups/backup` binary
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
+* For recording the audio from Zoom - create Multi-Output device with Master
+  Device "Jabra Engage 75 2", Sample Rate: "48.0 KHz", Drift correction turned
+  on for "BlackHole 16". Then you can use this as default output device in
+  "Sound".
+  Do not use "Jabra Engage 75" (microfone) as Input, because it can only use
+  16 KHz and breaks the recording settings...
 
 ## Notes
 

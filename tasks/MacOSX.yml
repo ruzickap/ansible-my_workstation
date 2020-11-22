@@ -680,6 +680,9 @@
       # Disable pager for AWS CLI (https://stackoverflow.com/questions/60122188/how-to-turn-off-the-pager-for-aws-cli-return-value)
       export AWS_PAGER=""
 
+      # Set aws-vault backend
+      export AWS_VAULT_BACKEND="file"
+
       # Remove the quarantine flag when it installs a package
       export HOMEBREW_CASK_OPTS="--no-quarantine"
       # Use bat for the brew cat command
@@ -981,40 +984,40 @@
       type: string
       value: "cs,cze,ces"
 
-- name: Create directory for Kap
+- name: Create directory for OBS
   file:
-    path: ~/Library/Application Support/Kap/plugins
+    path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled
     state: directory
     mode: u=rwx,g=rx,o=rx
 
-- name: Configure Kap
+- name: Configure OBS
   copy:
-    dest: ~/Library/Application Support/Kap/config.json
+    dest: ~/Library/Application Support/obs-studio/global.ini
     content: |
-      {
-        "kapturesDir": "{{ ansible_user_dir }}/Movies",
-        "recordAudio": true,
-        "audioInputDeviceId": "AppleHDAEngineInput:1B,0,1,0:1"
-      }
+      [BasicWindow]
+      RecordWhenStreaming=true
+      SysTrayMinimizeToTray=true
+
+      [General]
+      EnableAutoUpdates=false
+
+      [Video]
+      FPSCommon=25 PAL
     mode: u=rw,g=r,o=r
 
-- name: Configure Kap plugins
+- name: Configure OBS default profile
   copy:
-    dest: ~/Library/Application Support/Kap/plugins/package.json
+    dest: ~/Library/Application Support/obs-studio/basic/profiles/Untitled/basic.ini
     content: |
-      {
-        "dependencies": {
-          "kap-do-not-disturb": "latest",
-          "kap-hide-desktop-icons": "latest"
-        }
-      }
-    mode: u=rw,g=r,o=r
+      [AdvOut]
+      Encoder=vt_h264_hw
 
-- name: Install Kap plugins
-  npm:
-    path: ~/Library/Application Support/Kap/plugins
-  environment:
-    PATH: /usr/local/bin:{{ ansible_user_dir }}
+      [Output]
+      Mode=Advanced
+
+      [SimpleOutput]
+      FileNameWithoutSpace=true
+    mode: u=rw,g=r,o=r
 
 - name: Configure AltTab
   osx_defaults:
