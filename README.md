@@ -74,7 +74,7 @@ manually in Catalina:
 * IINA - set as default video player
 * iTerm2 - make iTerm2 default term
 * Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
-  `~/Documents/backups/backup` binary
+  `~/Documents/backups/backup` binary (recompile it if needed)
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
 * For recording the audio from Zoom - create Multi-Output device with Master
   Device "Jabra Engage 75 2", Sample Rate: "48.0 KHz", Drift correction turned
@@ -82,6 +82,7 @@ manually in Catalina:
   "Sound".
   Do not use "Jabra Engage 75" (microfone) as Input, because it can only use
   16 KHz and breaks the recording settings...
+* Load extensions into Chrome: `~/Documents/chrome-extensions`
 
 ## Notes
 

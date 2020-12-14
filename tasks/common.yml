@@ -323,9 +323,9 @@
     - option: plugins/imageio/format/tiff/compresslevel
       value: 9
     - option: plugins/lighttable/export/high_quality_processing
-      value: "true"
+      value: "TRUE"
     - option: ui_last/import_apply_metadata
-      value: "true"
+      value: "TRUE"
     - option: ui_last/import_last_creator
       value: Petr Ruzicka
     - option: ui_last/import_last_rights
@@ -337,9 +337,9 @@
     - option: plugins/lighttable/images_in_row
       value: 6
     - option: lighttable/ui/expose_statuses
-      value: "true"
+      value: "TRUE"
     - option: ui_last/grouping
-      value: "true"
+      value: "TRUE"
     - option: lighttable/ui/bottom_visible
       value: "false"
     - option: lighttable/ui/toolbar_bottom_visible
@@ -347,69 +347,71 @@
     - option: lighttable/ui/header_visible
       value: "false"
     - option: plugins/darkroom/history/expanded
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/metadata_view/expanded
-      value: "true"
+      value: "TRUE"
     - option: plugins/lighttable/metadata_view/expanded
-      value: "true"
+      value: "TRUE"
     - option: plugins/lighttable/timeline/visible
       value: "false"
     - option: ui_last/import_ignore_jpegs
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/basecurve/auto_apply
       value: "false"
     - option: plugins/darkroom/ashift/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/atrous/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/basecurve/visible
       value: "false"
     - option: plugins/darkroom/channelmixer/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colisa/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colorchecker/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colorcorrection/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colorreconstruct/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colorreconstruct/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/colorzones/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/defringe/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/filmicrgb/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/globaltonemap/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/graduatednd/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/grain/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/highpass/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/lowpass/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/monochrome/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/rawdenoise/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/retouch/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/shadhi/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/soften/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/splittoning/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/tonecurve/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/velvia/visible
-      value: "true"
+      value: "TRUE"
     - option: plugins/darkroom/vignette/visible
-      value: "true"
+      value: "TRUE"
+    - option: opencl
+      value: "TRUE"
 
 - name: Install krew plugins
   command: kubectl krew install {{ item }}
@@ -665,7 +667,8 @@
     extra_args: --user
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
-  loop: "{{ pip_packages }}"
+
+  loop: "{{ pip_packages | default([]) }}"
 
 ###############################
 # Run as user

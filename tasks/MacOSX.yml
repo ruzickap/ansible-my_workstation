@@ -34,7 +34,6 @@
         - scutil --set ComputerName "{{ my_hostname.split(".")[0] }}"
         - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
         - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
-      tags: company
 
     # https://discussions.apple.com/thread/2457573
     - name: Set NetBIOSName
@@ -44,7 +43,6 @@
         type: string
         value: "{{ my_hostname.split('.')[0] }}"
       changed_when: false
-      tags: company
 
     - name: Set hibernation mode to not back memory up to persistent storage
       command: pmset -a hibernatemode 0
@@ -76,19 +74,10 @@
   homebrew:
     name: "{{ homebrew_packages }}"
 
-- name: Create link from /usr/local/bin/pip3.9 /usr/local/bin/pip3
-  file:
-    src: /usr/local/bin/pip3.9
-    dest: /usr/local/bin/pip3
-    state: link
-
 - name: Install Homebrew casks
   homebrew_cask:
     name: "{{ homebrew_casks }}"
     install_options: no-quarantine
-  register: result
-  until: result is succeeded
-  tags: packages
 
 - name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
   set_fact:
@@ -469,7 +458,6 @@
   # The file above doesn't exists in GitHub's MacOS instance
   tags: skip_test
 
-
 - name: Show all devices in Disk Utility
   osx_defaults:
     domain: com.apple.DiskUtility
@@ -516,6 +504,17 @@
   command: launchctl load ~/Library/LaunchAgents/pkgs_upgrade.plist
   changed_when: "'service already loaded' not in launchctl.stderr"
   register: launchctl
+
+- name: Download the "Fake LE Root X1" certificate (Let's Encrypt Staging)
+  get_url:
+    url: https://letsencrypt.org/certs/fakelerootx1.pem
+    dest: /tmp/fakelerootx1.pem
+    mode: u=rw,g=r,o=r
+
+- name: Import "Fake LE Root X1" certificate (Let's Encrypt Staging) to keychain
+  command: security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/fakelerootx1.pem
+  changed_when: false
+  become: yes
 
 - name: Configure Samba and Samba shares
   block:
@@ -601,7 +600,7 @@
   args:
     creates: ~/.oh-my-zsh
 
-- name: Fix permissions for zsh
+- name: Fix permissions for zsh (if needed)
   file:
     name: "{{ item }}"
     mode: g-w,o-w
@@ -726,7 +725,6 @@
       else
         # Enable powerlevel10k with zsh plugins
         source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
         source /usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme
         source ~/.p10k.zsh
       fi
@@ -749,6 +747,9 @@
       # Disable underline in zsh-syntax-highlighting
       ZSH_HIGHLIGHT_STYLES[path]=none
       ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+
+      # Always reply Yes and automatically upgrade oh-my-zsh
+      DISABLE_UPDATE_PROMPT=true
 
       # Disable adding newline before each prompt
       POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
@@ -798,6 +799,8 @@
           value: "true"
         - key: AddNewTabAtEndOfTabs
           value: "false"
+        - key: AlternateMouseScroll
+          value: 1
 
     - name: Configure iTerm2 using PlistBuddy
       shell: |
@@ -828,41 +831,6 @@
       value: "true"
     - key: SUEnableAutomaticChecks
       value: "false"
-
-- name: Skip main menu when Menumeters starts
-  osx_defaults:
-    domain: com.yujitach.MenuMeters
-    key: v2.0.7alertPresented
-    type: bool
-    value: "true"
-
-- name: Configure MenuMeters
-  osx_defaults:
-    domain: com.ragingmenace.MenuMeters
-    key: "{{ item.key }}"
-    type: int
-    value: "{{ item.value }}"
-  loop:
-    - key: CPUAverageMultiProcs
-      value: 1
-    - key: CPUDisplayMode
-      value: 2
-    - key: CPUSumAllProcsPercent
-      value: 1
-    - key: CPUMaxProcessCount
-      value: 10
-    - key: CPUTemperature
-      value: 0
-    - key: MemDisplayMode
-      value: 2
-    - key: MemUsedFreeLabel
-      value: 0
-    - key: NetDisplayMode
-      value: 4
-    - key: NetThroughputLabel
-      value: 0
-    - key: com.ragingmenace.MenuMeterDisk
-      value: 0
 
 - name: Configure ItsycalApp
   osx_defaults:
@@ -1109,6 +1077,9 @@
     - key: Network_speed_icon
       type: string
       value: Character
+    - key: update-interval
+      type: string
+      value: Never
 
 ################################################
 # Interactive (can not be "automated")
@@ -1133,7 +1104,6 @@
         - open -a Docker
         - open -a "Google Chrome" --args --make-default-browser
         - open -a Itsycal
-        - open -a Kap
         - open -a Rectangle
 
     - name: Interactive
