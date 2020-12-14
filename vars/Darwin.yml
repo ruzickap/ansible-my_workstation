@@ -27,12 +27,12 @@ homebrew_taps:
   - romkatv/powerlevel10k
 
 homebrew_packages:
-  - ansible                                      # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
-  - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
+  - ansible                                      # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.9
+  - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.9
   - argocd
-  - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.9
   - aws-iam-authenticator
-  - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.9
   - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - bash
   - bat
@@ -59,7 +59,7 @@ homebrew_packages:
   - htop                                         # ncurses
   - hudochenkov/sshpass/sshpass                  # needed for ansible
   - hugo
-  - imagemagick                                  # libpng, freetype, jpeg, libtiff, ghostscript, libde265, gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, docbook, docbook-xsl, gnu-getopt, xmlto, shared-mime-info, x265, libheif, liblqr, libomp, libtool, little-cms2, ilmbase, openexr, openjpeg and webp
+  - imagemagick                                  # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
   - iproute2mac
   - istioctl
   - johanhaleby/kubetail/kubetail
@@ -70,13 +70,13 @@ homebrew_packages:
   - kubernetes-cli
   - lftp                                         # libidn, openssl@1.1 and readline
   - markdownlint-cli
-  - midnight-commander                           # gettext, libffi, pcre, gdbm, openssl@1.1, readline, sqlite, xz, python@3.8, glib, libssh2, libpng and s-lang
+  - midnight-commander                           # glib, libssh2, openssl@1.1, s-lang
   - mpg123                                       # needed for mc to display mp3 files
   - nmap                                         # openssl@1.1
   - npm                                          # icu4c
   - oci-cli
   - packer
-  - pre-commit                                   # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
+  - pre-commit                                   # libyaml, python@3.9
   - pv
   - qemu
   - qpdf                                         # needed for decrypt password protected PDFs
@@ -85,7 +85,7 @@ homebrew_packages:
   - rhash
   - romkatv/powerlevel10k/powerlevel10k          # ncurses, pcre and zsh
   - rsync
-  - shellcheck
+  - shellcheck                                   # libyaml, python@3.9
   - speedtest-cli
   - tektoncd-cli
   - telnet
@@ -93,13 +93,14 @@ homebrew_packages:
   - terraform-docs                               # needed for pre-commit hook
   - tig                                          # readline
   - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc
-  - unrar
+  - vault
+  - velero
   - watch                                        # ncurses
   - wget                                         # gettext, libunistring, libidn2 and openssl@1.1
   - wifi-password
   - xorriso
-  - yamllint                                     # libyaml, gdbm, openssl@1.1, readline, sqlite, xz and python@3.8
-  - youtube-dl
+  - yamllint                                     # libyaml, python@3.9
+  - youtube-dl                                   # python@3.9
   - yq
   - zsh-autosuggestions
   - zsh-syntax-highlighting
@@ -107,13 +108,12 @@ homebrew_packages:
 homebrew_casks:
   - aerial
   - alt-tab
-  - avibrazil-rdm
   - aws-vault
-  - blackhole
+  - blackhole-2ch
   - darktable
   - digikam
   - docker
-  # - firefox
+  - firefox
   # - google-chrome
   - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
@@ -121,7 +121,7 @@ homebrew_casks:
   - iterm2
   - itsycal                                      # Tiny menu bar calendar
   - keepassxc
-  - homebrew/cask-drivers/logitech-options
+  - lens
   - mactex-no-gui
   - meld
   - mpv
@@ -146,6 +146,3 @@ npm_packages:
   - release-it
   - vuepress
   - vuepress-plugin-seo
-
-pip_packages:
-  - gitlint
