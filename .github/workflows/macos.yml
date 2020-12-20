@@ -38,6 +38,7 @@ jobs:
 
       - name: Install Ansible
         run: |
+          rm /usr/local/bin/2to3
           brew install ansible
 
       - name: Ansible
