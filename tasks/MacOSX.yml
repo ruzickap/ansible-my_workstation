@@ -247,22 +247,28 @@
     value: true
 
 # https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
-- name: Start screenserver in bottom right corner
+- name: Start screenserver in bottom right corner + disable it in right top
   osx_defaults:
     domain: com.apple.dock
     key: "{{ item.key }}"
     type: int
     value: "{{ item.value }}"
   loop:
+    # Start screensaver when cmd + right corner
     - key: wvous-br-corner
       value: 5
     - key: wvous-br-modifier
-      # Control key
       value: 262144
+    # Lock screen when cmd + left corner
     - key: wvous-bl-corner
       value: 13
     - key: wvous-bl-modifier
       value: 262144
+    # Disable screensawer when mouse is right top
+    - key: wvous-tr-corner
+      value: 6
+    - key: wvous-tr-modifier
+      value: 0
 
 - name: Expand print panel by default
   osx_defaults:
@@ -1033,6 +1039,25 @@
         "displayedTutorial" : true,
         "memoryMiB": 4096,
         "swapMiB": 0
+      }
+    mode: u=rw,g=r,o=r
+
+- name: Create Lens config directory
+  file:
+    path: ~/Library/Application Support/Lens
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure Lens
+  copy:
+    dest: ~/Library/Application Support/Lens/config.json
+    content: |
+      {
+        "preferences": {
+          "allowUntrustedCAs": true,
+          "downloadKubectlBinaries": false,
+          "openAtLogin": false
+        }
       }
     mode: u=rw,g=r,o=r
 
