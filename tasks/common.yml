@@ -316,6 +316,8 @@
       value: "false"
     - option: cache_memory
       value: 536870912
+    - option: database/create_snapshot
+      value: never
     - option: host_memory_limit
       value: 8500
     - option: plugins/imageio/format/jpeg/quality
@@ -346,6 +348,8 @@
       value: "false"
     - option: lighttable/ui/header_visible
       value: "false"
+    - option: lua/_scripts_install/dont_show
+      value: "TRUE"
     - option: plugins/darkroom/history/expanded
       value: "TRUE"
     - option: plugins/darkroom/metadata_view/expanded
@@ -354,6 +358,8 @@
       value: "TRUE"
     - option: plugins/lighttable/timeline/visible
       value: "false"
+    - option: slideshow_delay
+      value: 3
     - option: ui_last/import_ignore_jpegs
       value: "TRUE"
     - option: plugins/darkroom/basecurve/auto_apply
