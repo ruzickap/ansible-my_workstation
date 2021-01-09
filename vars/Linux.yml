@@ -248,16 +248,10 @@ homebrew:
   - krew                  #
   - kubectl               #
   - markdownlint-cli      #
-  - oci-cli               # many dependencies
   - pre-commit            # libyaml
   - speedtest-cli         #
+  - stern
   - tektoncd-cli          #
-
-homebrew_taps:
-  - johanhaleby/kubetail
-
-homebrew_additional_packages:
-  - johanhaleby/kubetail/kubetail
 
 npm_packages:
   - "@vuepress/plugin-back-to-top"

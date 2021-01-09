@@ -487,12 +487,6 @@
   args:
     creates: /home/linuxbrew/.linuxbrew/bin/brew
 
-- name: Install Homebrew taps
-  homebrew_tap:
-    name: "{{ homebrew_taps | join(',') }}"
-  environment:
-    PATH: /home/linuxbrew/.linuxbrew/bin/:{{ ansible_env.PATH }}
-
 - name: Upgrade all Homebrew packages
   homebrew:
     update_homebrew: yes
@@ -502,7 +496,7 @@
 
 - name: Install Homebrew packages
   homebrew:
-    name: "{{ homebrew + homebrew_additional_packages }}"
+    name: "{{ homebrew }}"
     path: /home/linuxbrew/.linuxbrew/bin
 
 - name: Create KDE autostart directory for scripts

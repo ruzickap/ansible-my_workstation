@@ -40,6 +40,9 @@ jobs:
         run: |
           rm /usr/local/bin/2to3
           brew install ansible
+          # Remove the following "ansible-galaxy line" when there will be Ansible 2.11
+          # Otherwise getting brew error: "Calling brew cask install is disabled! Use brew install [--cask] instead."
+          ansible-galaxy collection install community.general
 
       - name: Ansible
         run: |

@@ -92,5 +92,7 @@
     "**/inventory/*/*": "ansible",
     "*.yml": "yaml"
   },
-  "editor.selectionClipboard": false
+  "editor.selectionClipboard": false,
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.fontFamily": "MesloLGSNerdFontCompleteM-Regular"
 }

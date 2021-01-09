@@ -23,7 +23,6 @@ login_items_enabled:
 homebrew_taps:
   - beeftornado/rmtree
   - homebrew/cask-fonts
-  - johanhaleby/kubetail
   - romkatv/powerlevel10k
 
 homebrew_packages:
@@ -62,7 +61,6 @@ homebrew_packages:
   - imagemagick                                  # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
   - iproute2mac
   - istioctl
-  - johanhaleby/kubetail/kubetail
   - jq                                           # oniguruma
   - kind
   - kops                                         # kubernetes-cli
@@ -87,6 +85,7 @@ homebrew_packages:
   - rsync
   - shellcheck                                   # libyaml, python@3.9
   - speedtest-cli
+  - stern
   - tektoncd-cli
   - telnet
   - terraform
@@ -115,7 +114,8 @@ homebrew_casks:
   - docker
   - firefox
   # - google-chrome
-  - gpxsee
+  # Disable gpxsee due to brew error: Download failed on Cask 'gpxsee' with message: Download failed: downloads.sourceforge.net/gpxsee/Mac%20OS%20X/GPXSee-7.38.dmg
+  # - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
   - iterm2
