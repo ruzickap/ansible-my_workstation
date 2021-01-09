@@ -1111,7 +1111,7 @@
 ################################################
 
 - name: Check if VirtualBox is installed
-  command: /usr/local/bin/brew cask ls
+  command: /usr/local/bin/brew list --casks
   register: brew_casks
   changed_when: false
 
