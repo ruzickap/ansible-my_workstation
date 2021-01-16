@@ -114,8 +114,7 @@ homebrew_casks:
   - docker
   - firefox
   # - google-chrome
-  # Disable gpxsee due to brew error: Download failed on Cask 'gpxsee' with message: Download failed: downloads.sourceforge.net/gpxsee/Mac%20OS%20X/GPXSee-7.38.dmg
-  # - gpxsee
+  - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
   - iterm2

@@ -354,6 +354,8 @@
       value: "TRUE"
     - option: plugins/darkroom/metadata_view/expanded
       value: "TRUE"
+    - option: plugins/darkroom/temperature/colored_sliders
+      value: effect emulation
     - option: plugins/lighttable/metadata_view/expanded
       value: "TRUE"
     - option: plugins/lighttable/timeline/visible
