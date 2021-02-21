@@ -40,7 +40,6 @@ code_extensions:
   - HashiCorp.terraform
   - mde.select-highlight-minimap
   - vscode-icons-team.vscode-icons
-  - rupisaini.vscode-ansible-linter
   - streetsidesoftware.code-spell-checker
   - tomoki1207.pdf
   - wholroyd.jinja
