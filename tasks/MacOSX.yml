@@ -189,9 +189,8 @@
     domain: /Library/Preferences/com.apple.loginwindow
     key: LoginwindowText
     type: string
-    value: "{{ email }}"
+    value: "This is a private computer system. Unauthorized access to the system is prohibited and may constitute violation of criminal laws. {{ email }}"
   become: yes
-  tags: company
 
 # https://www.defaults-write.com/disable-screenshots-shadow-mac/
 - name: Disable screenshot shadows on a Mac
@@ -317,7 +316,7 @@
     domain: com.apple.menuextra.clock
     key: DateFormat
     type: string
-    value: "d MMM H:mm"
+    value: "d. M.  H:mm"
   changed_when: false
 
 # https://osxdaily.com/2018/10/22/hide-show-recent-apps-mac-dock/
@@ -511,14 +510,14 @@
   changed_when: "'service already loaded' not in launchctl.stderr"
   register: launchctl
 
-- name: Download the "Fake LE Root X1" certificate (Let's Encrypt Staging)
+- name: Download the "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging)
   get_url:
-    url: https://letsencrypt.org/certs/fakelerootx1.pem
-    dest: /tmp/fakelerootx1.pem
+    url: https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem
+    dest: /tmp/letsencrypt-stg-root-x1.pem
     mode: u=rw,g=r,o=r
 
-- name: Import "Fake LE Root X1" certificate (Let's Encrypt Staging) to keychain
-  command: security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/fakelerootx1.pem
+- name: Import "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging) to keychain
+  command: security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/letsencrypt-stg-root-x1.pem
   changed_when: false
   become: yes
 
