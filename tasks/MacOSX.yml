@@ -669,7 +669,7 @@
       #save history after logout
       export SAVEHIST=10000
       #save only one command if 2 common are same and consistent
-      setopt HIST_IGNORE_DUPS
+      setopt HIST_IGNORE_ALL_DUPS
       #add timestamp for each entry
       setopt EXTENDED_HISTORY
       # Do not share history between sessions (like bash)
@@ -762,6 +762,9 @@
       # Remove "newline" form the prompt to have it on single line
       POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
       POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
+
+      # Disable Kopia updates checks
+      KOPIA_CHECK_FOR_UPDATES=false
 
 ################################################
 # Application configuration
