@@ -29,19 +29,19 @@ home_data_directories:
 
 code_extensions:
   - davidanson.vscode-markdownlint
-  - dhoeric.ansible-vault
   - donjayamanne.githistory
   - eamodio.gitlens
   - esbenp.prettier-vscode
   - haaaad.ansible
   - henriiik.vscode-sort
   - james-yu.latex-workshop
-  - marcostazi.VS-code-vagrantfile
   - HashiCorp.terraform
   - mde.select-highlight-minimap
+  - ms-kubernetes-tools.vscode-kubernetes-tools
   - vscode-icons-team.vscode-icons
   - streetsidesoftware.code-spell-checker
   - tomoki1207.pdf
+  - adamhartford.vscode-base64
   - wholroyd.jinja
   - yzhang.markdown-all-in-one
 
