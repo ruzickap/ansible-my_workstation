@@ -553,6 +553,10 @@
         line: '/-                      auto_smb        -nosuid,noowner'
         mode: u=rw,g=r,o=r
 
+    - name: Set the file to read-only to prevent overwrite by macOS updates
+      command: chflags schg /etc/auto_master
+      changed_when: false
+
     - name: Create /System/Volumes/Data/mnt/{{ raspi_hostname }} directory for network shares
       file:
         path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
@@ -708,7 +712,7 @@
       export MANPATH="${MY_GENERATED_MAN}${MANPATH}"
 
       # Enable binaries for node, krew and ~/bin
-      export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${PATH}"
+      export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${PATH}"
 
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
@@ -764,7 +768,7 @@
       POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
 
       # Disable Kopia updates checks
-      KOPIA_CHECK_FOR_UPDATES=false
+      export KOPIA_CHECK_FOR_UPDATES=false
 
 ################################################
 # Application configuration

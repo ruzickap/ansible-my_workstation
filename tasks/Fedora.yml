@@ -226,10 +226,10 @@
           option: email_from
           value: root@{{ ansible_fqdn }}
 
-    - name: Blacklist pcspkr kernel module
-      kernel_blacklist:
-        name: pcspkr
-        blacklist_file: /etc/modprobe.d/blacklist-pcspkr.conf
+    # - name: Blacklist pcspkr kernel module
+    #   kernel_blacklist:
+    #     name: pcspkr
+    #     blacklist_file: /etc/modprobe.d/blacklist-pcspkr.conf
 
     - name: Change libvirt-guests parameters
       ini_file:
