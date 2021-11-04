@@ -27,37 +27,31 @@ on:
 
 jobs:
   macos:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     timeout-minutes: 100
     steps:
       - uses: actions/checkout@v2
-
-      - name: Update brew
-        run: |
-          brew update
 
       - name: Install Ansible
         run: |
           rm /usr/local/bin/2to3
           brew install ansible
-          # Remove the following "ansible-galaxy line" when there will be Ansible 2.11
-          # Otherwise getting brew error: "Calling brew cask install is disabled! Use brew install [--cask] instead."
-          ansible-galaxy collection install community.general
 
       - name: Ansible
         run: |
           echo "test_password" > vault-my_workstation.password
           ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
 
-      - name: Ansible - Idempotence tests
-        run: |
-          ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
-          # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
-          if [ $(grep 'changed=0.*failed=0' /tmp/ansible.log | wc -l) = 1 ] ; then
-            echo -e '\nIdempotence test: pass'
-            exit 0
-          else
-            echo -e '\nIdempotence test: fail\n'
-            grep -B 2 '^changed:' /tmp/ansible.log
-            exit 1
-          fi
+      # - name: Ansible - Idempotence tests
+      #   run: |
+      #     set -x
+      #     ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
+      #     # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
+      #     if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
+      #       echo -e '\nIdempotence test: pass'
+      #       exit 0
+      #     else
+      #       echo -e '\nIdempotence test: fail\n'
+      #       grep -B 2 '^changed:' /tmp/ansible.log
+      #       exit 1
+      #     fi

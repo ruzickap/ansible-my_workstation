@@ -242,7 +242,6 @@ homebrew:
   - gh                    #
   - hadolint              # gmp
   - helm                  #
-  - istioctl              #
   - kind                  #
   - kops                  # go 1.14 (compile)
   - krew                  #

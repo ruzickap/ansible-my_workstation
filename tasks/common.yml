@@ -365,13 +365,13 @@
     - option: ui_last/import_ignore_jpegs
       value: "TRUE"
     - option: plugins/darkroom/basecurve/auto_apply
-      value: "false"
+      value: "FALSE"
     - option: plugins/darkroom/ashift/visible
       value: "TRUE"
     - option: plugins/darkroom/atrous/visible
       value: "TRUE"
     - option: plugins/darkroom/basecurve/visible
-      value: "false"
+      value: "FALSE"
     - option: plugins/darkroom/channelmixer/visible
       value: "TRUE"
     - option: plugins/darkroom/colisa/visible

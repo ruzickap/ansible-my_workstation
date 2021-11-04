@@ -32,7 +32,6 @@ code_extensions:
   - donjayamanne.githistory
   - eamodio.gitlens
   - esbenp.prettier-vscode
-  - haaaad.ansible
   - henriiik.vscode-sort
   - james-yu.latex-workshop
   - HashiCorp.terraform

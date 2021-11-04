@@ -35,7 +35,8 @@
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
     # cherryfetch fetches a repo ($1) / branch ($2) and applies it rebased!
     # the && true at the end eats up the appended args
-    cherryfetch = !git fetch "$1" "$2" && git cherry-pick HEAD..FETCH_HEAD && true
+    # cherryfetch = !git fetch "$1" "$2" && git cherry-pick HEAD..FETCH_HEAD && true
+    # squash = !"f() { NL=$1; GIT_EDITOR=\"sed -i '2,$NL s/pick/squash/;/# This is the 2nd commit message:/,$ {d}'\"; git rebase -i HEAD~$NL; }; f"
 
 [commit]
     verbose = true
@@ -66,3 +67,6 @@
 # https://github.com/dandavison/delta#--color-moved-support
 [diff]
     colorMoved = default
+
+[diff "sopsdiffer"]
+    textconv = sops -d

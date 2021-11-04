@@ -60,7 +60,6 @@ homebrew_packages:
   - hugo
   - imagemagick                                  # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
   - iproute2mac
-  - istioctl
   - jq                                           # oniguruma
   - kind
   - kops                                         # kubernetes-cli
