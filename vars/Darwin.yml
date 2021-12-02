@@ -98,7 +98,7 @@ homebrew_packages:
   - wifi-password
   - xorriso
   - yamllint                                     # libyaml, python@3.9
-  - youtube-dl                                   # python@3.9
+  - yt-dlp
   - yq
   - zsh-autosuggestions
   - zsh-syntax-highlighting
