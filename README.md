@@ -36,12 +36,12 @@ and login as `pruzicka` with `xxxx` password. Then run command:
 
 ## MacOS Catalina 10.5
 
-Install new MacOS Catalina 10.5 and enable ssh server:
+Install new macOS Catalina 10.5 and enable ssh server:
 
 * System Preferences from the Apple menu -> System Preferences -> Sharing
   -> Remote Login (checkbox)
 
-  You can also do it the command line way:
+  You can also do it the command-line way:
 
   ```bash
   sudo systemsetup -setremotelogin on
@@ -60,7 +60,7 @@ Use [Ansible](https://www.ansible.com/) to install+configure the software:
 ./run_ansible_my_workstation-local-mac.sh
 ```
 
-Logout or better restart your MacOS.
+Logout or better restart your macOS.
 
 ### Configurations which needs to be done manually
 

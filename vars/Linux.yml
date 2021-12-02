@@ -136,7 +136,6 @@ dnf_packages:
   - wireless-tools
   - xorriso
   - yamllint
-  - youtube-dl
   - zip
 
 dnf_graphical_packages:
