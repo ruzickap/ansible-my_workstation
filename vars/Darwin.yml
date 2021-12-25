@@ -106,7 +106,6 @@ homebrew_packages:
 homebrew_casks:
   - aerial
   - alt-tab
-  - aws-vault
   - blackhole-2ch
   - darktable
   - digikam
