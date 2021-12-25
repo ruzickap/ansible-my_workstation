@@ -27,7 +27,7 @@
     undo = reset --hard
     gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
     pr = pull --rebase
-    review-master = push origin HEAD:refs/for/master
+    review-main = push origin HEAD:refs/for/main
     co = checkout
     br = branch
     ci = commit

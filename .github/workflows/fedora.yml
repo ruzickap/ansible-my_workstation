@@ -14,7 +14,7 @@ on:
       - vars/common.yml
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/fedora.yml
       - files/**
