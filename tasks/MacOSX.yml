@@ -679,7 +679,7 @@
       # Do not share history between sessions (like bash)
       setopt NO_SHARE_HISTORY
 
-      # Needed for Packer when calling ansible
+      # Needed for calling Ansible - https://github.com/ansible/ansible/issues/32499
       export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
       # Use open command for Midnight Commander "open"
@@ -687,9 +687,6 @@
 
       # Disable pager for AWS CLI (https://stackoverflow.com/questions/60122188/how-to-turn-off-the-pager-for-aws-cli-return-value)
       export AWS_PAGER=""
-
-      # Set aws-vault backend
-      export AWS_VAULT_BACKEND="file"
 
       # Remove the quarantine flag when it installs a package
       export HOMEBREW_CASK_OPTS="--no-quarantine"
@@ -699,8 +696,6 @@
       export HOMEBREW_CLEANUP_MAX_AGE_DAYS=7
       # Fail on the failure of installation from a bottle rather than falling back to building from source
       export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
-      # Cleanup all cached files older than this many days
-      export HOMEBREW_CLEANUP_MAX_AGE_DAYS=30
 
       # Use Python 3.9 insatell by Homebrew
       export PATH="${HOME}/Library/Python/3.9/bin:${PATH}"

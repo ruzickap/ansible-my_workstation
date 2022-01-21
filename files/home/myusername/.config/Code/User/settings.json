@@ -95,5 +95,8 @@
   },
   "editor.selectionClipboard": false,
   "terminal.external.osxExec": "iTerm.app",
-  "terminal.integrated.fontFamily": "MesloLGSNerdFontCompleteM-Regular"
+  "terminal.integrated.fontFamily": "MesloLGSNerdFontCompleteM-Regular",
+  "security.workspace.trust.untrustedFiles": "open",
+  "editor.hover.enabled": false,
+  "editor.tabSize": 2
 }
