@@ -241,7 +241,7 @@ homebrew:
   - gh                    #
   - hadolint              # gmp
   - helm                  #
-  - kind                  #
+  - k3d                   #
   - kops                  # go 1.14 (compile)
   - krew                  #
   - kubectl               #

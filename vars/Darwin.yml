@@ -36,6 +36,7 @@ homebrew_packages:
   - bash
   - bat
   - cdrtools                                     # Needed for mc to show iso details
+  - checkov
   - coreutils
   - dockutil                                     # Command line tool for managing dock items
   - eksctl
@@ -61,7 +62,7 @@ homebrew_packages:
   - imagemagick                                  # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
   - iproute2mac
   - jq                                           # oniguruma
-  - kind
+  - k3d
   - kops                                         # kubernetes-cli
   - krew                                         # kubernetes-cli
   - kubernetes-cli
@@ -89,6 +90,8 @@ homebrew_packages:
   - telnet
   - terraform
   - terraform-docs                               # needed for pre-commit hook
+  - tflint
+  - tfsec
   - tig                                          # readline
   - tmux                                         # openssl@1.1, libevent, ncurses and utf8proc
   - vault
