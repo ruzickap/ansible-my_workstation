@@ -47,6 +47,7 @@ code_extensions:
 krew_plugins:
   - cert-manager
   - get-all
+  - ns
   - outdated
   - resource-capacity
   - ssh-jump
