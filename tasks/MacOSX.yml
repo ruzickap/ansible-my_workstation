@@ -73,6 +73,7 @@
 - name: Install Homebrew packages
   homebrew:
     name: "{{ homebrew_packages }}"
+    update_homebrew: yes
 
 - name: Install Homebrew casks
   homebrew_cask:
@@ -344,6 +345,7 @@
   get_url:
     url: "{{ login_picture_url }}"
     dest: ~/Pictures/login_picture.jpg
+    mode: u=rw,g=r,o=r
   tags: user_specific
 
 # https://www.alansiu.net/2019/09/20/scripting-changing-the-user-picture-in-macos/
@@ -828,6 +830,7 @@
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                                     ~/Library/Preferences/com.googlecode.iterm2.plist
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                                 ~/Library/Preferences/com.googlecode.iterm2.plist
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Use Non-ASCII Font"     "true"'                                 ~/Library/Preferences/com.googlecode.iterm2.plist
+      changed_when: false
   when: not com_googlecode_iterm2_plist.stat.exists
 
 - name: Configure Rectangle
@@ -874,12 +877,13 @@
 - name: Check if Aerial config file is present
   stat:
     path: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost
-  register: com_JohnCoates_Aerial_plist
+  register: com_johncoates_aerial_plist
 
 - name: Configure Aerial
   block:
     - name: Set Aerial as default screensaver
       command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
+      changed_when: false
 
     - name: Configure Aerial
       osx_defaults:
@@ -887,6 +891,7 @@
         key: "{{ item.key }}"
         type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
         value: "{{ item.value }}"
+      changed_when: false
       loop:
         - key: enableManagement
           value: "true"
@@ -915,7 +920,8 @@
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
         defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
-  when: not com_JohnCoates_Aerial_plist.stat.exists
+      changed_when: false
+  when: not com_johncoates_aerial_plist.stat.exists
 
 - name: Configure Meld
   osx_defaults:
@@ -1126,10 +1132,10 @@
     - name: Install Virtualbox - manually enable Oracle VirtualBox in "Security & Privacy" tab
       homebrew_cask:
         name: virtualbox
-      ignore_errors: yes
 
     - name: Run Applications which needs some manual tasks (approvals)
       command: "{{ item }}"
+      changed_when: false
       loop:
         - open -a AltTab
         - open -a Docker
@@ -1145,6 +1151,7 @@
     # MacOS will open several windows which needs to be confirmed otherwise it will fail
     - name: Allow programs to be started after login
       command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
+      changed_when: false
       loop: "{{ login_items_enabled }}"
       tags: interactive
 
