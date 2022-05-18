@@ -26,10 +26,11 @@ on:
       - vars/common.yml
 
 env:
-  MYUSER: pruzicka
-  PASSWORD: xxxx
   ANSIBLE_HOST_KEY_CHECKING: False
   ANSIBLE_REMOTE_PORT: 2222
+  FEDORA_VERSION: 36
+  MYUSER: pruzicka
+  PASSWORD: xxxx
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
 
@@ -47,7 +48,7 @@ jobs:
 
       - name: Start Fedora VirtualBox VM
         run: |
-          vagrant init fedora/33-cloud-base
+          vagrant init fedora/${{ env.FEDORA_VERSION }}-cloud-base
           gsed -i "/Vagrant.configure(\"2\") do |config|/a \ \ config.vm.provider \"virtualbox\" do |vb|\n \ \ \ \ vb.memory = \"${RAM}\"\n \ end" Vagrantfile
           vagrant up || ( vagrant destroy --force && vagrant up )
 

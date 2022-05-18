@@ -21,7 +21,6 @@ login_items_enabled:
   - Stats
 
 homebrew_taps:
-  - beeftornado/rmtree
   - homebrew/cask-fonts
   - romkatv/powerlevel10k
 
@@ -30,13 +29,13 @@ homebrew_packages:
   - ansible-lint                                 # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.9
   - argocd
   - asciinema                                    # gdbm, openssl@1.1, readline, sqlite, xz and python@3.9
-  - aws-iam-authenticator
   - awscli                                       # gdbm, openssl@1.1, readline, sqlite, xz and python@3.9
   - azure-cli                                    # openssl@1.1, gdbm, readline, sqlite, xz and python@3.8
   - bash
   - bat
   - cdrtools                                     # Needed for mc to show iso details
   - checkov
+  - cloudflare/cloudflare/cloudflared
   - coreutils
   - dockutil                                     # Command line tool for managing dock items
   - eksctl
@@ -48,7 +47,6 @@ homebrew_packages:
   - fzf
   - gawk
   - gh
-  - git-crypt
   - git-delta                                    # A viewer for git and diff output
   - gnu-sed
   - gnu-tar
@@ -79,6 +77,7 @@ homebrew_packages:
   - qemu
   - qpdf                                         # needed for decrypt password protected PDFs
   - rclone
+  - release-it
   - restic
   - rhash
   - romkatv/powerlevel10k/powerlevel10k          # ncurses, pcre and zsh
@@ -86,7 +85,6 @@ homebrew_packages:
   - shellcheck                                   # libyaml, python@3.9
   - speedtest-cli
   - stern
-  - tektoncd-cli
   - telnet
   - terraform
   - terraform-docs                               # needed for pre-commit hook
@@ -121,7 +119,6 @@ homebrew_casks:
   - iterm2
   - itsycal                                      # Tiny menu bar calendar
   - keepassxc
-  - lens
   - mactex-no-gui
   - meld
   - mpv
@@ -131,18 +128,13 @@ homebrew_casks:
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
   - qlvideo                                      # This package allows macOS Finder to display thumbnails, static QuickLook previews, cover art and metadata for most types of video files
   - rectangle                                    # Move and resize windows on macOS with keyboard shortcuts and snap areas
+  - session-manager-plugin
   - stats
   - tigervnc-viewer
   - vagrant
   - visual-studio-code
-  # - zooomus
 
 npm_packages:
-  - "@vuepress/plugin-back-to-top"
-  - "@vuepress/plugin-medium-zoom"
   - auto-changelog
   - markdown-link-check
   - markdown-spellcheck
-  - release-it
-  - vuepress
-  - vuepress-plugin-seo

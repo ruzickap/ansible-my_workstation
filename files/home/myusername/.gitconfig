@@ -70,3 +70,6 @@
 
 [diff "sopsdiffer"]
     textconv = sops -d
+
+[format]
+    signoff = true
