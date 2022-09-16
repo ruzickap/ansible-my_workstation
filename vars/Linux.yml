@@ -133,7 +133,6 @@ dnf_packages:
   - udisks2                                            # Needed for KDE to mount devices + many dependencies
   - vim
   - virt-install
-  - wireless-tools
   - xorriso
   - yamllint
   - zip
@@ -235,7 +234,6 @@ dnf_additional_packages:
 
 homebrew:
   - argocd
-  - aws-iam-authenticator #
   - azure-cli             # many dependencies
   - eksctl                #
   - gh                    #
@@ -249,7 +247,6 @@ homebrew:
   - pre-commit            # libyaml
   - speedtest-cli         #
   - stern
-  - tektoncd-cli          #
 
 npm_packages:
   - "@vuepress/plugin-back-to-top"

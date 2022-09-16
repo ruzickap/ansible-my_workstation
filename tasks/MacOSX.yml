@@ -73,7 +73,6 @@
 - name: Install Homebrew packages
   homebrew:
     name: "{{ homebrew_packages }}"
-    update_homebrew: yes
 
 - name: Install Homebrew casks
   homebrew_cask:
@@ -664,6 +663,7 @@
     content: |
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
       export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
+      export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugins"
     mode: u=rw,g=r,o=r
 
 - name: Add commands to ~/.zshrc
@@ -768,6 +768,12 @@
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
+
+      export PAGER="bat --style=plain --paging=never"
+
+      # added by terraform -install-autocomplete
+      autoload -U +X bashcompinit && bashcompinit
+      complete -o nospace -C /usr/local/bin/terraform terraform
 
       # Rancher Desktop
       # alias docker=nerdctl

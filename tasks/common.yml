@@ -192,7 +192,7 @@
     creates: ~/.SpaceVim
     warn: false
 
-- name: Create SpaceVim configuration file ~/.SpaceVim.d/init.vim
+- name: Create SpaceVim configuration file ~/.SpaceVim.d
   copy:
     src: files/home/myusername/.SpaceVim.d
     dest: ~/

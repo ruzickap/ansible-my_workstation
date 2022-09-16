@@ -1,0 +1,10 @@
+[options]
+    bootstrap_before = "myspacevim#before"
+
+[[layers]]
+    name = 'autocomplete'
+    enable = false
+
+[[layers]]
+    name = "core"
+    enable_smooth_scrolling = false
