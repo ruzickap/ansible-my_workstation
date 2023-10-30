@@ -64,7 +64,7 @@ dnf_packages:
   - dnf-automatic
   - dpkg
   - ethtool
-  - exa
+  - eza
   - fd-find
   - fdupes
   - fwupd

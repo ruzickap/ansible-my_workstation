@@ -121,37 +121,47 @@
           option: navigate_with_arrows
           value: "true"
 
-    - name: Copy the mc.ext to the ~/.config/mc/
+    - name: Copy mc.ext.ini to the ~/.config/mc/
       copy:
-        src: "{% if ansible_system == 'Darwin' %}/usr/local/opt/mc{% endif %}/etc/mc/mc.ext"
-        dest: ~/.config/mc/mc.ext
+        src: "{% if ansible_system == 'Darwin' %}/usr/local/opt/mc{% endif %}/etc/mc/mc.ext.ini"
+        dest: ~/.config/mc/mc.ext.ini
         remote_src: yes
         force: no
         mode: preserve
 
-    - name: Use exiftool to show jpg files in MC (~/.config/mc/mc.ext)
-      replace:
-        path: ~/.config/mc/mc.ext
-        regexp: "{{ item.regexp }}"
-        replace: "{{ item.replace }}"
-        mode: u=rw,g=r,o=r
+    - name: Change default in ~/.config/mc/mc.ext.ini
+      ini_file:
+        path: ~/.config/mc/mc.ext.ini
+        no_extra_spaces: yes
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: 0600
       loop:
-        - regexp: View=%view{ascii} .*/image.sh view jpeg
-          replace: View=%view{ascii} exiftool %f
-
-    - name: Add configurations for MC (~/.config/mc/mc.ext)
-      blockinfile:
-        dest: ~/.config/mc/mc.ext
-        insertbefore: "### GIT Repo ###"
-        block: |
-          # GPX data
-          regex/i/\.gpx$
-              Open={% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null
-
-          # RAW images form camera
-          regex/i/\.(nef|orf|ori|dng|arw)$
-              Open={% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null
-              View=%view{ascii} exiftool %f
+        - section: raw
+          option: Regex
+          value: "\\.(nef|orf|ori|dng|arw)$"
+        - section: raw
+          option: RegexIgnoreCase
+          value: "true"
+        - section: raw
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        - section: raw
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: Include/image
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: gpx
+          option: Regex
+          value: "\\.gpx$"
+        - section: gpx
+          option: RegexIgnoreCase
+          value: "true"
+        - section: gpx
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
 
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       file:
@@ -190,7 +200,6 @@
     curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
   args:
     creates: ~/.SpaceVim
-    warn: false
 
 - name: Create SpaceVim configuration file ~/.SpaceVim.d
   copy:

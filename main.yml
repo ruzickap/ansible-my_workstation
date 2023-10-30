@@ -20,9 +20,11 @@
       include_vars: vars/secrets.yml.vault
       tags: secrets
 
-    - include: tasks/{{ ansible_distribution }}.yml
+    - name: Include OS specific tasks list in play
+      ansible.builtin.include_tasks: tasks/{{ ansible_distribution }}.yml
 
-    - include: tasks/common.yml
+    - name: Include common tasks list in play
+      ansible.builtin.import_tasks: tasks/common.yml
 
   handlers:
     - import_tasks: handlers/handlers.yml

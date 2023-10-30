@@ -1013,7 +1013,7 @@
       alias k=kubectl
       alias cat="bat -p --paging=never"
       alias ip='ip -color=auto'
-      alias ls="exa -g"
+      alias ls="eza -g"
 
       for COMPLETION in "/home/linuxbrew/.linuxbrew/etc/bash_completion.d/"*; do
         source "$COMPLETION"

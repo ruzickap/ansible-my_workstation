@@ -1,49 +1,38 @@
 name: fedora
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - .github/workflows/fedora.yml
-      - files/**
-      - handlers/**
-      - main.yml
-      - tasks/Fedora.yml
-      - tasks/common.yml
-      - vars/Linux.yml
-      - vars/common.yml
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/fedora.yml
-      - files/**
-      - handlers/**
-      - main.yml
-      - tasks/Fedora.yml
-      - tasks/common.yml
-      - vars/Linux.yml
-      - vars/common.yml
+  workflow_dispatch:
+  # push:
+  #   branches-ignore:
+  #     - main
+  #   paths:
+  #     - .github/workflows/fedora.yml
+  #     - files/**
+  #     - handlers/**
+  #     - main.yml
+  #     - tasks/Fedora.yml
+  #     - tasks/common.yml
+  #     - vars/Linux.yml
+  #     - vars/common.yml
 
 env:
   ANSIBLE_HOST_KEY_CHECKING: False
   ANSIBLE_REMOTE_PORT: 2222
   FEDORA_VERSION: 36
   MYUSER: pruzicka
-  PASSWORD: xxxx
+  PASSWORD: vagrant
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
 
 jobs:
   fedora:
-    runs-on: macos-10.15
+    runs-on: macos-12
     timeout-minutes: 100
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install brew packages
         run: |
-          rm /usr/local/bin/2to3
           brew install ansible gnu-sed hudochenkov/sshpass/sshpass vagrant
 
       - name: Start Fedora VirtualBox VM
@@ -54,12 +43,12 @@ jobs:
 
       - name: Add main user to Fedora VirtualBox VM
         run: |
-          echo "test password" > vault-my_workstation.password
-          ansible --become --user vagrant --extra-vars "ansible_password=vagrant ansible_python_interpreter=/usr/bin/python3" -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash('sha512') }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
+          echo "${PASSWORD}" > vault-my_workstation.password
+          ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
 
       - name: Ansible
         run: |
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD} ansible_python_interpreter=/usr/bin/python3" main.yml -i "127.0.0.1,"
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
 
       # - name: Ansible - Idempotence tests
       #   run: |

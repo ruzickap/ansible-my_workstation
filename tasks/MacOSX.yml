@@ -73,15 +73,16 @@
 - name: Install Homebrew packages
   homebrew:
     name: "{{ homebrew_packages }}"
+    update_homebrew: true
 
 - name: Install Homebrew casks
   homebrew_cask:
     name: "{{ homebrew_casks }}"
     install_options: no-quarantine
 
-- name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
-  set_fact:
-    ansible_python_interpreter: /usr/local/bin/python3
+# - name: Set Homebrew's Python3 as default (/usr/local/bin/python3)
+#   set_fact:
+#     ansible_python_interpreter: /usr/local/bin/python3
 
 # Needs logout to be applied
 - name: Set scroll direction
@@ -340,6 +341,16 @@
     type: string
     value: Always
 
+- name: Create MacOS data directories if missing
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: u=rwx,g=,o=
+  loop:
+    - ~/Pictures
+    - ~/Music
+  tags: user_specific
+
 - name: Download Picture which will be used as login "Picture"
   get_url:
     url: "{{ login_picture_url }}"
@@ -511,16 +522,16 @@
   changed_when: "'service already loaded' not in launchctl.stderr"
   register: launchctl
 
-- name: Download the "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging)
-  get_url:
-    url: https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem
-    dest: /tmp/letsencrypt-stg-root-x1.pem
-    mode: u=rw,g=r,o=r
+# - name: Download the "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging)
+#   get_url:
+#     url: https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem
+#     dest: /tmp/letsencrypt-stg-root-x1.pem
+#     mode: u=rw,g=r,o=r
 
-- name: Import "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging) to keychain
-  command: security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/letsencrypt-stg-root-x1.pem
-  changed_when: false
-  become: yes
+# - name: Import "(STAGING) Pretend Pear X1" certificate (Let's Encrypt Staging) to keychain
+#   command: security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/letsencrypt-stg-root-x1.pem
+#   changed_when: false
+#   become: yes
 
 - name: Configure Samba and Samba shares
   block:
@@ -591,15 +602,15 @@
     /usr/local/bin/mysides add {{ ansible_user_id }} file://{{ ansible_user_dir }}
   changed_when: false
 
-- name: Remove all Dock items
-  command: /usr/local/bin/dockutil --remove all --no-restart
-  changed_when: false
+# - name: Remove all Dock items
+#   command: /usr/local/bin/dockutil --remove all --no-restart
+#   changed_when: false
 
-- name: Add Dock items
-  command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
-  register: dock_add
-  changed_when: false
-  loop: "{{ dock_add_items }}"
+# - name: Add Dock items
+#   command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
+#   register: dock_add
+#   changed_when: false
+#   loop: "{{ dock_add_items }}"
 
 ################################################
 # ZSH + Oh My Zsh + Powerlevel10k + fzf
@@ -650,12 +661,6 @@
     - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
       replace: DISABLE_MAGIC_FUNCTIONS="true"
 
-- name: Copy p10k-lean.zsh to ~/
-  file:
-    src: /usr/local/opt/powerlevel10k/config/p10k-lean.zsh
-    dest: ~/.p10k.zsh
-    state: link
-
 # Needed for bash scripts or ansible
 - name: Add path to binaries to ~/.bashrc
   copy:
@@ -663,7 +668,6 @@
     content: |
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
       export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
-      export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugins"
     mode: u=rw,g=r,o=r
 
 - name: Add commands to ~/.zshrc
@@ -716,9 +720,9 @@
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
-      alias k=kubectl
+      alias k=kubecolor
       alias cat="bat -p --paging=never"
-      alias ls="exa -g"
+      alias ls="eza -g"
       alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
       trash() { mv -fv "$@" ~/.Trash/ ; }
@@ -733,8 +737,8 @@
       else
         # Enable powerlevel10k with zsh plugins
         source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        source /usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme
-        source ~/.p10k.zsh
+        source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+        source /usr/local/share/powerlevel10k/config/p10k-lean.zsh
       fi
 
       DISABLE_AUTO_UPDATE="true"
@@ -777,6 +781,9 @@
 
       # Rancher Desktop
       # alias docker=nerdctl
+
+      # make completion work with kubecolor
+      compdef kubecolor=kubectl
 
 ################################################
 # Application configuration
