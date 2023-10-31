@@ -43,22 +43,25 @@ jobs:
 
       - name: Add main user to Fedora VirtualBox VM
         run: |
+          cd ansible || exit
           echo "${PASSWORD}" > vault-my_workstation.password
           ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
 
       - name: Ansible
         run: |
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
+          cd ansible || exit
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
 
-      # - name: Ansible - Idempotence tests
-      #   run: |
-      #     ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test,test_data --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
-      #     # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
-      #     if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
-      #       echo -e '\nIdempotence test: pass'
-      #       exit 0
-      #     else
-      #       echo -e '\nIdempotence test: fail\n'
-      #       grep -B 2 '^changed:' /tmp/ansible.log
-      #       exit 1
-      #     fi
+      - name: Ansible - Idempotence tests
+        run: |
+          cd ansible || exit
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
+          # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
+          if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
+            echo -e '\nIdempotence test: pass'
+            exit 0
+          else
+            echo -e '\nIdempotence test: fail\n'
+            grep -B 2 '^changed:' /tmp/ansible.log
+            exit 1
+          fi

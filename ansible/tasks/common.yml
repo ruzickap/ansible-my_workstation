@@ -1,0 +1,734 @@
+###############################
+# Run as root
+###############################
+
+- name: Run tasks as root
+  become: true
+  block:
+    - name: Add hostname to /etc/hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        regexp: "^127.0.1.1"
+        line: 127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}
+        # MacOS is changing it's hostname
+        mode: u=rw,g=r,o=r
+      changed_when: false
+
+    - name: Configure aliases
+      ansible.builtin.lineinfile:
+        dest: /etc/aliases
+        regexp: ^root:\s+
+        line: "root:           {{ email }}"
+        mode: u=rw,g=r,o=r
+      notify: Newaliases
+      tags: user_specific
+
+    - name: Configure postfix
+      community.general.ini_file:
+        path: /etc/postfix/main.cf
+        section: null
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        - option: inet_protocols
+          value: ipv4
+        - option: relayhost
+          value: "[smtp.gmail.com]:587"
+        - option: smtp_use_tls
+          value: "yes"
+        - option: smtp_sasl_auth_enable
+          value: "yes"
+        - option: smtp_sasl_password_maps
+          value: hash:/etc/postfix/sasl_passwd
+        - option: smtp_sasl_security_options
+          value: noanonymous
+        - option: smtp_sasl_mechanism_filter
+          value: login
+
+    - name: Add gmail credentials /etc/postfix/sasl_passwd
+      ansible.builtin.template:
+        src: files/etc/postfix/sasl_passwd.j2
+        dest: /etc/postfix/sasl_passwd
+        mode: u=rw,g=,o=
+      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+      no_log: true
+      tags:
+        - secrets
+
+    - name: Add printer and make it default
+      ansible.builtin.shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd -o auth-info-required=negotiate && sleep 1
+      args:
+        creates: /etc/cups/ppd/{{ printer_name }}.ppd
+      notify: Set default printer
+      when: cups_printer_device_uri is defined
+      tags:
+        - printer
+        - skip_test
+
+    - name: Tweak screen
+      ansible.builtin.blockinfile:
+        dest: /etc/screenrc
+        create: true
+        block: |
+          defscrollback 10000
+          startup_message off
+          termcapinfo xterm ti@:te@
+          hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
+          vbell off
+        mode: u=rw,g=r,o=r
+
+    - name: Create directory for mc inside ~/.config
+      ansible.builtin.file:
+        path: ~/.config/mc/
+        state: directory
+        mode: u=rwx,g=,o=
+
+    - name: Create ~/.config/mc/ini file
+      community.general.ini_file:
+        path: ~/.config/mc/ini
+        no_extra_spaces: true
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        - section: Midnight-Commander
+          option: auto_save_setup
+          value: "false"
+        - section: Midnight-Commander
+          option: drop_menus
+          value: "true"
+        - section: Midnight-Commander
+          option: editor_return_does_auto_indent
+          value: "false"
+        - section: Layout
+          option: keybar_visible
+          value: "false"
+        - section: Layout
+          option: menubar_visible
+          value: "false"
+        - section: Layout
+          option: message_visible
+          value: "false"
+        - section: Panels
+          option: navigate_with_arrows
+          value: "true"
+
+    - name: Copy mc.ext.ini to the ~/.config/mc/
+      ansible.builtin.copy:
+        src: "{% if ansible_system == 'Darwin' %}/usr/local/opt/mc{% endif %}/etc/mc/mc.ext.ini"
+        dest: ~/.config/mc/mc.ext.ini
+        remote_src: true
+        force: false
+        mode: preserve
+
+    - name: Change default in ~/.config/mc/mc.ext.ini
+      community.general.ini_file:
+        path: ~/.config/mc/mc.ext.ini
+        no_extra_spaces: true
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=,o=
+      loop:
+        - section: raw
+          option: Regex
+          value: "\\.(nef|orf|ori|dng|arw)$"
+        - section: raw
+          option: RegexIgnoreCase
+          value: "true"
+        - section: raw
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        - section: raw
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: Include/image
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: gpx
+          option: Regex
+          value: "\\.gpx$"
+        - section: gpx
+          option: RegexIgnoreCase
+          value: "true"
+        - section: gpx
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+
+    - name: Create directory ~/.config for the {{ ansible_user_id }}
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/.config/"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid | string }}"
+        mode: u=rwx,g=,o=
+
+    - name: Copy mc configuration to to User's home direcotry
+      ansible.builtin.copy:
+        src: ~/.config/mc
+        dest: "{{ ansible_user_dir }}/.config/"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid | string }}"
+        remote_src: true
+        mode: preserve
+
+    - name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
+      ansible.posix.authorized_key:
+        user: "{{ item }}"
+        key: https://github.com/{{ github_username }}.keys
+        comment: "{{ email }}"
+      loop:
+        - "{{ ansible_user_id }}"
+
+###############################
+# Run as user
+###############################
+
+- name: Install SpaceVim
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
+  args:
+    creates: ~/.SpaceVim
+
+- name: Create SpaceVim configuration file ~/.SpaceVim.d
+  ansible.builtin.copy:
+    src: files/home/myusername/.SpaceVim.d
+    dest: ~/
+    mode: preserve
+
+- name: Create VirtualBox config directory
+  ansible.builtin.file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Put VirtualBox configuation in place
+  ansible.builtin.template:
+    src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
+    dest: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
+    mode: u=rw,g=,o=
+
+- name: Create directory for mc inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/mpv/
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Configure mpv
+  community.general.ini_file:
+    path: ~/.config/mpv/mpv.conf
+    no_extra_spaces: true
+    section: null
+    # allow_no_value: true
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    - option: autofit-larger
+      value: 100%x95%
+    - option: hwdec
+      value: "yes"
+    # MacOS
+    # - option: icc-profile-auto
+    #   value:
+    # MacOS
+    - option: icc-contrast
+      value: 1000
+    - option: keep-open
+      value: "yes"
+    - option: osd-font-size
+      value: 30
+    - option: osd-level
+      value: 2
+    - option: screenshot-template
+      value: '"%f-%wM:%wS"'
+    - option: screenshot-jpeg-quality
+      value: 70
+    - option: slang
+      value: cz,cze,Czech
+    - option: sub-ass-force-style
+      value: Kerning=yes
+    - option: sub-border-color
+      value: '"#ff262626"'
+    - option: sub-border-size
+      value: 2.0
+    - option: sub-codepage
+      value: cp1250
+    - option: sub-color
+      value: '"#e6d21a"'
+    - option: sub-font-size
+      value: 40
+    - option: sub-shadow-color
+      value: '"#33000000"'
+    - option: sub-shadow-offset
+      value: 1
+    # - option: term-osd-bar
+    #   value:
+    - option: volume-max
+      value: 200
+
+- name: Put darktable configs in place
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/darktable
+    dest: ~/.config/
+    mode: preserve
+
+- name: Configure darktable
+  community.general.ini_file:
+    path: ~/.config/darktable/darktablerc
+    no_extra_spaces: true
+    section: null
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - option: send_to_trash
+      value: "false"
+    - option: ask_before_delete
+      value: "false"
+    - option: ask_before_remove
+      value: "false"
+    - option: cache_memory
+      value: 536870912
+    - option: database/create_snapshot
+      value: never
+    - option: host_memory_limit
+      value: 8500
+    - option: plugins/imageio/format/jpeg/quality
+      value: 97
+    - option: plugins/imageio/format/tiff/compresslevel
+      value: 9
+    - option: plugins/lighttable/export/high_quality_processing
+      value: "TRUE"
+    - option: ui_last/import_apply_metadata
+      value: "TRUE"
+    - option: ui_last/import_last_creator
+      value: Petr Ruzicka
+    - option: ui_last/import_last_rights
+      value: Creative Commons Attribution-ShareAlike (CC BY-SA)
+    - option: plugins/darkroom/demosaic/quality
+      value: at most PPG (reasonable)
+    - option: plugins/lighttable/filmstrip/height
+      value: 71
+    - option: plugins/lighttable/images_in_row
+      value: 6
+    - option: lighttable/ui/expose_statuses
+      value: "TRUE"
+    - option: ui_last/grouping
+      value: "TRUE"
+    - option: lighttable/ui/bottom_visible
+      value: "false"
+    - option: lighttable/ui/toolbar_bottom_visible
+      value: "false"
+    - option: lighttable/ui/header_visible
+      value: "false"
+    - option: lua/_scripts_install/dont_show
+      value: "TRUE"
+    - option: plugins/darkroom/history/expanded
+      value: "TRUE"
+    - option: plugins/darkroom/metadata_view/expanded
+      value: "TRUE"
+    - option: plugins/darkroom/temperature/colored_sliders
+      value: effect emulation
+    - option: plugins/lighttable/metadata_view/expanded
+      value: "TRUE"
+    - option: plugins/lighttable/timeline/visible
+      value: "false"
+    - option: slideshow_delay
+      value: 3
+    - option: ui_last/import_ignore_jpegs
+      value: "TRUE"
+    - option: plugins/darkroom/basecurve/auto_apply
+      value: "FALSE"
+    - option: plugins/darkroom/ashift/visible
+      value: "TRUE"
+    - option: plugins/darkroom/atrous/visible
+      value: "TRUE"
+    - option: plugins/darkroom/basecurve/visible
+      value: "FALSE"
+    - option: plugins/darkroom/channelmixer/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colisa/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colorchecker/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colorcorrection/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colorreconstruct/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colorreconstruct/visible
+      value: "TRUE"
+    - option: plugins/darkroom/colorzones/visible
+      value: "TRUE"
+    - option: plugins/darkroom/defringe/visible
+      value: "TRUE"
+    - option: plugins/darkroom/filmicrgb/visible
+      value: "TRUE"
+    - option: plugins/darkroom/globaltonemap/visible
+      value: "TRUE"
+    - option: plugins/darkroom/graduatednd/visible
+      value: "TRUE"
+    - option: plugins/darkroom/grain/visible
+      value: "TRUE"
+    - option: plugins/darkroom/highpass/visible
+      value: "TRUE"
+    - option: plugins/darkroom/lowpass/visible
+      value: "TRUE"
+    - option: plugins/darkroom/monochrome/visible
+      value: "TRUE"
+    - option: plugins/darkroom/rawdenoise/visible
+      value: "TRUE"
+    - option: plugins/darkroom/retouch/visible
+      value: "TRUE"
+    - option: plugins/darkroom/shadhi/visible
+      value: "TRUE"
+    - option: plugins/darkroom/soften/visible
+      value: "TRUE"
+    - option: plugins/darkroom/splittoning/visible
+      value: "TRUE"
+    - option: plugins/darkroom/tonecurve/visible
+      value: "TRUE"
+    - option: plugins/darkroom/velvia/visible
+      value: "TRUE"
+    - option: plugins/darkroom/vignette/visible
+      value: "TRUE"
+    - option: opencl
+      value: "TRUE"
+
+- name: Install krew plugins
+  ansible.builtin.command: kubectl krew install {{ item }}
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
+  args:
+    creates: ~/.krew/store/{{ item }}
+  loop: "{{ krew_plugins }}"
+
+- name: Create direcotry for KeePassxc settings
+  ansible.builtin.file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
+    state: directory
+    mode: u=rwx,g=rwx,o=rx
+
+- name: Copy KeePassxc settings
+  community.general.ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: General
+      option: AutoSaveAfterEveryChange
+      value: "false"
+    - section: General
+      option: AutoSaveOnExit
+      value: "false"
+    - section: General
+      option: UpdateCheckMessageShown
+      value: "true"
+    - section: General
+      option: LastDatabases
+      value: "{{ ansible_user_dir }}/Documents/secrets/keepass2.kdbx"
+    - section: General
+      option: LastKeyFiles
+      value: '@Variant(\0\0\0\x1c\0\0\0\x1\0\0\0\\\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0X\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
+    - section: General
+      option: SSHAgent
+      value: "true"
+    - section: General
+      option: UseGroupIconOnEntryCreation
+      value: "true"
+    - section: Browser
+      option: AlwaysAllowAccess
+      value: "true"
+    - section: Browser
+      option: Enabled
+      value: "true"
+    - section: FdoSecrets
+      option: Enabled
+      value: "true"
+    - section: GUI
+      option: CheckForUpdates
+      value: "false"
+    - section: GUI
+      option: MinimizeOnStartup
+      value: "true"
+    - section: GUI
+      option: MinimizeToTray
+      value: "true"
+    - section: GUI
+      option: MonospaceNotes
+      value: "true"
+    - section: GUI
+      option: ShowTrayIcon
+      value: "true"
+    - section: security
+      option: lockdatabasescreenlock
+      value: "false"
+
+- name: Configure digikam
+  community.general.ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Preferences{% else %}~/.config{% endif %}/digikamrc"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: Album Settings
+      option: Icon Show Comments
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Date
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Fullscreen
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Image Format
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Modification Date
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Name
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Overlays
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Rating
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Resolution
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Size
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Tags
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Title
+      value: "false"
+    - section: Album Settings
+      option: Item Left Click Action
+      value: 1
+    - section: Album Settings
+      option: Show Album ToolTips
+      value: "true"
+    - section: Album Settings
+      option: Show Folder Tree View Items Count
+      value: "true"
+    - section: Album Settings
+      option: Show ToolTips
+      value: "true"
+    - section: Album Settings
+      option: ToolTips Show Album Caption
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Album Category
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Album Collection
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Comments
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show File Date
+      value: "true"
+    - section: Album Settings
+      option: ToolTips Show File Size
+      value: "true"
+    - section: Album Settings
+      option: ToolTips Show Label Rating
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Tags
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Titles
+      value: "false"
+    - section: Album Settings
+      option: Theme
+      value: Black Body
+    - section: Database Settings
+      option: Database Name
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Name Face
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Name Thumbnails
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Type
+      value: QSQLITE
+    - section: General Settings
+      option: Clean core DB At Start
+      value: "true"
+    - section: General Settings
+      option: Icon Theme
+      value: breeze-dark
+    - section: General Settings
+      option: Show Splash
+      value: "false"
+    - section: General Settings
+      option: Show Trash Delete Dialog
+      value: "false"
+    - section: General Settings
+      option: Use Large Thumbs
+      value: "true"
+    - section: Image Properties SideBar
+      option: EXIF Tags Filter
+      value: Exif.GPSInfo.GPSLatitude,Exif.GPSInfo.GPSLongitude,Exif.Image.DateTime,Exif.Image.DateTimeOriginal,Exif.Photo.DateTimeDigitized,Exif.Photo.DateTimeOriginal
+    - section: ImageViewer Settings
+      option: JPEGCompression
+      value: 98
+    - section: ImageViewer Settings
+      option: TIFFCompression
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowDelay
+      value: 3
+    - section: Import Settings
+      option: Show ToolTips
+      value: "true"
+    - section: Import Settings
+      option: ToolTips Show File Date
+      value: "true"
+    - section: Import Settings
+      option: ToolTips Show File Size
+      value: "true"
+    - section: Metadata Settings
+      option: Metadata Writing Mode
+      value: 2
+    - section: Metadata Settings
+      option: Rescan File If Modified
+      value: "true"
+    - section: Metadata Settings
+      option: Save EXIF Comments
+      value: "true"
+    - section: Metadata Settings
+      option: Save Tags
+      value: "true"
+    - section: Metadata Settings
+      option: Use XMP Sidecar For Reading
+      value: "true"
+    - section: Versioning Settings
+      option: Non-Destructive Editing Enabled
+      value: "false"
+
+- name: Put VS Code configuation in place
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/Code
+    dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
+    mode: preserve
+
+- name: Install the VS Code extensions
+  ansible.builtin.command: code --install-extension {{ item }}
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+  args:
+    creates: ~/.vscode/extensions/{{ item | lower }}*
+  loop: "{{ code_extensions }}"
+
+- name: Install npm packages
+  community.general.npm:
+    name: "{{ item }}"
+    path: ~/
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+  loop: "{{ npm_packages }}"
+
+###############################
+# Run as user
+###############################
+
+- name: Configure .forward to {{ email }}
+  ansible.builtin.copy:
+    dest: ~/.forward
+    content: |
+      {{ email }}
+    mode: u=rw,g=r,o=r
+  tags: user_specific
+
+# - name: Configure git
+#   ansible.builtin.copy:
+#     src: files/home/myusername/.gitconfig
+#     dest: ~/.gitconfig
+#     mode: u=rw,g=r,o=r
+#   tags: user_specific
+
+###################################################
+# Secrets
+###################################################
+
+- name: Secrets
+  no_log: true
+  tags: secrets
+  block:
+    - name: Copy rclone configuration
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/rclone
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    - name: Copy gh configuration files
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/gh
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    - name: Copy asciinema configuration
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/asciinema
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    ###################################################
+    # Secrets coppied from local disk
+    ###################################################
+
+    - name: Create ~/Documents/secrets directory
+      ansible.builtin.file:
+        path: ~/Documents/secrets
+        state: directory
+        mode: u=rwx,g=,o=
+
+    # Needed for shell (zsh/bash)
+    - name: Copy ~/Documents/secrets/secret_variables
+      ansible.builtin.copy:
+        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
+        dest: ~/Documents/secrets/secret_variables
+        mode: u=rw,g=,o=
+      tags: data
+
+    - name: Copy KeePass data
+      ansible.builtin.copy:
+        src: "{{ data_source_dir }}/Documents/secrets/{{ item }}"
+        dest: ~/Documents/secrets/{{ item }}
+        mode: u=rw,g=,o=
+      loop:
+        - keepass2.kdbx
+        - keepass.key
+      tags: data
+
+###################################################
+# Data
+###################################################
+
+- name: Copy data (this will take a long time)
+  ansible.posix.synchronize:
+    src: "{{ data_source_dir }}/{{ item }}"
+    dest: ~/
+    rsync_opts:
+      - "--quiet"
+  loop: "{{ home_data_directories }}"
+  tags:
+    - data

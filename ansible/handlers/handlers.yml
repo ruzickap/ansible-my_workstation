@@ -1,0 +1,44 @@
+- name: Grub2 config
+  ansible.builtin.command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  changed_when: false
+  become: true
+
+- name: Newaliases
+  ansible.builtin.command: newaliases
+  changed_when: false
+  become: true
+
+- name: Plymouth rebuild initrd
+  ansible.builtin.command: plymouth-set-default-theme {{ plymouth_theme }} --rebuild-initrd
+  changed_when: false
+  become: true
+
+- name: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+  ansible.builtin.command: postmap /etc/postfix/sasl_passwd
+  changed_when: false
+  become: true
+
+- name: Reload systemctl
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Set login picture
+  ansible.builtin.shell: |
+    dscl . delete /Users/{{ ansible_user_id }} JPEGPhoto
+    dscl . delete /Users/{{ ansible_user_id }} Picture
+    dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
+  changed_when: false
+  become: true
+
+# https://github.com/ansible/ansible/pull/65050/files
+# Check in Ansible 2.10 - if it can be done better
+- name: Change LUKS key
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo -e "{{ ansible_password }}\n{{ fedora_disk_encryption_passphrase }}\n{{ fedora_disk_encryption_passphrase }}\n" | cryptsetup luksChangeKey /dev/{{ ansible_device_links.masters | first }} --force-password
+  changed_when: false
+
+- name: Set default printer
+  ansible.builtin.command: lpoptions -d "{{ printer_name }}"
+  changed_when: false
