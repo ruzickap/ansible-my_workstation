@@ -1,19 +1,9 @@
 name: macos
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - .github/workflows/macos.yml
-      - files/**
-      - handlers/**
-      - main.yml
-      - tasks/MacOSX.yml
-      - tasks/common.yml
-      - vars/Darwin.yml
-      - vars/common.yml
+  workflow_dispatch:
   push:
-    branches:
+    branches-ignore:
       - main
     paths:
       - .github/workflows/macos.yml
@@ -25,22 +15,24 @@ on:
       - vars/Darwin.yml
       - vars/common.yml
 
+env:
+  ANSIBLE_DEBUG: False
+
 jobs:
   macos:
-    runs-on: macos-10.15
-    timeout-minutes: 100
+    runs-on: macos-12
+    timeout-minutes: 150
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Ansible
         run: |
-          rm /usr/local/bin/2to3
           brew install ansible
 
       - name: Ansible
         run: |
           echo "test_password" > vault-my_workstation.password
-          ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data -e 'ansible_python_interpreter=/usr/local/bin/python3' --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test,test_data --connection=local -i "127.0.0.1," main.yml
 
       # - name: Ansible - Idempotence tests
       #   run: |

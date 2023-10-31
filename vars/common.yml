@@ -10,49 +10,49 @@ raspi_hostname: raspi.xvx.cz
 
 # The directories which should be copy over to new system
 home_data_directories:
-  - .ansible
-  - .ansible.cfg
-  - .aws
-  - .azure
-  - .zsh_history
+  - .bash_history
   - .gnupg
-  - .lftp
-  - .oci
-  - .purple
+  - .kopiaignore
+  - .sigstore
   - .ssh
+  - .zsh_history
+  - bin
+  - Desktop
   - Documents
+  - Downloads
+  - git
+  - Movies
   - Music
   - Pictures
-  - Videos
-  - bin
-  - git
 
 code_extensions:
-  - davidanson.vscode-markdownlint
-  - donjayamanne.githistory
+  - adamhartford.vscode-base64
+  - bierner.markdown-mermaid
+  - bierner.markdown-preview-github-styles
+  - DavidAnson.vscode-markdownlint
   - eamodio.gitlens
   - esbenp.prettier-vscode
-  - henriiik.vscode-sort
-  - james-yu.latex-workshop
-  - HashiCorp.terraform
-  - mde.select-highlight-minimap
-  - ms-kubernetes-tools.vscode-kubernetes-tools
-  - vscode-icons-team.vscode-icons
+  - GitHub.copilot
+  - GitHub.copilot-chat
+  - github.vscode-github-actions
+  - golang.go
+  - hashicorp.terraform
+  - redhat.vscode-yamL
   - streetsidesoftware.code-spell-checker
-  - tomoki1207.pdf
-  - adamhartford.vscode-base64
-  - wholroyd.jinja
+  - Tyriar.sort-lines
   - yzhang.markdown-all-in-one
 
 krew_plugins:
   - cert-manager
   - get-all
+  - ice
+  - ktop
   - node-shell
   - ns
-  - outdated
+  - pod-lens
   - resource-capacity
-  - ssh-jump
-  - tree
+  - stern
+  - view-allocations
 
 terraform_providers:
   - azurerm

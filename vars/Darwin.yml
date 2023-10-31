@@ -22,7 +22,6 @@ login_items_enabled:
 
 homebrew_taps:
   - homebrew/cask-fonts
-  - romkatv/powerlevel10k
 
 homebrew_packages:
   - ansible                                      # libyaml, openssl@1.1, gdbm, readline, sqlite, xz and python@3.9
@@ -35,11 +34,11 @@ homebrew_packages:
   - bat
   - cdrtools                                     # Needed for mc to show iso details
   - checkov
-  - cloudflare/cloudflare/cloudflared
+  - commitizen
   - coreutils
-  - dockutil                                     # Command line tool for managing dock items
+  # - dockutil (deprecated)                      # Command line tool for managing dock items
   - eksctl
-  - exa
+  - eza
   - exiftool
   - fd
   - fdupes                                       # pcre2
@@ -65,6 +64,7 @@ homebrew_packages:
   - krew                                         # kubernetes-cli
   - kubernetes-cli
   - lftp                                         # libidn, openssl@1.1 and readline
+  - lensfun
   - markdownlint-cli
   - midnight-commander                           # glib, libssh2, openssl@1.1, s-lang
   - mpg123                                       # needed for mc to display mp3 files
@@ -80,7 +80,7 @@ homebrew_packages:
   - release-it
   - restic
   - rhash
-  - romkatv/powerlevel10k/powerlevel10k          # ncurses, pcre and zsh
+  - powerlevel10k                                # ncurses, pcre and zsh
   - rsync
   - shellcheck                                   # libyaml, python@3.9
   - speedtest-cli
@@ -112,8 +112,6 @@ homebrew_casks:
   - digikam
   - docker
   - firefox
-  # - google-chrome
-  - gpxsee
   - font-meslo-lg-nerd-font                      # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iina
   - iterm2
@@ -122,7 +120,7 @@ homebrew_casks:
   - mactex-no-gui
   - meld
   - mpv
-  - mysides                                      # Application for managing OS X Finder sidebar favourites
+  - mysides                                      # Application for managing OS X Finder sidebar favorites
   - obs
   - qlmarkdown                                   # QuickLook generator for Markdown files
   - qlstephen                                    # A QuickLook plugin that lets you view plain text files without a file extension
@@ -138,3 +136,5 @@ npm_packages:
   - auto-changelog
   - markdown-link-check
   - markdown-spellcheck
+  - markdown-table-formatter
+  - mega-linter-runner
