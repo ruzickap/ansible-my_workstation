@@ -1,0 +1,77 @@
+[user]
+    name = Petr Ruzicka
+    email = petr.ruzicka@gmail.com
+    signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg]
+    format = ssh
+
+[tag]
+    gpgsign = true
+
+[core]
+    pager = delta
+    editor = vim
+
+# https://switowski.com/blog/configuring-git
+[push]
+    default = current
+
+[alias]
+    authors = log --pretty=format:'%an <%ae>'
+    df = diff
+    dt = difftool
+    ll = log --first-parent --pretty=format:'%h %s'
+    ls = ls-files
+    rb = rebase
+    changes = diff --name-status -r
+    stat = diff --stat -r
+    statd = diff --stat -r  --diff-filter=DR
+    who = shortlog -s --
+    fo = fetch origin
+    fu = fetch upstream
+    undo = reset --hard
+    gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+    pr = pull --rebase
+    review-main = push origin HEAD:refs/for/main
+    co = checkout
+    br = branch
+    ci = commit
+    st = status
+    lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
+
+[commit]
+    verbose = true
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "status"]
+    added = cyan bold
+    changed = yellow bold
+    untracked = green bold
+
+# https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
+[submodule]
+    recurse = true
+
+# https://github.com/dandavison/delta
+[delta]
+    line-numbers = false
+    diff-so-fancy = true
+    hunk-header-decoration-style = ul brightblue
+
+# https://github.com/dandavison/delta#--color-moved-support
+[diff]
+    colorMoved = default
+
+[diff "sopsdiffer"]
+    textconv = sops -d
+
+[format]
+    signoff = true
+
+# [url "ssh://git@github.com"]
+#   insteadOf = https://github.com

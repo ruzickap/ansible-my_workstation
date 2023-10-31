@@ -1,0 +1,114 @@
+login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500
+
+# Items to add to the dock
+dock_add_items:
+  - /Applications/iTerm.app
+  - /Applications/Google Chrome.app
+
+enable_function_keys_apps:
+  - com.googlecode.iterm2
+
+# The Dock icons size
+dock_icons_size: 36.0
+
+login_items_enabled:
+  - AltTab
+  - KeePassXC
+  - Stats
+
+homebrew_packages:
+  - ansible # libyaml, openssl, gdbm, readline, sqlite, xz and python@3.9
+  - argocd
+  - asciinema # gdbm, openssl, readline, sqlite, xz and python
+  - awscli # gdbm, openssl, readline, sqlite, xz and python
+  - azure-cli # openssl, gdbm, readline, sqlite, xz and python
+  - bash
+  - bat
+  - cdrtools # Needed for mc to show iso details
+  - checkov
+  - colima
+  - commitizen
+  - docker
+  - uutils-coreutils
+  - eksctl
+  - eza
+  - exiftool
+  - fd
+  - uutils-findutils
+  - fzf
+  - gawk
+  - gh
+  - git-delta # A viewer for git and diff output
+  - gnu-sed
+  - gnu-tar
+  - gnupg # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
+  - grep
+  - helm
+  - htop # ncurses
+  - hugo
+  - imagemagick # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
+  - iproute2mac
+  - jq # oniguruma
+  - k3d
+  - kops # kubernetes-cli
+  - krew # kubernetes-cli
+  - kubernetes-cli
+  - lensfun
+  - markdownlint-cli
+  - midnight-commander # glib, libssh2, openssl, s-lang
+  - mpg123 # needed for mc to display mp3 files
+  - nmap # openssl
+  - npm # icu4c
+  - packer
+  - pre-commit # libyaml, python
+  - prettier
+  - qpdf # needed for decrypt password protected PDFs
+  - rclone
+  - release-it
+  - rhash
+  - powerlevel10k # ncurses, pcre and zsh
+  - rsync
+  - shellcheck # libyaml, python
+  - telnet
+  - terraform
+  - terraform-docs # needed for pre-commit hook
+  - tflint
+  - tfsec
+  - tig # readline
+  - vault
+  - watch # ncurses
+  - wget2
+  - wifi-password
+  - yamllint # libyaml, python
+  - yt-dlp
+  - yq
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+
+homebrew_casks:
+  - aerial
+  - alt-tab
+  - blackhole-2ch
+  - darktable
+  - digikam
+  - firefox
+  - iterm2
+  - keepassxc
+  - meld
+  - mpv
+  - mysides # Application for managing OS X Finder sidebar favorites
+  - obs
+  - rectangle # Move and resize windows on macOS with keyboard shortcuts and snap areas
+  - session-manager-plugin
+  - stats
+  - vagrant
+  - visual-studio-code
+  - vmware-fusion
+  - vagrant-vmware-utility
+
+npm_packages:
+  - auto-changelog
+  - markdown-link-check
+  - markdown-spellcheck
+  - markdown-table-formatter
+  - mega-linter-runner

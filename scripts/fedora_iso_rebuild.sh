@@ -25,7 +25,7 @@ sed -i.orig \
   -e "s|${VOLUME_LABEL} quiet|${VOLUME_LABEL} quiet ${BOOT_PARAMS}|" \
   -e "s|^timeout|#timeout|" \
   -e "s|menu default|#menu default|" \
-${TMP_ISO}/isolinux/isolinux.cfg ${TMP_ISO}/isolinux/grub.conf
+  ${TMP_ISO}/isolinux/isolinux.cfg ${TMP_ISO}/isolinux/grub.conf
 
 tar czhf ${TMP_ISO}/fedora_workstation.tar.gz ../../ansible-my_workstation
 

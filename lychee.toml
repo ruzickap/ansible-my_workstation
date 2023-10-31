@@ -1,0 +1,42 @@
+# https://lychee.cli.rs/#/usage/config
+
+#############################  Cache  ###############################
+
+# Enable link caching. This can be helpful to avoid checking the same links on
+# multiple runs
+cache = true
+
+# Discard all cached requests older than this duration
+max_cache_age = "1d"
+
+#############################  Runtime  #############################
+
+# Maximum number of concurrent link checks
+max_concurrency = 128
+
+#############################  Requests  ############################
+
+# Comma-separated list of accepted status codes for valid links.
+accept = [999]
+
+#############################  Exclusions  ##########################
+
+# Exclude URLs and mail addresses from checking (supports regex)
+# https://github.com/cotes2020/jekyll-theme-chirpy/issues/758
+exclude = [
+  'https://packagecloud.io/gbt/release/el/7/.*',
+  'https://rpm.releases.hashicorp.com/fedora/',
+  'https://registry.terraform.io/v1/providers/hashicorp/',
+  'https://releases.hashicorp.com/terraform-provider-.*',
+  'https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-.*',
+  'https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-.*',
+  'file://.*',
+]
+
+# Exclude all private IPs from checking.
+# Equivalent to setting `exclude_private`, `exclude_link_local`, and
+# `exclude_loopback` to true
+exclude_all_private = true
+
+# Exclude all mail addresses from checking
+exclude_mail = true
