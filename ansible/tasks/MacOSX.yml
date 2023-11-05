@@ -978,6 +978,18 @@
       type: string
       value: Never
 
+- name: Create directory for Colima
+  ansible.builtin.file:
+    path: ~/.colima/default/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure Colima
+  ansible.builtin.copy:
+    src: files/Users/myusername/.colima/default/colima.yaml
+    dest: ~/.colima/default/colima.yaml
+    mode: u=rw,g=r,o=r
+
 ################################################
 # Interactive (can not be "automated")
 ################################################

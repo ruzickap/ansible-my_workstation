@@ -42,6 +42,7 @@ jobs:
           ANSIBLE_ANSIBLE_LINT_PRE_COMMANDS: '[{"command": "ansible-galaxy install -r ansible/requirements.yml"}]'
           BASH_SHFMT_ARGUMENTS: --indent 2 --space-redirects
           DISABLE_LINTERS: REPOSITORY_CHECKOV,REPOSITORY_DEVSKIM,REPOSITORY_KICS,SPELL_CSPELL
+          FILTER_REGEX_EXCLUDE: CHANGELOG.md
           FORMATTERS_DISABLE_ERRORS: false
           GITHUB_COMMENT_REPORTER: false
           GITHUB_STATUS_REPORTER: true
