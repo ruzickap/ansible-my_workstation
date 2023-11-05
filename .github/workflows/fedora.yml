@@ -7,13 +7,13 @@ on:
   #     - main
   #   paths:
   #     - .github/workflows/fedora.yml
-  #     - files/**
-  #     - handlers/**
-  #     - main.yml
-  #     - tasks/Fedora.yml
-  #     - tasks/common.yml
-  #     - vars/Linux.yml
-  #     - vars/common.yml
+  #     - ansible/files/**
+  #     - ansible/handlers/**
+  #     - ansible/main.yml
+  #     - ansible/tasks/Fedora.yml
+  #     - ansible/tasks/common.yml
+  #     - ansible/vars/Linux.yml
+  #     - ansible/vars/common.yml
 
 env:
   ANSIBLE_HOST_KEY_CHECKING: False

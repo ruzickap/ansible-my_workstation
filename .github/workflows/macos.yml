@@ -7,13 +7,13 @@ on:
       - main
     paths:
       - .github/workflows/macos.yml
-      - files/**
-      - handlers/**
-      - main.yml
-      - tasks/MacOSX.yml
-      - tasks/common.yml
-      - vars/Darwin.yml
-      - vars/common.yml
+      - ansible/files/**
+      - ansible/handlers/**
+      - ansible/main.yml
+      - ansible/tasks/MacOSX.yml
+      - ansible/tasks/common.yml
+      - ansible/vars/Darwin.yml
+      - ansible/vars/common.yml
 
 env:
   ANSIBLE_DEBUG: False
