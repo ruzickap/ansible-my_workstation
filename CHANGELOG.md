@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 (2023-11-05)
+
+## What's Changed
+* feat(upgrade): upgrade to MacBook Air and macOS 14 by @ruzickap in https://github.com/ruzickap/ansible-my_workstation/pull/79
+
+
+**Full Changelog**: https://github.com/ruzickap/ansible-my_workstation/compare/v1.1.0...v2.0.0
+
 ## [v1.1.0](https://github.com/ruzickap/ansible-my_workstation/compare/v1.0.0...v1.1.0)
 
 - feat(code): update all + fix gha [`#77`](https://github.com/ruzickap/ansible-my_workstation/pull/77)
