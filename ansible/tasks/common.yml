@@ -157,6 +157,12 @@
           option: Open
           value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
 
+    - name: Replace version specific directories
+      ansible.builtin.replace:
+        dest: ~/.config/mc/mc.ext.ini
+        regexp: /usr/local/Cellar/midnight-commander/.*/libexec/
+        replace: /usr/local/opt/midnight-commander/libexec/
+
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       ansible.builtin.file:
         path: "{{ ansible_user_dir }}/.config/"
@@ -211,7 +217,7 @@
     dest: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
     mode: u=rw,g=,o=
 
-- name: Create directory for mc inside ~/.config
+- name: Create directory for mpv inside ~/.config
   ansible.builtin.file:
     path: ~/.config/mpv/
     state: directory

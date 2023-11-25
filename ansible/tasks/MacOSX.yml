@@ -603,6 +603,9 @@
     content: |
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
       export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
+      if ps $PPID |grep mc; then
+        PS1="\w ❯ "
+      fi
     mode: u=rw,g=r,o=r
 
 - name: Add commands to ~/.zshrc
@@ -626,9 +629,6 @@
       # Use open command for Midnight Commander "open"
       export MC_XDG_OPEN=open
 
-      # Disable pager for AWS CLI (https://stackoverflow.com/questions/60122188/how-to-turn-off-the-pager-for-aws-cli-return-value)
-      export AWS_PAGER=""
-
       # Remove the quarantine flag when it installs a package
       export HOMEBREW_CASK_OPTS="--no-quarantine"
       # Use bat for the brew cat command
@@ -637,6 +637,8 @@
       export HOMEBREW_CLEANUP_MAX_AGE_DAYS=7
       # Fail on the failure of installation from a bottle rather than falling back to building from source
       export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
+      # Stop Homebrew auto update
+      export HOMEBREW_NO_AUTO_UPDATE=1
 
       # Enable homebrew, find, sed, coreutils
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
@@ -652,24 +654,18 @@
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
-      alias k=kubecolor
       alias cat="bat --style=plain --paging=never"
       alias ls="eza -g"
-      alias mc='source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
+      alias mc='SHELL=/bin/bash source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
       source ~/.fzf.zsh
       source ~/Documents/secrets/secret_variables
 
-      # Simpler prompt when using Midnight Commander
-      if ps $PPID |grep mc; then
-        PROMPT='%~ $ '
-      else
-        # Enable powerlevel10k with zsh plugins
-        source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
-        source /usr/local/share/powerlevel10k/config/p10k-lean.zsh
-      fi
+      # Enable powerlevel10k with zsh plugins
+      source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+      source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+      source /usr/local/share/powerlevel10k/config/p10k-lean.zsh
 
       DISABLE_AUTO_UPDATE="true"
       COMPLETION_WAITING_DOTS="true"
@@ -708,9 +704,6 @@
       # added by terraform -install-autocomplete
       autoload -U +X bashcompinit && bashcompinit
       complete -o nospace -C /usr/local/bin/terraform terraform
-
-      # make completion work with kubecolor
-      compdef kubecolor=kubectl
 
       export GOPATH="${HOME}/go"
 

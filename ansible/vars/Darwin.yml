@@ -27,7 +27,7 @@ homebrew_packages:
   - cdrtools # Needed for mc to show iso details
   - checkov
   - colima
-  - commitizen
+  - commitizen # git cz
   - docker
   - uutils-coreutils
   - eksctl
