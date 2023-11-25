@@ -16,6 +16,9 @@ login_items_enabled:
   - KeePassXC
   - Stats
 
+homebrew_taps:
+  - homebrew/cask-fonts
+
 homebrew_packages:
   - ansible # libyaml, openssl, gdbm, readline, sqlite, xz and python@3.9
   - argocd
@@ -91,6 +94,7 @@ homebrew_casks:
   - blackhole-2ch
   - darktable
   - digikam
+  - font-meslo-lg-nerd-font # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - firefox
   - iterm2
   - keepassxc

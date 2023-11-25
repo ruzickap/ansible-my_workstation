@@ -65,6 +65,10 @@
   args:
     creates: /usr/local/bin/brew
 
+- name: Install Homebrew taps
+  community.general.homebrew_tap:
+    name: "{{ homebrew_taps | join(',') }}"
+
 - name: Install Homebrew packages
   community.general.homebrew:
     name: "{{ homebrew_packages }}"
@@ -564,23 +568,7 @@
   args:
     creates: ~/.oh-my-zsh
 
-- name: Put fzf configuration in place (~/.fzf.zsh)
-  ansible.builtin.copy:
-    dest: ~/.fzf.zsh
-    content: |
-      # Setup fzf
-      if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
-        export PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
-      fi
-
-      # Auto-completion
-      [[ $- == *i* ]] && source "/usr/local/opt/fzf/shell/completion.zsh" 2> /dev/null
-
-      # Key bindings
-      source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-    mode: u=rw,g=r,o=r
-
-- name: Chnage ~/.zshrc
+- name: Change ~/.zshrc
   ansible.builtin.replace:
     dest: ~/.zshrc
     regexp: "{{ item.regexp }}"
@@ -603,14 +591,31 @@
     content: |
       MY_GENERATED_PATH=$(for BIN in /usr/local/opt/*/libexec/gnubin; do echo -n "${BIN}:"; done)
       export PATH="/usr/local/bin:${MY_GENERATED_PATH}${PATH}"
+
+      export MC_XDG_OPEN=open
+
       if ps $PPID |grep mc; then
         PS1="\w ❯ "
       fi
     mode: u=rw,g=r,o=r
 
-- name: Add commands to ~/.zshrc
+- name: Add configurations to beginning of the ~/.zshrc
   ansible.builtin.blockinfile:
     dest: ~/.zshrc
+    insertbefore: BOF
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - BOF"
+    block: |
+      # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+      # Initialization code that may require console input (password prompts, [y/n]
+      # confirmations, etc.) must go above this block; everything else may go below.
+      if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+      fi
+
+- name: Add configurations to ~/.zshrc
+  ansible.builtin.blockinfile:
+    dest: ~/.zshrc
+    prepend_newline: true
     block: |
       # set history size
       export HISTSIZE=50000
@@ -622,12 +627,6 @@
       setopt EXTENDED_HISTORY
       # Do not share history between sessions (like bash)
       setopt NO_SHARE_HISTORY
-
-      # Needed for calling Ansible - https://github.com/ansible/ansible/issues/32499
-      # export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-
-      # Use open command for Midnight Commander "open"
-      export MC_XDG_OPEN=open
 
       # Remove the quarantine flag when it installs a package
       export HOMEBREW_CASK_OPTS="--no-quarantine"
@@ -650,6 +649,7 @@
 
       # Enable binaries for node, krew and ~/bin
       export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin/:${PATH}"
+      export GOPATH="${HOME}/go"
 
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
@@ -659,14 +659,19 @@
       alias mc='SHELL=/bin/bash source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
-      source ~/.fzf.zsh
+      export PAGER="bat --style=plain --paging=never"
+
+      source "/usr/local/opt/fzf/shell/completion.zsh"
+      source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+
       source ~/Documents/secrets/secret_variables
 
       # Enable powerlevel10k with zsh plugins
-      source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+      source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source /usr/local/share/powerlevel10k/config/p10k-lean.zsh
 
+      # Uncomment the following line to disable bi-weekly auto-update checks.
       DISABLE_AUTO_UPDATE="true"
       COMPLETION_WAITING_DOTS="true"
       HIST_STAMPS="yyyy-mm-dd"
@@ -698,14 +703,6 @@
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
-
-      export PAGER="bat --style=plain --paging=never"
-
-      # added by terraform -install-autocomplete
-      autoload -U +X bashcompinit && bashcompinit
-      complete -o nospace -C /usr/local/bin/terraform terraform
-
-      export GOPATH="${HOME}/go"
 
 ################################################
 # Application configuration
