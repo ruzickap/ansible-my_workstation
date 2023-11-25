@@ -3,6 +3,9 @@
     email = petr.ruzicka@gmail.com
     signingkey = ~/.ssh/id_ed25519.pub
 
+[init]
+    defaultBranch = main
+
 [gpg]
     format = ssh
 
