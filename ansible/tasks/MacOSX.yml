@@ -786,32 +786,6 @@
     key: idleTime
     type: int
     value: 600
-  # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
-  # tags: skip_test
-
-- name: Configure Meld
-  community.general.osx_defaults:
-    domain: org.gnome.meld
-    key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
-    value: "{{ item.value }}"
-  loop:
-    - key: /org/gnome/meld/window-state/is-maximized
-      value: "true"
-    - key: /org/gnome/meld/indent-width
-      type: int
-      value: 4
-    - key: /org/gnome/meld/highlight-current-line
-      value: "true"
-    - key: /org/gnome/meld/style-scheme
-      type: string
-      value: cobalt
-    - key: /org/gnome/meld/show-line-numbers
-      value: "true"
-    - key: /org/gnome/meld/insert-spaces-instead-of-tabs
-      value: "true"
-    - key: /org/gnome/meld/highlight-syntax
-      value: "true"
 
 - name: Create directory for OBS
   ansible.builtin.file:

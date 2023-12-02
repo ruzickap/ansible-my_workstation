@@ -68,7 +68,6 @@ homebrew_packages:
   - prettier
   - qpdf # needed for decrypt password protected PDFs
   - rclone
-  - release-it
   - rhash
   - powerlevel10k # ncurses, pcre and zsh
   - rsync
@@ -98,7 +97,6 @@ homebrew_casks:
   - firefox
   - iterm2
   - keepassxc
-  - meld
   - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
@@ -111,8 +109,4 @@ homebrew_casks:
   - vagrant-vmware-utility
 
 npm_packages:
-  - auto-changelog
-  - markdown-link-check
-  - markdown-spellcheck
-  - markdown-table-formatter
   - mega-linter-runner
