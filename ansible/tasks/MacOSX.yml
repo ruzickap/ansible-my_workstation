@@ -779,64 +779,15 @@
     - key: SUEnableAutomaticChecks
       value: "false"
 
-- name: Start screensaver after 1 mins
+- name: Start screensaver after 10 mins
   community.general.osx_defaults:
     host: currentHost
     domain: com.apple.screensaver
     key: idleTime
     type: int
-    value: 60
+    value: 600
   # For some reason the type=string in GitHub Action MacOS - let's skip it for such env
-  tags: skip_test
-
-- name: Check if Aerial config file is present
-  ansible.builtin.stat:
-    path: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost
-  register: com_johncoates_aerial_plist
-
-- name: Configure Aerial
-  when: not com_johncoates_aerial_plist.stat.exists
-  block:
-    - name: Set Aerial as default screensaver
-      ansible.builtin.command: defaults -currentHost write com.apple.screensaver moduleDict -dict moduleName -string "Aerial" path -string "{{ ansible_user_dir }}/Library/Screen Savers/Aerial.saver" type -int 0
-      changed_when: false
-
-    - name: Configure Aerial
-      community.general.osx_defaults:
-        domain: ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist
-        key: "{{ item.key }}"
-        type: "{% if item.type is defined %}{{ item.type }}{% else %}bool{% endif %}"
-        value: "{{ item.value }}"
-      changed_when: false
-      loop:
-        - key: enableManagement
-          value: "true"
-        - key: firstTimeSetup
-          value: "true"
-        - key: intVideoFormat
-          type: int
-          value: 1
-        - key: timeMode
-          type: int
-          value: 1
-        - key: intOnBatteryMode
-          type: int
-          value: 1
-        - key: debugMode
-          value: "false"
-        - key: newViewingMode
-          type: int
-          value: 1
-        - key: hideFromTimeMachine
-          value: "true"
-
-    - name: Configure Aerial 2
-      ansible.builtin.shell: |
-        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerBattery -string "{ \"corner\" : 2, \"disableWhenFull\" : true, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 20, \"isEnabled\" : true, \"mode\" : 1}"
-        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerClock -string "{ \"clockFormat\" : 0, \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 50, \"hideAmPm\" : false, \"isEnabled\" : true, \"showSeconds\" : false}"
-        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerDate -string "{ \"corner\" : 3, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Thin\", \"fontSize\" : 25, \"format\" : 1, \"isEnabled\" : true, \"withYear\" : true}"
-        defaults write ~/Library/Containers/com.apple.ScreenSaver.Engine.legacyScreenSaver/Data/Library/Preferences/ByHost/com.JohnCoates.Aerial.plist LayerLocation -string "{ \"corner\" : 7, \"displays\" : 0, \"fontName\" : \"Helvetica Neue Medium\", \"fontSize\" : 28, \"isEnabled\" : true, \"time\" : 1}"
-      changed_when: false
+  # tags: skip_test
 
 - name: Configure Meld
   community.general.osx_defaults:
