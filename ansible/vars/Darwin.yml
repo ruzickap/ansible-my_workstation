@@ -31,6 +31,7 @@ homebrew_packages:
   - checkov
   - colima
   - commitizen # git cz
+  - dive
   - docker
   - uutils-coreutils
   - eksctl
@@ -89,7 +90,6 @@ homebrew_packages:
   - zsh-syntax-highlighting
 
 homebrew_casks:
-  - aerial
   - alt-tab
   - blackhole-2ch
   - darktable
