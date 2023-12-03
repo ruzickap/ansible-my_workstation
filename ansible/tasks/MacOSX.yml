@@ -295,7 +295,6 @@
   ansible.builtin.shell: |
     /usr/libexec/PlistBuddy -c "set :AppleSymbolicHotKeys:61:enabled true" ~/Library/Preferences/com.apple.symbolichotkeys.plist
   changed_when: false
-  tags: skip_test
 
 - name: Change clock to 24hour mode
   community.general.osx_defaults:
@@ -656,6 +655,7 @@
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
       alias cat="bat --style=plain --paging=never"
       alias ls="eza -g"
+      alias tree="eza --tree"
       alias mc='SHELL=/bin/bash source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias history="history -i"
 
