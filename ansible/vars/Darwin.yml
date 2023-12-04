@@ -18,11 +18,10 @@ login_items_enabled:
 
 homebrew_taps:
   - homebrew/cask-fonts
+  - homebrew/cask-versions
 
 homebrew_packages:
   - ansible # libyaml, openssl, gdbm, readline, sqlite, xz and python@3.9
-  - argocd
-  - asciinema # gdbm, openssl, readline, sqlite, xz and python
   - awscli # gdbm, openssl, readline, sqlite, xz and python
   - azure-cli # openssl, gdbm, readline, sqlite, xz and python
   - bash
@@ -37,7 +36,6 @@ homebrew_packages:
   - eksctl
   - eza
   - exiftool
-  - fd
   - uutils-findutils
   - fzf
   - gawk
@@ -49,21 +47,18 @@ homebrew_packages:
   - grep
   - helm
   - htop # ncurses
-  - hugo
   - imagemagick # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
   - iproute2mac
+  - jless
   - jq # oniguruma
-  - k3d
   - kops # kubernetes-cli
   - krew # kubernetes-cli
   - kubernetes-cli
-  - lensfun
   - markdownlint-cli
   - midnight-commander # glib, libssh2, openssl, s-lang
   - mpg123 # needed for mc to display mp3 files
   - nmap # openssl
   - npm # icu4c
-  - packer
   - pre-commit # libyaml, python
   - prettier
   - qpdf # needed for decrypt password protected PDFs
@@ -91,7 +86,7 @@ homebrew_packages:
 
 homebrew_casks:
   - alt-tab
-  - blackhole-2ch
+  - brave-browser-beta
   - darktable
   - digikam
   - font-meslo-lg-nerd-font # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
@@ -102,7 +97,6 @@ homebrew_casks:
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
   - rectangle # Move and resize windows on macOS with keyboard shortcuts and snap areas
-  - session-manager-plugin
   - stats
   - vagrant
   - visual-studio-code
