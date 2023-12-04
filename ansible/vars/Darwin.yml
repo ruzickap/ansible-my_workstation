@@ -80,6 +80,7 @@ homebrew_packages:
   - yamllint # libyaml, python
   - yt-dlp
   - yq
+  - zoxide
   - zsh-autosuggestions
   - zsh-syntax-highlighting
 
