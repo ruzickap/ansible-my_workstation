@@ -576,7 +576,7 @@
     mode: u=rw,g=r,o=r
   loop:
     - regexp: "^plugins=.*"
-      replace: plugins=(colored-man-pages dirhistory docker git history vagrant-prompt kubectl)
+      replace: plugins=(colored-man-pages dirhistory docker git history vagrant-prompt kubectl zoxide)
     # robbyrussell is not used - using powerlevel10k
     - regexp: '^ZSH_THEME="robbyrussell"'
       replace: '# ZSH_THEME="robbyrussell"'
@@ -651,13 +651,14 @@
       export PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin/:${PATH}"
       export GOPATH="${HOME}/go"
 
-      alias dos2unix="sed -i 's/\r$//' "
-      alias unix2dos="awk 'sub(\"$\",\"\r\")' "
-      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
       alias cat="bat --style=plain --paging=never"
+      alias cd="z"
+      alias dos2unix="sed -i 's/\r$//' "
+      alias history="history -i"
       alias ls="eza -g"
       alias mc='SHELL=/bin/bash source /usr/local/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
-      alias history="history -i"
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+      alias unix2dos="awk 'sub(\"$\",\"\r\")' "
 
       export PAGER="bat --style=plain --paging=never"
 
@@ -703,6 +704,9 @@
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
+
+      # Configure DOCKER_HOST for app
+      export DOCKER_HOST=unix://$HOME/.colima/docker.sock
 
 ################################################
 # Application configuration
