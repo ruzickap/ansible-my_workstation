@@ -1,10 +1,5 @@
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500
 
-# Items to add to the dock
-dock_add_items:
-  - /Applications/iTerm.app
-  - /Applications/Google Chrome.app
-
 enable_function_keys_apps:
   - com.googlecode.iterm2
 
@@ -21,15 +16,14 @@ homebrew_taps:
   - homebrew/cask-versions
 
 homebrew_packages:
-  - ansible # libyaml, openssl, gdbm, readline, sqlite, xz and python@3.9
-  - awscli # gdbm, openssl, readline, sqlite, xz and python
-  - azure-cli # openssl, gdbm, readline, sqlite, xz and python
+  - ansible
+  # - awscli # python@3.11
   - bash
   - bat
   - cdrtools # Needed for mc to show iso details
-  - checkov
+  # - checkov # needs gcc, openblas
   - colima
-  - commitizen # git cz
+  - commitizen # git cz commands...
   - dive
   - docker
   - uutils-coreutils
@@ -43,41 +37,39 @@ homebrew_packages:
   - git-delta # A viewer for git and diff output
   - gnu-sed
   - gnu-tar
-  - gnupg # adns, gettext, gmp, libunistring, libidn2, libtasn1, nettle, libffi, p11-kit, openssl, libevent, unbound, gnutls, libgpg-error, libassuan, libgcrypt, libksba, libusb, npth and pinentry
+  - gnupg
   - grep
   - helm
-  - htop # ncurses
-  - imagemagick # freetype, ghostscript, jpeg, libheif, liblqr, libomp, libpng, libtiff, libtool, little-cms2, openexr, openjpeg, webp, xz
+  - htop
+  - imagemagick
   - iproute2mac
   - jless
-  - jq # oniguruma
-  - kops # kubernetes-cli
-  - krew # kubernetes-cli
+  - jq
+  - kopia
+  - kops
+  - krew
   - kubernetes-cli
   - markdownlint-cli
-  - midnight-commander # glib, libssh2, openssl, s-lang
+  - midnight-commander
   - mpg123 # needed for mc to display mp3 files
-  - nmap # openssl
-  - npm # icu4c
-  - pre-commit # libyaml, python
+  - pre-commit
   - prettier
   - qpdf # needed for decrypt password protected PDFs
   - rclone
   - rhash
-  - powerlevel10k # ncurses, pcre and zsh
+  - powerlevel10k
   - rsync
-  - shellcheck # libyaml, python
+  - shellcheck
   - telnet
   - terraform
-  - terraform-docs # needed for pre-commit hook
   - tflint
-  - tfsec
-  - tig # readline
+  - tig
+  - trivy
   - vault
-  - watch # ncurses
-  - wget2
+  - watch
+  - wget
   - wifi-password
-  - yamllint # libyaml, python
+  - yamllint
   - yt-dlp
   - yq
   - zoxide
@@ -90,7 +82,6 @@ homebrew_casks:
   - darktable
   - digikam
   - font-meslo-lg-nerd-font # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
-  - firefox
   - iterm2
   - keepassxc
   - mpv

@@ -548,16 +548,6 @@
     /usr/local/bin/mysides add {{ ansible_user_id }} file://{{ ansible_user_dir }}
   changed_when: false
 
-# - name: Remove all Dock items
-#   ansible.builtin.command: /usr/local/bin/dockutil --remove all --no-restart
-#   changed_when: false
-
-# - name: Add Dock items
-#   ansible.builtin.command: /usr/local/bin/dockutil --add '{{ item }}' --no-restart
-#   register: dock_add
-#   changed_when: false
-#   loop: "{{ dock_add_items }}"
-
 ################################################
 # ZSH + Oh My Zsh + Powerlevel10k + fzf
 ################################################
@@ -917,7 +907,7 @@
   changed_when: false
   loop:
     - open -a AltTab
-    - open -a "Google Chrome" --args --make-default-browser
+    # - open -a "Google Chrome" --args --make-default-browser
     - open -a Rectangle
 
 - name: Interactive

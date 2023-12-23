@@ -15,19 +15,25 @@ on:
       - ansible/vars/Darwin.yml
       - ansible/vars/common.yml
 
-env:
-  ANSIBLE_DEBUG: False
-
 jobs:
   macos:
     runs-on: macos-13
     timeout-minutes: 100
     steps:
-      - uses: actions/checkout@v4
+      - name: Uninstall Homebrew packages
+        run: |
+          set -euxo pipefail
+          # shellcheck disable=SC2046
+          brew remove --force $(brew list --formula)
+          # shellcheck disable=SC2046
+          brew remove --cask --force $(brew list)
+          rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python*
 
       - name: Install Ansible
         run: |
           brew install ansible
+
+      - uses: actions/checkout@v4
 
       - name: Ansible
         run: |
@@ -48,3 +54,20 @@ jobs:
             grep -B 2 '^changed:' /tmp/ansible.log
             exit 1
           fi
+
+      # https://apple.stackexchange.com/questions/313130/with-brew-how-do-i-only-list-packages-that-were-built-from-source-not-poured-f
+      - name: List brew packages that were built from source (deally empty)
+        run: |
+          brew info --json=v1 --installed | jq -r "map(select(.installed[].poured_from_bottle | not) | .name) | unique | .[]"
+
+      # https://gist.github.com/eguven/23d8c9fc78856bd20f65f8bcf03e691b
+      - name: List brew packages and their sizes
+        run: |
+          brew list --formula | xargs -P8 -I {} sh -c "brew info {} | ggrep -E '[0-9]* files, ' | grep -v 'KB' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'" | sort -h -r -k2 - | column -t
+
+      - name: Brew packages dependency tree
+        run: |
+          for FORMULA in $(brew leaves --installed-on-request); do
+            echo "*** ${FORMULA}"
+            brew deps --tree --installed "${FORMULA}"
+          done
