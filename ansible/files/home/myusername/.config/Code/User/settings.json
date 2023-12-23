@@ -10,6 +10,7 @@
     "editor.formatOnSave": true
   },
   "editor.accessibilitySupport": "off",
+  "editor.autoIndent": "keep",
   "editor.cursorBlinking": "smooth",
   "editor.dragAndDrop": false,
   "editor.formatOnPaste": true,
@@ -46,5 +47,5 @@
     "plaintext": true,
     "markdown": true
   },
-  "workbench.activityBar.visible": false
+  "workbench.activityBar.location": "hidden"
 }
