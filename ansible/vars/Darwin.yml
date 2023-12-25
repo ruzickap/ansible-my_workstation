@@ -52,6 +52,7 @@ homebrew_packages:
   - markdownlint-cli
   - midnight-commander
   - mpg123 # needed for mc to display mp3 files
+  - opentofu
   - pre-commit
   - prettier
   - qpdf # needed for decrypt password protected PDFs
@@ -65,7 +66,6 @@ homebrew_packages:
   - tflint
   - tig
   - trivy
-  - vault
   - watch
   - wget
   - wifi-password

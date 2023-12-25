@@ -3,3 +3,6 @@
 
 # Ansible vault password file
 vault-my_workstation.password
+
+# Lychee cache
+.lycheecache
