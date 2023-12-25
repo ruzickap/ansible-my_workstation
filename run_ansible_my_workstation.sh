@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 DESTINATION_IP="172.19.84.75"
-MYUSER="pruzicka"
-PASSWORD="xxxx"
+MY_USER="pruzicka"
+MY_PASSWORD=""
 
 cd ansible || exit
-ansible-playbook --diff --user="${MYUSER}" --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" -i "${DESTINATION_IP}," main.yml
+ansible-playbook --diff --user="${MY_USER}" --extra-vars "ansible_password=${MY_PASSWORD} ansible_become_password=${MY_PASSWORD}" -i "${DESTINATION_IP}," main.yml

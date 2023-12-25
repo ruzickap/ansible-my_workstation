@@ -30,7 +30,6 @@ code_extensions:
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
   - DavidAnson.vscode-markdownlint
-  - eamodio.gitlens
   - esbenp.prettier-vscode
   - GitHub.copilot
   - GitHub.copilot-chat
@@ -47,9 +46,7 @@ krew_plugins:
   - get-all
   - ice
   - ktop
-  - node-shell
   - ns
-  - pod-lens
   - resource-capacity
   - stern
   - view-allocations
