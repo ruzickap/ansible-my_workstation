@@ -12,7 +12,6 @@ raspi_hostname: raspi.xvx.cz
 home_data_directories:
   - .bash_history
   - .gnupg
-  - .kopiaignore
   - .sigstore
   - .ssh
   - .zsh_history

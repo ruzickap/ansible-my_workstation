@@ -26,6 +26,7 @@ homebrew_packages:
   - commitizen # git cz commands...
   - dive
   - docker
+  - dua-cli
   - uutils-coreutils
   - eksctl
   - eza
@@ -52,6 +53,7 @@ homebrew_packages:
   - markdownlint-cli
   - midnight-commander
   - mpg123 # needed for mc to display mp3 files
+  - npm
   - opentofu
   - pre-commit
   - prettier
