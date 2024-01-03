@@ -664,19 +664,19 @@
 
       # Uncomment the following line to disable bi-weekly auto-update checks.
       DISABLE_AUTO_UPDATE="true"
-      COMPLETION_WAITING_DOTS="true"
       HIST_STAMPS="yyyy-mm-dd"
 
       # Configure configure Ctrl+w as delete in bash
       autoload -U select-word-style
       select-word-style bash
+      # https://unix.stackexchange.com/questions/572439/make-ctrl-w-and-ctrl-alt-h-in-zsh-behave-the-same-as-in-bash
       WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:,|"'"'"
 
       # Add highlighters to zsh-syntax-highlighting (default is 'main')
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
       # If you don't set a sane max length the highlighter will highlight large pastes of text, which is painfully slow
-      ZSH_HIGHLIGHT_MAXLENGTH=20
+      ZSH_HIGHLIGHT_MAXLENGTH=150
 
       # Disable underline in zsh-syntax-highlighting
       ZSH_HIGHLIGHT_STYLES[path]=none
@@ -814,6 +814,37 @@
 
       [SimpleOutput]
       FileNameWithoutSpace=true
+    mode: u=rw,g=r,o=r
+
+- name: Configure Kopia
+  ansible.builtin.copy:
+    dest: ~/.kopiaignore
+    content: |
+      !/.bash_history
+      !/.gnupg
+      !/.kopiaignore
+      !/.sigstore
+      !/.ssh
+      !/.zsh_history
+      !/bin
+      !/Desktop
+      !/Documents
+      !/git
+      !/Music
+      !/Pictures
+      .DS_Store
+      *.box
+      *.iso
+      *.ISO
+      /.gnupg/S.*
+      /*
+      /Documents/chrome-extensions
+      /Movies
+      /Music/Music
+      /Pictures/*.db
+      /Pictures/Photos Library.photoslibrary
+      /Videos
+      node_modules
     mode: u=rw,g=r,o=r
 
 - name: Configure AltTab

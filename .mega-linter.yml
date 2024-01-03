@@ -32,5 +32,4 @@ PRINT_ALPACA: false
 # Disable creating report directory
 REPORT_OUTPUT_FOLDER: none
 
-# Overwritten by .github/workflows/megalinter.yml
-VALIDATE_ALL_CODEBASE: false
+VALIDATE_ALL_CODEBASE: true
