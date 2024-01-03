@@ -1,5 +1,10 @@
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500
 
+# Items to add to the dock
+dock_add_items:
+  - /Applications/iTerm.app
+  - /Applications/Google Chrome.app
+
 enable_function_keys_apps:
   - com.googlecode.iterm2
 
@@ -26,6 +31,7 @@ homebrew_packages:
   - commitizen # git cz commands...
   - dive
   - docker
+  - dockutil
   - dua-cli
   - uutils-coreutils
   - eksctl
