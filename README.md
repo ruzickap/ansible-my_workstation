@@ -5,6 +5,29 @@
 
 Configure my laptop with Ansible.
 
+## MacOS Sonoma 14.2
+
+* Initialize new MacBook Air 13.6" with macOS Sonoma 14.2
+* Remove all applications which were preinstalled like "Box Sync", "Outlook",
+  "OneDrive", ...
+* Install [Brew](https://brew.sh/)
+* Install Ansible: `brew install ansible`
+* Clone the repo and run: `./run_ansible_my_workstation-local-mac.sh`
+* Restore the data (`Documents`, `Music`, `Pictures`, `.ssh`, ...) from backup
+
+### Manual configurations
+
+* Login to Apple ID
+* Login to Google Chrome + configure it (extensions, sync, ...)
+* Configure Zoom
+  * General -> Add Zoom to macOS menu bar
+  * Video -> Adjust for low light
+  * Video -> Always display participant names on their video
+  * Video -> Stop my video when joining a meeting
+  * Video -> 49 participants
+  * Backgrounds & Effects -> Virtual Backgrounds
+* Configure Slack
+
 ## Fedora
 
 Download Fedora Server Netinst iso image:
