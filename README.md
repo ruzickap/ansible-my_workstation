@@ -116,15 +116,3 @@ manually in Catalina:
   Do not use "Jabra Engage 75" (microfone) as Input, because it can only use
   16 KHz and breaks the recording settings...
 * Load extensions into Chrome: `~/Documents/chrome-extensions`
-
-## Notes
-
-Test pages:
-
-* [https://html5test.com/](https://html5test.com/)
-* [https://bitmovin.com/demos/drm](https://bitmovin.com/demos/drm)
-
-Test:
-
-* <https://macos-defaults.com/misc/applepressandholdenabled.html>
-* <https://macos-defaults.com/misc/applekeyboardfnstate.html>
