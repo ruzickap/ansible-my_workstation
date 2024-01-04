@@ -27,23 +27,23 @@
 - name: Set Hostname + Disable sleeping
   become: true
   block:
-    # https://apple.stackexchange.com/questions/125411/how-do-i-stop-my-computer-name-from-automatically-and-incorrectly-changing/
-    - name: Set Hostname
-      ansible.builtin.command: "{{ item }}"
-      changed_when: false
-      loop:
-        - scutil --set ComputerName "{{ my_hostname.split(".")[0] }}"
-        - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
-        - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
+    # # https://apple.stackexchange.com/questions/125411/how-do-i-stop-my-computer-name-from-automatically-and-incorrectly-changing/
+    # - name: Set Hostname
+    #   ansible.builtin.command: "{{ item }}"
+    #   changed_when: false
+    #   loop:
+    #     - scutil --set ComputerName "{{ my_hostname.split(".")[0] }}"
+    #     - scutil --set HostName "{{ my_hostname.split(".")[0] }}"
+    #     - scutil --set LocalHostName "{{ my_hostname.split(".")[0] }}"
 
-    # https://discussions.apple.com/thread/2457573
-    - name: Set NetBIOSName
-      community.general.osx_defaults:
-        domain: /Library/Preferences/SystemConfiguration/com.apple.smb.server
-        key: NetBIOSName
-        type: string
-        value: "{{ my_hostname.split('.')[0] }}"
-      changed_when: false
+    # # https://discussions.apple.com/thread/2457573
+    # - name: Set NetBIOSName
+    #   community.general.osx_defaults:
+    #     domain: /Library/Preferences/SystemConfiguration/com.apple.smb.server
+    #     key: NetBIOSName
+    #     type: string
+    #     value: "{{ my_hostname.split('.')[0] }}"
+    #   changed_when: false
 
     - name: Set hibernation mode to not back memory up to persistent storage
       ansible.builtin.command: pmset -a hibernatemode 0
@@ -63,7 +63,7 @@
     set -o pipefail
     echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   args:
-    creates: /usr/local/bin/brew
+    creates: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/bin/brew{% else %}/usr/local/bin/brew{% endif %}"
 
 - name: Install Homebrew taps
   community.general.homebrew_tap:

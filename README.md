@@ -9,7 +9,7 @@ Configure my laptop with Ansible.
 
 * Initialize new MacBook Air 13.6" with macOS Sonoma 14.2
 * Remove all applications which were preinstalled like "Box Sync", "Outlook",
-  "OneDrive", ...
+  "OneDrive", "think-cell", ...
 * Install [Brew](https://brew.sh/)
 * Install Ansible: `brew install ansible`
 * Restore the data (`Documents`, `Music`, `Pictures`, `.ssh`, ...) from backup
@@ -19,7 +19,14 @@ Configure my laptop with Ansible.
 ### Manual configurations
 
 * Login to Apple ID
+  * Disable synchronization of the Photos, iCloud Calendars, Reminders, Safari,
+    Stocks, ...
 * Login to Google Chrome + configure it (extensions, sync, ...)
+  * uBock Origin -> Filter lists -> CZ
+  * Google Translate -> My preferred languages -> Czech
+  * Refined GitHub -> Personal token
+  * Notifier for Gmail -> Play alert sound for new emails, Open FAQs page on
+    updates
 * Configure Zoom
   * General -> Add Zoom to macOS menu bar
   * Video -> Adjust for low light
@@ -27,7 +34,9 @@ Configure my laptop with Ansible.
   * Video -> Stop my video when joining a meeting
   * Video -> 49 participants
   * Backgrounds & Effects -> Virtual Backgrounds
+  * Recording -> Store my recordings at: `~/Desktop`
 * Configure Slack
+  * System Settings -> Notifications -> Slack -> Alerts
 
 ## Fedora
 
