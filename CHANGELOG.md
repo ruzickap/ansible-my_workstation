@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.0.0...v2.1.0) (2024-01-04)
+
+
+### Features
+
+* **fonts:** add fonts, simplify+improve zsh configuration ([6f2444d](https://github.com/ruzickap/ansible-my_workstation/commit/6f2444d6b4d2310ada9938e04218b206579d47ac))
+* **gha:** mega-linter config file, add opentofu, remove plugins ([0f62735](https://github.com/ruzickap/ansible-my_workstation/commit/0f6273592698e90136f44b24aa86dddc7031a22a))
+* **mac:** add colima configuration ([53e68ee](https://github.com/ruzickap/ansible-my_workstation/commit/53e68eeed79001693ce38fc1e987a770552e1fce))
+* **mac:** add dockutil + add Sonoma section to README ([02581f4](https://github.com/ruzickap/ansible-my_workstation/commit/02581f4ed5bfebf2371c17e658221b3271983580))
+* **mac:** add zoxide, DOCKER_HOST, and few VS Code settings ([b00a4f6](https://github.com/ruzickap/ansible-my_workstation/commit/b00a4f616bdf3c37bb20952e966c170241f26292))
+* **mac:** remove aerial ([08c0762](https://github.com/ruzickap/ansible-my_workstation/commit/08c07621f29564b1d1e3c39b554c811ff3851d97))
+* **mac:** remove dockutil, add built from source check for brew ([081c99d](https://github.com/ruzickap/ansible-my_workstation/commit/081c99d8cefd5108da51ff05de90ea2984bc3e98))
+* **mac:** remove unused npm packages and meld ([77ca621](https://github.com/ruzickap/ansible-my_workstation/commit/77ca62118781ed6b59dba555691dad19563beeb7))
+* **zsh:** changes to ZSH_HIGHLIGHT_MAXLENGTH parameter ([b9d9a25](https://github.com/ruzickap/ansible-my_workstation/commit/b9d9a257beb5b64ea21f025ae4f68bcca45d6f5d))
+
 ## 2.0.0 (2023-11-05)
 
 ## What's Changed
