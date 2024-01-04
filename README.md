@@ -12,8 +12,9 @@ Configure my laptop with Ansible.
   "OneDrive", ...
 * Install [Brew](https://brew.sh/)
 * Install Ansible: `brew install ansible`
-* Clone the repo and run: `./run_ansible_my_workstation-local-mac.sh`
 * Restore the data (`Documents`, `Music`, `Pictures`, `.ssh`, ...) from backup
+* Clone the repo, create `ansible/vault-my_workstation.password` file, add
+  `MY_PASSWORD` to `./run_ansible_my_workstation-local-mac.sh` and run it
 
 ### Manual configurations
 
@@ -113,3 +114,8 @@ Test pages:
 
 * [https://html5test.com/](https://html5test.com/)
 * [https://bitmovin.com/demos/drm](https://bitmovin.com/demos/drm)
+
+Test:
+
+* <https://macos-defaults.com/misc/applepressandholdenabled.html>
+* <https://macos-defaults.com/misc/applekeyboardfnstate.html>
