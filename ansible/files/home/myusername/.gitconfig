@@ -42,9 +42,11 @@
     ci = commit
     st = status
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
+    #squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\";};f"
 
 [commit]
     verbose = true
+    gpgsign = true
 
 [color "branch"]
     current = yellow reverse
@@ -70,11 +72,22 @@
 [diff]
     colorMoved = default
 
-[diff "sopsdiffer"]
-    textconv = sops -d
+#[diff "sopsdiffer"]
+#    textconv = sops -d
 
-[format]
-    signoff = true
+# [format]
+#     signoff = true
+# [tag]
+# 	gpgsign = true
+# [gpg "x509"]
+# 	program = gitsign
+# [gpg]
+# 	format = x509
+# [gitsign]
+# 	connectorID = https://accounts.google.com
 
-# [url "ssh://git@github.com"]
-#   insteadOf = https://github.com
+[url "ssh://git@github.com"]
+  insteadOf = https://github.com
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers

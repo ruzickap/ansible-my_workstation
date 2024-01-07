@@ -5,9 +5,6 @@ dock_add_items:
   - /Applications/iTerm.app
   - /Applications/Google Chrome.app
 
-enable_function_keys_apps:
-  - com.googlecode.iterm2
-
 # The Dock icons size
 dock_icons_size: 36.0
 
@@ -33,11 +30,11 @@ homebrew_packages:
   - docker
   - dockutil
   - dua-cli
-  - uutils-coreutils
+  - coreutils
   - eksctl
   - eza
   - exiftool
-  - uutils-findutils
+  - findutils
   - fzf
   - gawk
   - gh
@@ -102,6 +99,11 @@ homebrew_casks:
   - visual-studio-code
   - vmware-fusion
   - vagrant-vmware-utility
+
+run_applications:
+  - AltTab
+  - Rectangle
+  - Stats
 
 npm_packages:
   - mega-linter-runner
