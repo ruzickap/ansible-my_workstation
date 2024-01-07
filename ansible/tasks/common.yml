@@ -10,7 +10,6 @@
         dest: /etc/hosts
         regexp: "^127.0.1.1"
         line: 127.0.1.1   {{ ansible_fqdn }}   {{ ansible_hostname }}
-        # MacOS is changing it's hostname
         mode: u=rw,g=r,o=r
       changed_when: false
 
@@ -117,7 +116,7 @@
 
     - name: Copy mc.ext.ini to the ~/.config/mc/
       ansible.builtin.copy:
-        src: "{% if ansible_system == 'Darwin' %}/usr/local/opt/mc{% endif %}/etc/mc/mc.ext.ini"
+        src: "{% if ansible_system == 'Darwin' %}{{ ansible_env.HOMEBREW_PREFIX }}/opt/mc{% endif %}/etc/mc/mc.ext.ini"
         dest: ~/.config/mc/mc.ext.ini
         remote_src: true
         force: false
@@ -160,8 +159,8 @@
     - name: Replace version specific directories
       ansible.builtin.replace:
         dest: ~/.config/mc/mc.ext.ini
-        regexp: /usr/local/Cellar/midnight-commander/.*/libexec/
-        replace: /usr/local/opt/midnight-commander/libexec/
+        regexp: "${{ ansible_env.HOMEBREW_PREFIX }}/Cellar/midnight-commander/.*/libexec/"
+        replace: "${{ ansible_env.HOMEBREW_PREFIX }}/opt/midnight-commander/libexec/"
 
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       ansible.builtin.file:
@@ -211,7 +210,7 @@
     state: directory
     mode: u=rwx,g=,o=
 
-- name: Put VirtualBox configuation in place
+- name: Put VirtualBox configuration in place
   ansible.builtin.template:
     src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
     dest: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
@@ -228,31 +227,20 @@
     path: ~/.config/mpv/mpv.conf
     no_extra_spaces: true
     section: null
-    # allow_no_value: true
     option: "{{ item.option }}"
     value: "{{ item.value }}"
     mode: u=rw,g=r,o=r
   loop:
     - option: autofit-larger
       value: 100%x95%
-    - option: hwdec
-      value: "yes"
-    # MacOS
-    # - option: icc-profile-auto
-    #   value:
-    # MacOS
     - option: icc-contrast
       value: 1000
-    - option: keep-open
-      value: "yes"
     - option: osd-font-size
       value: 30
     - option: osd-level
       value: 2
-    - option: screenshot-template
-      value: '"%f-%wM:%wS"'
-    - option: screenshot-jpeg-quality
-      value: 70
+    - option: osd-status-msg
+      value: "'${time-pos} / ${duration}${?percent-pos:  (${percent-pos}%)}${?frame-drop-count:${!frame-drop-count==0:  Dropped: ${frame-drop-count}}}\\n${?chapter:Chapter: ${chapter}}'"
     - option: slang
       value: cz,cze,Czech
     - option: sub-ass-force-style
@@ -261,8 +249,6 @@
       value: '"#ff262626"'
     - option: sub-border-size
       value: 2.0
-    - option: sub-codepage
-      value: cp1250
     - option: sub-color
       value: '"#e6d21a"'
     - option: sub-font-size
@@ -271,10 +257,22 @@
       value: '"#33000000"'
     - option: sub-shadow-offset
       value: 1
-    # - option: term-osd-bar
-    #   value:
+    - option: sub-auto
+      value: all
     - option: volume-max
       value: 200
+
+- name: Configure mpv
+  community.general.ini_file:
+    path: ~/.config/mpv/mpv.conf
+    section: null
+    allow_no_value: true
+    option: "{{ item.option }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    - option: hwdec
+    - option: keep-open
+    - option: term-osd-bar
 
 - name: Put darktable configs in place
   ansible.builtin.copy:
@@ -291,134 +289,55 @@
     value: "{{ item.value }}"
     mode: u=rw,g=,o=
   loop:
-    - option: send_to_trash
-      value: "false"
     - option: ask_before_delete
-      value: "false"
-    - option: ask_before_remove
-      value: "false"
-    - option: cache_memory
-      value: 536870912
+      value: "FALSE"
     - option: database/create_snapshot
       value: never
-    - option: host_memory_limit
-      value: 8500
+    - option: opencl
+      value: "TRUE"
+    - option: opencl_tune_headroom
+      value: "TRUE"
+    - option: resourcelevel
+      value: large
+    - option: slideshow_delay
+      value: 3
+    - option: ui_last/theme
+      value: darktable-elegant-darker
+    - option: write_sidecar_files
+      value: after edit
+    - option: plugins/darkroom/history/expanded
+      value: "TRUE"
+    - option: plugins/darkroom/modulegroups_preset
+      value: "modules: all"
     - option: plugins/imageio/format/jpeg/quality
       value: 97
     - option: plugins/imageio/format/tiff/compresslevel
       value: 9
     - option: plugins/lighttable/export/high_quality_processing
       value: "TRUE"
-    - option: ui_last/import_apply_metadata
-      value: "TRUE"
-    - option: ui_last/import_last_creator
-      value: Petr Ruzicka
-    - option: ui_last/import_last_rights
-      value: Creative Commons Attribution-ShareAlike (CC BY-SA)
-    - option: plugins/darkroom/demosaic/quality
-      value: at most PPG (reasonable)
-    - option: plugins/lighttable/filmstrip/height
-      value: 71
     - option: plugins/lighttable/images_in_row
       value: 6
-    - option: lighttable/ui/expose_statuses
-      value: "TRUE"
-    - option: ui_last/grouping
-      value: "TRUE"
-    - option: lighttable/ui/bottom_visible
-      value: "false"
-    - option: lighttable/ui/toolbar_bottom_visible
-      value: "false"
-    - option: lighttable/ui/header_visible
-      value: "false"
-    - option: lua/_scripts_install/dont_show
-      value: "TRUE"
-    - option: plugins/darkroom/history/expanded
-      value: "TRUE"
-    - option: plugins/darkroom/metadata_view/expanded
-      value: "TRUE"
-    - option: plugins/darkroom/temperature/colored_sliders
-      value: effect emulation
-    - option: plugins/lighttable/metadata_view/expanded
-      value: "TRUE"
-    - option: plugins/lighttable/timeline/visible
-      value: "false"
-    - option: slideshow_delay
-      value: 3
-    - option: ui_last/import_ignore_jpegs
-      value: "TRUE"
-    - option: plugins/darkroom/basecurve/auto_apply
-      value: "FALSE"
-    - option: plugins/darkroom/ashift/visible
-      value: "TRUE"
-    - option: plugins/darkroom/atrous/visible
-      value: "TRUE"
-    - option: plugins/darkroom/basecurve/visible
-      value: "FALSE"
-    - option: plugins/darkroom/channelmixer/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colisa/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colorchecker/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colorcorrection/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colorreconstruct/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colorreconstruct/visible
-      value: "TRUE"
-    - option: plugins/darkroom/colorzones/visible
-      value: "TRUE"
-    - option: plugins/darkroom/defringe/visible
-      value: "TRUE"
-    - option: plugins/darkroom/filmicrgb/visible
-      value: "TRUE"
-    - option: plugins/darkroom/globaltonemap/visible
-      value: "TRUE"
-    - option: plugins/darkroom/graduatednd/visible
-      value: "TRUE"
-    - option: plugins/darkroom/grain/visible
-      value: "TRUE"
-    - option: plugins/darkroom/highpass/visible
-      value: "TRUE"
-    - option: plugins/darkroom/lowpass/visible
-      value: "TRUE"
-    - option: plugins/darkroom/monochrome/visible
-      value: "TRUE"
-    - option: plugins/darkroom/rawdenoise/visible
-      value: "TRUE"
-    - option: plugins/darkroom/retouch/visible
-      value: "TRUE"
-    - option: plugins/darkroom/shadhi/visible
-      value: "TRUE"
-    - option: plugins/darkroom/soften/visible
-      value: "TRUE"
-    - option: plugins/darkroom/splittoning/visible
-      value: "TRUE"
-    - option: plugins/darkroom/tonecurve/visible
-      value: "TRUE"
-    - option: plugins/darkroom/velvia/visible
-      value: "TRUE"
-    - option: plugins/darkroom/vignette/visible
-      value: "TRUE"
-    - option: opencl
+    - option: ui_last/import_ignore_nonraws
       value: "TRUE"
 
 - name: Install krew plugins
   ansible.builtin.command: kubectl krew install {{ item }}
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ ansible_env.HOMEBREW_PREFIX }}/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
   args:
     creates: ~/.krew/store/{{ item }}
   loop: "{{ krew_plugins }}"
 
-- name: Create direcotry for KeePassxc settings
+- name: Create direcotry for KeePassXC settings
   ansible.builtin.file:
-    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
+    path: "{{ item }}"
     state: directory
     mode: u=rwx,g=rwx,o=rx
+  loop:
+    - "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
+    - "{% if ansible_system == 'Darwin' %}~/Library/Caches{% else %}~/.config{% endif %}/keepassxc"
 
-- name: Copy KeePassxc settings
+- name: KeePassXC settings
   community.general.ini_file:
     path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
     no_extra_spaces: true
@@ -434,19 +353,10 @@
       option: AutoSaveOnExit
       value: "false"
     - section: General
+      option: MinimizeAfterUnlock
+      value: "true"
+    - section: General
       option: UpdateCheckMessageShown
-      value: "true"
-    - section: General
-      option: LastDatabases
-      value: "{{ ansible_user_dir }}/Documents/secrets/keepass2.kdbx"
-    - section: General
-      option: LastKeyFiles
-      value: '@Variant(\0\0\0\x1c\0\0\0\x1\0\0\0\\\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0\x32\0.\0k\0\x64\0\x62\0x\0\0\0\n\0\0\0X\0/\0h\0o\0m\0\x65\0/\0p\0r\0u\0z\0i\0\x63\0k\0\x61\0/\0\x44\0o\0\x63\0u\0m\0\x65\0n\0t\0s\0/\0s\0\x65\0\x63\0r\0\x65\0t\0s\0/\0k\0\x65\0\x65\0p\0\x61\0s\0s\0.\0k\0\x65\0y)'
-    - section: General
-      option: SSHAgent
-      value: "true"
-    - section: General
-      option: UseGroupIconOnEntryCreation
       value: "true"
     - section: Browser
       option: AlwaysAllowAccess
@@ -454,26 +364,64 @@
     - section: Browser
       option: Enabled
       value: "true"
-    - section: FdoSecrets
-      option: Enabled
+    - section: Browser
+      option: HttpAuthPermission
       value: "true"
     - section: GUI
       option: CheckForUpdates
       value: "false"
     - section: GUI
-      option: MinimizeOnStartup
-      value: "true"
-    - section: GUI
-      option: MinimizeToTray
-      value: "true"
-    - section: GUI
       option: MonospaceNotes
       value: "true"
     - section: GUI
-      option: ShowTrayIcon
+      option: ShowExpiredEntriesOnDatabaseUnlockOffsetDays
+      value: 30
+    - section: PasswordGenerator
+      option: AdditionalChars
+      value: ",."
+    - section: PasswordGenerator
+      option: Length
+      value: 16
+    - section: PasswordGenerator
+      option: SpecialChars
+      value: "false"
+    - section: SSHAgent
+      option: Enabled
       value: "true"
-    - section: security
-      option: lockdatabasescreenlock
+    - section: Security
+      option: ClearSearch
+      value: "true"
+    - section: Security
+      option: LockDatabaseScreenLock
+      value: "false"
+
+- name: KeePassXC settings
+  community.general.ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/caches/{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: General
+      option: LastActiveDatabase
+      value: "{{ ansible_user_dir }}/Documents/secrets/keepass2.kdbx"
+
+- name: Configure digikam "systemrc"
+  community.general.ini_file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Preferences{% else %}~/.config{% endif %}/digikam_systemrc"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: System
+      option: disableFaceEngine
+      value: "true"
+    - section: System
+      option: disableOpenCL
       value: "false"
 
 - name: Configure digikam
@@ -486,11 +434,11 @@
     mode: u=rw,g=,o=
   loop:
     - section: Album Settings
+      option: Default Tree Icon Size
+      value: 16
+    - section: Album Settings
       option: Icon Show Comments
       value: "false"
-    - section: Album Settings
-      option: Icon Show Date
-      value: "true"
     - section: Album Settings
       option: Icon Show Fullscreen
       value: "false"
@@ -499,9 +447,6 @@
       value: "false"
     - section: Album Settings
       option: Icon Show Modification Date
-      value: "true"
-    - section: Album Settings
-      option: Icon Show Name
       value: "true"
     - section: Album Settings
       option: Icon Show Overlays
@@ -521,9 +466,6 @@
     - section: Album Settings
       option: Icon Show Title
       value: "false"
-    - section: Album Settings
-      option: Item Left Click Action
-      value: 1
     - section: Album Settings
       option: Show Album ToolTips
       value: "true"
@@ -563,6 +505,12 @@
     - section: Album Settings
       option: Theme
       value: Black Body
+    - section: Album Settings
+      option: Icon Show Color Label
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Pick Label
+      value: "false"
     - section: Database Settings
       option: Database Name
       value: "{{ ansible_user_dir }}/Pictures/"
@@ -590,9 +538,6 @@
     - section: General Settings
       option: Use Large Thumbs
       value: "true"
-    - section: Image Properties SideBar
-      option: EXIF Tags Filter
-      value: Exif.GPSInfo.GPSLatitude,Exif.GPSInfo.GPSLongitude,Exif.Image.DateTime,Exif.Image.DateTimeOriginal,Exif.Photo.DateTimeDigitized,Exif.Photo.DateTimeOriginal
     - section: ImageViewer Settings
       option: JPEGCompression
       value: 98
@@ -602,29 +547,35 @@
     - section: ImageViewer Settings
       option: SlideShowDelay
       value: 3
-    - section: Import Settings
-      option: Show ToolTips
+    - section: ImageViewer Settings
+      option: SlideShowPrintApertureFocal
       value: "true"
-    - section: Import Settings
-      option: ToolTips Show File Date
+    - section: ImageViewer Settings
+      option: SlideShowPrintDate
       value: "true"
-    - section: Import Settings
-      option: ToolTips Show File Size
+    - section: ImageViewer Settings
+      option: SlideShowPrintExpoSensitivity
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowPrintName
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowStartCurrent
       value: "true"
     - section: Metadata Settings
-      option: Metadata Writing Mode
-      value: 2
+      option: ExifTool Path
+      value: /opt/homebrew/bin/
     - section: Metadata Settings
       option: Rescan File If Modified
-      value: "true"
-    - section: Metadata Settings
-      option: Save EXIF Comments
       value: "true"
     - section: Metadata Settings
       option: Save Tags
       value: "true"
     - section: Metadata Settings
       option: Use XMP Sidecar For Reading
+      value: "true"
+    - section: Metadata Settings
+      option: Use Fast Scan At Startup
       value: "true"
     - section: Versioning Settings
       option: Non-Destructive Editing Enabled
@@ -664,12 +615,19 @@
     mode: u=rw,g=r,o=r
   tags: user_specific
 
-# - name: Configure git
-#   ansible.builtin.copy:
-#     src: files/home/myusername/.gitconfig
-#     dest: ~/.gitconfig
-#     mode: u=rw,g=r,o=r
-#   tags: user_specific
+- name: Configure git
+  ansible.builtin.copy:
+    src: files/home/myusername/.gitconfig
+    dest: ~/.gitconfig
+    mode: u=rw,g=r,o=r
+  tags: user_specific
+
+- name: Configure Ansible
+  ansible.builtin.copy:
+    src: files/home/myusername/.ansible.cfg
+    dest: ~/.ansible.cfg
+    mode: u=rw,g=r,o=r
+  tags: user_specific
 
 ###################################################
 # Secrets

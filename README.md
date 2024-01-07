@@ -18,25 +18,59 @@ Configure my laptop with Ansible.
 
 ### Manual configurations
 
-* Login to Apple ID
-  * Disable synchronization of the Photos, iCloud Calendars, Reminders, Safari,
-    Stocks, ...
-* Login to Google Chrome + configure it (extensions, sync, ...)
+* Google Chrome + configure it (login, extensions, sync, ...)
   * uBock Origin -> Filter lists -> CZ
   * Google Translate -> My preferred languages -> Czech
   * Refined GitHub -> Personal token
-  * Notifier for Gmail -> Play alert sound for new emails, Open FAQs page on
-    updates
-* Configure Zoom
+  * Notifier for Gmail ->
+    * Play alert sound for new emails
+    * Open FAQs page on updates
+  * KeePassXC -> General ->
+    * Automatically fill in single-credential entries
+    * Allow filling HTTP Basic Auth credentials
+    * Show a banner on the page when new credentials can be saved to the database
+  * KeePassXC -> Connected Databases
+* Zoom
   * General -> Add Zoom to macOS menu bar
-  * Video -> Adjust for low light
-  * Video -> Always display participant names on their video
-  * Video -> Stop my video when joining a meeting
-  * Video -> 49 participants
+  * Video ->
+    * Adjust for low light
+    * Always display participant names on their video
+    * Stop my video when joining a meeting
+    * 49 participants
   * Backgrounds & Effects -> Virtual Backgrounds
   * Recording -> Store my recordings at: `~/Desktop`
-* Configure Slack
-  * System Settings -> Notifications -> Slack -> Alerts
+* Slack
+* VS Code - [Move Search to panel](https://stackoverflow.com/questions/50058584/vs-code-toggle-search-icon-in-activity-bar-move-from-panel-or-back)
+* iTerm2 -> Make iTerm2 Default Term
+* OneDrive
+
+  ```bash
+  sudo rm -fr /Applications/OneDrive.app
+  sudo touch /Applications/OneDrive.app
+  sudo chflags schg /Applications/OneDrive.app
+  ```
+
+* MacOS
+  * Apple ID
+    * Disable synchronization of the Photos, iCloud Calendars, Reminders, Safari,
+      Stocks, ...
+  * Notifications
+    * Allow notifications when the screen is locked
+    * Slack ->
+      * Alerts
+      * Notification grouping
+  * Sound -> Play sound on startup
+  * Appearance -> Show scroll bars -> Always
+  * Control Center ->
+    * Battery -> Show in Menu Bar
+    * Clock -> Show the day of the week
+    * Spotlight
+  * Privacy and Security -> Full Disk Access -> Add `~/Documents/backups/backup`
+  * Screen Saver -> Shuffle All
+  * Passwords -> Password Options -> Clean Up Automatically
+  * Keyboard -> Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
+    Midnight Commander]
+  * Trackpad -> Scroll & Zoom -> Zoom in or out
 
 ## Fedora
 
