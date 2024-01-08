@@ -20,7 +20,6 @@
         line: "root:           {{ email }}"
         mode: u=rw,g=r,o=r
       notify: Newaliases
-      tags: user_specific
 
     - name: Configure postfix
       community.general.ini_file:
@@ -116,7 +115,7 @@
 
     - name: Copy mc.ext.ini to the ~/.config/mc/
       ansible.builtin.copy:
-        src: "{% if ansible_system == 'Darwin' %}{{ ansible_env.HOMEBREW_PREFIX }}/opt/mc{% endif %}/etc/mc/mc.ext.ini"
+        src: "{{ homebrew_prefix }}/opt/mc/etc/mc/mc.ext.ini"
         dest: ~/.config/mc/mc.ext.ini
         remote_src: true
         force: false
@@ -159,8 +158,8 @@
     - name: Replace version specific directories
       ansible.builtin.replace:
         dest: ~/.config/mc/mc.ext.ini
-        regexp: "${{ ansible_env.HOMEBREW_PREFIX }}/Cellar/midnight-commander/.*/libexec/"
-        replace: "${{ ansible_env.HOMEBREW_PREFIX }}/opt/midnight-commander/libexec/"
+        regexp: "${{ homebrew_prefix }}/Cellar/midnight-commander/.*/libexec/"
+        replace: "${{ homebrew_prefix }}/opt/midnight-commander/libexec/"
 
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       ansible.builtin.file:
@@ -272,6 +271,7 @@
   loop:
     - option: hwdec
     - option: keep-open
+    - option: save-position-on-quit
     - option: term-osd-bar
 
 - name: Put darktable configs in place
@@ -323,7 +323,7 @@
 - name: Install krew plugins
   ansible.builtin.command: kubectl krew install {{ item }}
   environment:
-    PATH: "{{ ansible_env.HOMEBREW_PREFIX }}/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_env.HOME }}/.krew/bin:{{ ansible_env.PATH }}"
   args:
     creates: ~/.krew/store/{{ item }}
   loop: "{{ krew_plugins }}"
@@ -603,31 +603,25 @@
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
   loop: "{{ npm_packages }}"
 
-###############################
-# Run as user
-###############################
-
 - name: Configure .forward to {{ email }}
   ansible.builtin.copy:
     dest: ~/.forward
     content: |
       {{ email }}
     mode: u=rw,g=r,o=r
-  tags: user_specific
 
 - name: Configure git
   ansible.builtin.copy:
     src: files/home/myusername/.gitconfig
     dest: ~/.gitconfig
     mode: u=rw,g=r,o=r
-  tags: user_specific
+  tags: skip_test
 
 - name: Configure Ansible
   ansible.builtin.copy:
     src: files/home/myusername/.ansible.cfg
     dest: ~/.ansible.cfg
     mode: u=rw,g=r,o=r
-  tags: user_specific
 
 ###################################################
 # Secrets

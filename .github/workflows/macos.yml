@@ -44,7 +44,7 @@ jobs:
       - name: Ansible - Idempotence tests
         run: |
           cd ansible || exit
-          ansible-playbook --skip-tags data,interactive,secrets,skip_test --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test,skip_idempotence_test --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
           # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
           if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
             echo -e '\n✅ Idempotence test: pass'

@@ -56,9 +56,7 @@ Configure my laptop with Ansible.
       Stocks, ...
   * Notifications
     * Allow notifications when the screen is locked
-    * Slack ->
-      * Alerts
-      * Notification grouping
+    * Slack -> Alerts
   * Sound -> Play sound on startup
   * Appearance -> Show scroll bars -> Always
   * Control Center ->

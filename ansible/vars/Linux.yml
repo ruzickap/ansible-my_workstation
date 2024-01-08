@@ -232,6 +232,8 @@ dnf_additional_packages:
   - spice-vdagent # Needed for Virtualization + X
   - xorg-x11-drv-qxl # Needed for Virtualization + X
 
+homebrew_prefix: /home/linuxbrew/.linuxbrew
+
 homebrew:
   - argocd
   - azure-cli # many dependencies
