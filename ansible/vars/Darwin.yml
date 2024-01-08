@@ -17,6 +17,8 @@ homebrew_taps:
   - homebrew/cask-fonts
   - homebrew/cask-versions
 
+homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+
 homebrew_packages:
   - ansible
   # - awscli # python@3.11
@@ -50,6 +52,7 @@ homebrew_packages:
   - iproute2mac
   - jless
   - jq
+  - kind
   - kopia
   - kops
   - krew
@@ -69,7 +72,8 @@ homebrew_packages:
   - shellcheck
   - telnet
   - terraform
-  # - tflint
+  - tflint
+  - tfupdate
   - tig
   - trivy
   - watch

@@ -28,8 +28,14 @@
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
   "git.openRepositoryInParentFolders": "always",
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true
+  },
   "go.toolsManagement.autoUpdate": true,
   "redhat.telemetry.enabled": true,
+  "security.workspace.trust.enabled": false,
   "terminal.integrated.env.osx": {
     "FIG_NEW_SESSION": "1"
   },
@@ -37,15 +43,10 @@
   "vsicons.dontShowNewVersionMessage": true,
   "window.closeWhenEmpty": true,
   "window.zoomLevel": 1,
+  "workbench.activityBar.location": "hidden",
   "workbench.editorAssociations": {
     "*.md": "default"
   },
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "newUntitledFile",
-  "github.copilot.enable": {
-    "*": true,
-    "plaintext": true,
-    "markdown": true
-  },
-  "workbench.activityBar.location": "hidden"
+  "workbench.startupEditor": "newUntitledFile"
 }

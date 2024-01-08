@@ -45,7 +45,7 @@
     set -o pipefail
     echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   args:
-    creates: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/bin/brew{% else %}/usr/local/bin/brew{% endif %}"
+    creates: "{{ homebrew_prefix }}"
 
 - name: Install Homebrew taps
   community.general.homebrew_tap:
@@ -188,6 +188,14 @@
     key: autohide
     type: bool
     value: true
+
+# https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
+- name: Magnification icon size
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: largesize
+    type: int
+    value: 70
 
 # https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
 - name: Disable screensaver when mouse is right top
@@ -690,19 +698,23 @@
       value: 3
     - key: previewFocusedWindow
       value: "true"
+  tags: skip_idempotence_test
 
 - name: Configure Stats
   community.general.osx_defaults:
     domain: eu.exelban.Stats
     key: "{{ item.key }}"
-    type: string
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
     value: "{{ item.value }}"
   loop:
     - key: setupProcess
+      type: bool
       value: 1
     - key: version
-      value: 2.9.18
+      # renovate: datasource=github-tags depName=exelban/stats
+      value: 2.9.19
     - key: CombinedModules
+      type: bool
       value: 1
     - key: update-interval
       value: Never
