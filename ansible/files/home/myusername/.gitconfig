@@ -86,8 +86,8 @@
 # [gitsign]
 # 	connectorID = https://accounts.google.com
 
-[url "ssh://git@github.com"]
-  insteadOf = https://github.com
+# [url "ssh://git@github.com"]
+#   insteadOf = https://github.com
 
-[gpg "ssh"]
-    allowedSignersFile = ~/.config/git/allowed_signers
+# [gpg "ssh"]
+#     allowedSignersFile = ~/.config/git/allowed_signers

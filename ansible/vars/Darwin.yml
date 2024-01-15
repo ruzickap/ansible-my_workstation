@@ -21,7 +21,7 @@ homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/home
 
 homebrew_packages:
   - ansible
-  # - awscli # python@3.11
+  - awscli
   - bash
   - bat
   - cdrtools # Needed for mc to show iso details
@@ -93,6 +93,7 @@ homebrew_casks:
   - digikam
   - font-meslo-lg-nerd-font # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
   - iterm2
+  - kopiaui
   - keepassxc
   - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
