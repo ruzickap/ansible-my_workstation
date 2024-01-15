@@ -378,7 +378,10 @@
       value: 30
     - section: PasswordGenerator
       option: AdditionalChars
-      value: ",."
+      value: '",."'
+    - section: PasswordGenerator
+      option: AdvancedMode
+      value: "true"
     - section: PasswordGenerator
       option: Length
       value: 16
@@ -615,7 +618,6 @@
     src: files/home/myusername/.gitconfig
     dest: ~/.gitconfig
     mode: u=rw,g=r,o=r
-  tags: skip_test
 
 - name: Configure Ansible
   ansible.builtin.copy:

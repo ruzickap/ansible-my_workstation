@@ -37,6 +37,7 @@ Configure my laptop with Ansible.
     * Always display participant names on their video
     * Stop my video when joining a meeting
     * 49 participants
+  * Share Screen -> Window size when screen sharing -> Maintain current size
   * Backgrounds & Effects -> Virtual Backgrounds
   * Recording -> Store my recordings at: `~/Desktop`
 * Slack

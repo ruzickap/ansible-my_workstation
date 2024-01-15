@@ -535,29 +535,32 @@
         type: string
         value: "{{ item.value }}"
       loop:
-        - key: SmartPlacement
+        - key: AddNewTabAtEndOfTabs
+          value: 0
+        - key: DoubleClickPerformsSmartSelection
           value: 1
         - key: FocusFollowsMouse
           value: 1
         - key: QuitWhenAllWindowsClosed
           value: 1
+        - key: SmartPlacement
+          value: 1
         - key: SUEnableAutomaticChecks
           value: 0
-        - key: DoubleClickPerformsSmartSelection
+        - key: TabViewType
+          type: int
           value: 1
-        - key: AddNewTabAtEndOfTabs
-          value: 0
 
     - name: Configure iTerm2 using PlistBuddy
       ansible.builtin.shell: |
         open --background -a iTerm
         osascript -e 'quit app "iTerm"'
         sleep 10
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                      ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                       ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Normal Font"            "MesloLGSNFM-Regular 13"' ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                   ~/Library/Preferences/com.googlecode.iterm2.plist
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Custom Directory"       "Recycle"'                ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                      ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Normal Font"            "MesloLGSNFM-Regular 13"' ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                       ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                   ~/Library/Preferences/com.googlecode.iterm2.plist
       changed_when: false
 
 - name: Configure Rectangle
@@ -671,6 +674,7 @@
       /Pictures/*.db
       /Pictures/Photos Library.photoslibrary
       /Public
+      /Virtual Machines*
     mode: u=rw,g=r,o=r
 
 - name: Configure AltTab
@@ -715,7 +719,7 @@
       value: 2.9.20
     - key: CombinedModules
       type: bool
-      value: 1
+      value: 0
     - key: update-interval
       value: Never
     - key: CPU_widget
@@ -774,6 +778,16 @@
     src: files/Users/myusername/.colima/default/colima.yaml
     dest: ~/.colima/default/colima.yaml
     mode: u=rw,g=r,o=r
+
+- name: Configure Chrome
+  community.general.osx_defaults:
+    domain: com.google.Chrome
+    key: "{{ item.key }}"
+    type: bool
+    value: "{{ item.value }}"
+  loop:
+    - key: AppleEnableSwipeNavigateWithScrolls
+      value: "FALSE"
 
 ################################################
 # Interactive (can not be "automated")
