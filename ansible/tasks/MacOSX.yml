@@ -390,6 +390,8 @@
       replace: DISABLE_MAGIC_FUNCTIONS="true"
     - regexp: "^plugins=.*"
       replace: plugins=(colored-man-pages docker git vagrant-prompt kubectl zoxide)
+    - regexp: "^# zstyle ':omz:update' mode auto"
+      replace: "zstyle ':omz:update' mode auto"
 
 # Needed for bash scripts or ansible
 - name: Add path to binaries to ~/.bashrc
@@ -457,8 +459,9 @@
 
       alias cat="bat --style=plain --paging=never"
       alias cd="z"
-      alias dos2unix="sed -i 's/\r$//' "
-      alias history="history -i"
+      alias dos2unix="sed -i 's/\r$//'"
+      # Show complete history with timestamp
+      alias history="history -i 0"
       alias ls="eza -g"
       alias tree="eza --tree"
       alias mc='SHELL=/bin/bash source ${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
@@ -477,28 +480,21 @@
       source ${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
       source ${HOMEBREW_PREFIX}/share/powerlevel10k/config/p10k-lean.zsh
 
-      # Uncomment the following line to disable bi-weekly auto-update checks.
-      DISABLE_AUTO_UPDATE="true"
+      # Configure history stamp in oh-my-zsh
       HIST_STAMPS="yyyy-mm-dd"
 
-      # Configure configure Ctrl+w as delete in bash
-      autoload -U select-word-style
-      select-word-style bash
-      # https://unix.stackexchange.com/questions/572439/make-ctrl-w-and-ctrl-alt-h-in-zsh-behave-the-same-as-in-bash
+      # Configure configure Ctrl+w as delete in bash (https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#kill-word-or-backward-kill-word-do--dont-delete-a-symbol-wordchars)
       WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:,|"'"'"
 
       # Add highlighters to zsh-syntax-highlighting (default is 'main')
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
       # If you don't set a sane max length the highlighter will highlight large pastes of text, which is painfully slow
-      ZSH_HIGHLIGHT_MAXLENGTH=150
+      ZSH_HIGHLIGHT_MAXLENGTH=180
 
       # Disable underline in zsh-syntax-highlighting
       ZSH_HIGHLIGHT_STYLES[path]=none
       ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-
-      # Always reply Yes and automatically upgrade oh-my-zsh
-      DISABLE_UPDATE_PROMPT=true
 
       # Disable adding newline before each prompt
       POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
