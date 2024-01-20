@@ -26,6 +26,7 @@ homebrew_packages:
   - bat
   - cdrtools # Needed for mc to show iso details
   # - checkov # needs gcc, openblas
+  - cloudflared # needed for ssh with cloudflare tunnels
   - colima
   - commitizen # git cz commands...
   - dive
@@ -95,6 +96,7 @@ homebrew_casks:
   - iterm2
   - kopiaui
   - keepassxc
+  - keepingyouawake
   - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
