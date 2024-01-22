@@ -613,6 +613,20 @@
       {{ email }}
     mode: u=rw,g=r,o=r
 
+- name: Create ~/.config/git
+  ansible.builtin.file:
+    path: ~/.config/git
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user_id }}"
+    key: https://github.com/{{ github_username }}.keys
+    path: "{{ ansible_user_dir }}/.config/git/allowed_signers"
+    manage_dir: false
+    comment: "{{ email }}"
+
 - name: Configure git
   ansible.builtin.copy:
     src: files/home/myusername/.gitconfig

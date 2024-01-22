@@ -89,5 +89,6 @@
 # [url "ssh://git@github.com"]
 #   insteadOf = https://github.com
 
-# [gpg "ssh"]
-#     allowedSignersFile = ~/.config/git/allowed_signers
+# Needed for GitHub verified commits: https://stackoverflow.com/questions/72844616/how-do-i-sign-git-commits-using-my-existing-ssh-key
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
