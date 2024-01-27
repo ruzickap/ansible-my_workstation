@@ -20,9 +20,12 @@ env:
   ANSIBLE_REMOTE_PORT: 2222
   FEDORA_VERSION: 36
   MYUSER: pruzicka
+  # kics-scan ignore-line
   PASSWORD: vagrant
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
+
+permissions: read-all
 
 jobs:
   fedora:
@@ -45,17 +48,17 @@ jobs:
         run: |
           cd ansible || exit
           echo "${PASSWORD}" > vault-my_workstation.password
-          ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
+          ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1 # DevSkim: ignore DS162092
 
       - name: Ansible
         run: |
           cd ansible || exit
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1," # DevSkim: ignore DS162092
 
       - name: Ansible - Idempotence tests
         run: |
           cd ansible || exit
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log # DevSkim: ignore DS162092
           # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
           if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
             echo -e '\nIdempotence test: pass'

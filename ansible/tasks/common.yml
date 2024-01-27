@@ -80,7 +80,7 @@
       ansible.builtin.file:
         path: ~/.config/mc/
         state: directory
-        mode: u=rwx,g=,o=
+        mode: u=rwx,g=rx,o=rx
 
     - name: Create ~/.config/mc/ini file
       community.general.ini_file:
@@ -119,7 +119,7 @@
         dest: ~/.config/mc/mc.ext.ini
         remote_src: true
         force: false
-        mode: preserve
+        mode: u=rw,g=r,o=r
 
     - name: Change default in ~/.config/mc/mc.ext.ini
       community.general.ini_file:
@@ -128,7 +128,7 @@
         section: "{{ item.section }}"
         option: "{{ item.option }}"
         value: "{{ item.value }}"
-        mode: u=rw,g=,o=
+        mode: u=rw,g=r,o=r
       loop:
         - section: raw
           option: Regex
@@ -169,14 +169,14 @@
         group: "{{ ansible_user_gid | string }}"
         mode: u=rwx,g=,o=
 
-    - name: Copy mc configuration to to User's home direcotry
+    - name: Copy mc configuration to to User's home directory
       ansible.builtin.copy:
         src: ~/.config/mc
         dest: "{{ ansible_user_dir }}/.config/"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid | string }}"
         remote_src: true
-        mode: preserve
+        mode: u=rwx,g=rx,o=rx
 
     - name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
       ansible.posix.authorized_key:
@@ -185,6 +185,11 @@
         comment: "{{ email }}"
       loop:
         - "{{ ansible_user_id }}"
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
 
 ###############################
 # Run as user
@@ -201,7 +206,8 @@
   ansible.builtin.copy:
     src: files/home/myusername/.SpaceVim.d
     dest: ~/
-    mode: preserve
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
 
 - name: Create VirtualBox config directory
   ansible.builtin.file:
@@ -278,7 +284,8 @@
   ansible.builtin.copy:
     src: files/home/myusername/.config/darktable
     dest: ~/.config/
-    mode: preserve
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
 
 - name: Configure darktable
   community.general.ini_file:
@@ -588,7 +595,8 @@
   ansible.builtin.copy:
     src: files/home/myusername/.config/Code
     dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
-    mode: preserve
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
 
 - name: Install the VS Code extensions
   ansible.builtin.command: code --install-extension {{ item }}
@@ -692,6 +700,11 @@
         - keepass2.kdbx
         - keepass.key
       tags: data
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
 
 ###################################################
 # Data

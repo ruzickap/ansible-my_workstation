@@ -46,8 +46,8 @@ fstab_entries:
     opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
 
 rpmfusion_repositories:
-  - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
-  - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
+  - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ansible_distribution_version}}.noarch.rpm
+  - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ansible_distribution_version}}.noarch.rpm
 
 # dnf install $(cat | sed 's/ - //; s/\s//g; s/\(.*\)#.*$/\1/' | tr "\n" " ")
 dnf_packages:
