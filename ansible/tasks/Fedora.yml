@@ -31,7 +31,6 @@
     - name: Install rpmfusion repositories
       ansible.builtin.dnf:
         name: "{{ rpmfusion_repositories }}"
-        disable_gpg_check: true
 
     - name: Import key for VS Code repository
       ansible.builtin.rpm_key:
@@ -89,6 +88,7 @@
         comment: "Petr Ruzicka"
         groups: docker,libvirt,lp,printadmin,wireshark,wheel
         password: "{{ fedora_username_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
+      no_log: true
       notify: Change LUKS key
       tags: secrets
 
@@ -368,7 +368,7 @@
           PS1='\[\033[01;31m\]\h\[\033[01;34m\] \w #\[\033[00m\] '
           alias dos2unix="sed -i 's/\r$//' "
           alias unix2dos="awk 'sub(\"$\",\"\r\")' "
-          alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+          alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
 
     - name: Configure NTP
       community.general.ini_file:
@@ -433,6 +433,11 @@
           loop_control:
             label: "{{ item.ssid }}"
 
+      rescue:
+        - name: Print when errors
+          ansible.builtin.debug:
+            msg: "I caught an error, can do stuff here to fix it, :-)"
+
     - name: Create bash completition file for rclone
       ansible.builtin.command: rclone genautocomplete bash
       args:
@@ -448,6 +453,11 @@
       ansible.builtin.dnf:
         name: https://zoom.us/client/latest/zoom_x86_64.rpm
       when: ansible_facts.packages.zoom is not defined
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
 
 ###############################
 # Run as {{ ansible_user_id }}
@@ -975,7 +985,8 @@
   ansible.builtin.copy:
     src: files/home/myusername/.config/libreoffice
     dest: ~/.config/
-    mode: preserve
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
 
 - name: Copy kdeconnect configuration
   ansible.builtin.copy:
@@ -993,7 +1004,7 @@
       HISTFILESIZE=100000
       alias dos2unix="sed -i 's/\r$//' "
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
-      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
       alias k=kubectl
       alias cat="bat -p --paging=never"
       alias ip='ip -color=auto'

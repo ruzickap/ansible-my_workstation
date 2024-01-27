@@ -40,6 +40,11 @@
       ansible.builtin.command: pmset -b displaysleep 5
       changed_when: false
 
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
+
 - name: Install Homebrew
   ansible.builtin.shell: |
     set -o pipefail
@@ -273,6 +278,11 @@
       ansible.builtin.command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
       changed_when: false
 
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
+
 # https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
 - name: Disable Reopen Windows When Logging Back
   community.general.osx_defaults:
@@ -465,7 +475,7 @@
       alias ls="eza -g"
       alias tree="eza --tree"
       alias mc='SHELL=/bin/bash source ${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
-      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ."
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
 
       export PAGER="bat --style=plain --paging=never"
@@ -558,6 +568,11 @@
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                       ~/Library/Preferences/com.googlecode.iterm2.plist
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                   ~/Library/Preferences/com.googlecode.iterm2.plist
       changed_when: false
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.debug:
+        msg: "I caught an error, can do stuff here to fix it, :-)"
 
 - name: Configure Rectangle
   community.general.osx_defaults:

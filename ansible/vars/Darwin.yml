@@ -1,4 +1,4 @@
-login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500
+login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
 
 # Items to add to the dock
 dock_add_items:
