@@ -60,6 +60,7 @@ Configure my laptop with Ansible.
     * Slack -> Alerts
   * Sound -> Play sound on startup
   * Appearance -> Show scroll bars -> Always
+  * Accessibility -> Zoom -> Use scroll gesture with modifier keys to zoom
   * Control Center ->
     * Battery -> Show in Menu Bar
     * Clock -> Show the day of the week
