@@ -727,7 +727,7 @@
       value: 1
     - key: version
       # renovate: datasource=github-tags depName=exelban/stats
-      value: 2.9.21
+      value: 2.9.22
     - key: CombinedModules
       type: bool
       value: 0
