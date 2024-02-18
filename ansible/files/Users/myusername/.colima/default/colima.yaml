@@ -5,7 +5,7 @@ cpu: 8
 # Size of the disk in GiB to be allocated to the virtual machine.
 # NOTE: changing this has no effect after the virtual machine has been created.
 # Default: 60
-disk: 30
+disk: 40
 
 # Size of the memory in GiB to be allocated to the virtual machine.
 # Default: 2
@@ -13,7 +13,7 @@ memory: 12
 
 # Architecture of the virtual machine (x86_64, aarch64, host).
 # Default: host
-arch: aarch64
+arch: x86_64
 
 # Container runtime to be used (docker, containerd).
 # Default: docker
@@ -121,7 +121,7 @@ rosetta: true
 # of concurrent reads or writes).
 #
 # Default: virtiofs (for vz), sshfs (for qemu)
-mountType: sshfs
+mountType: virtiofs
 
 # Propagate inotify file events to the VM.
 # NOTE: this is experimental.
