@@ -35,10 +35,10 @@ homebrew_packages:
   - dua-cli
   - coreutils
   - eksctl
-  - eza
   - exiftool
   - findutils
   - fzf
+  - g-ls # ls replacement
   - gawk
   - gh
   - git
@@ -70,6 +70,7 @@ homebrew_packages:
   - rhash
   - powerlevel10k
   - rsync
+  - shfmt
   - shellcheck
   - telnet
   - terraform

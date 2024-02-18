@@ -65,7 +65,9 @@ Configure my laptop with Ansible.
     * Battery -> Show in Menu Bar
     * Clock -> Show the day of the week
     * Spotlight
-  * Privacy and Security -> Full Disk Access -> Add `~/Documents/backups/backup`
+  * Privacy and Security
+    * Full Disk Access -> Add `~/Documents/backups/backup`
+    * App Management -> Add `~/bin/pkgs_upgrade`
   * Screen Saver -> Shuffle All
   * Passwords -> Password Options -> Clean Up Automatically
   * Keyboard -> Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
