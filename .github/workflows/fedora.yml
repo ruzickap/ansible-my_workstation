@@ -36,7 +36,8 @@ jobs:
 
       - name: Install brew packages
         run: |
-          brew install ansible gnu-sed hudochenkov/sshpass/sshpass vagrant
+          rm /usr/local/bin/2to3
+          brew install ansible gnu-sed sshpass vagrant
 
       - name: Start Fedora VirtualBox VM
         run: |

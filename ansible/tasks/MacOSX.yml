@@ -399,7 +399,7 @@
     - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
       replace: DISABLE_MAGIC_FUNCTIONS="true"
     - regexp: "^plugins=.*"
-      replace: plugins=(colored-man-pages docker vagrant-prompt kubectl zoxide)
+      replace: plugins=(colored-man-pages docker gh vagrant-prompt kubectl zoxide)
     - regexp: "^# zstyle ':omz:update' mode auto"
       replace: "zstyle ':omz:update' mode auto"
 
@@ -481,6 +481,8 @@
       alias gh="env -u GITHUB_TOKEN gh $1"
 
       export PAGER="bat --style=plain --paging=never"
+
+      eval "$(atuin init zsh --disable-up-arrow)"
 
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"

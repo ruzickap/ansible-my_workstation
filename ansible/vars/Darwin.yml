@@ -21,6 +21,7 @@ homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/home
 
 homebrew_packages:
   - ansible
+  - atuin
   - awscli
   - bash
   - bat
