@@ -28,6 +28,13 @@
       ansible.builtin.dnf:
         name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
 
+    - name: Import RPM Fusion GPG signature
+      ansible.builtin.rpm_key:
+        key: "{{ item }}"
+      loop:
+        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-free-fedora-{{ ansible_distribution_version }}
+        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-{{ ansible_distribution_version }}
+
     - name: Install rpmfusion repositories
       ansible.builtin.dnf:
         name: "{{ rpmfusion_repositories }}"

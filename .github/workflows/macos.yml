@@ -29,7 +29,7 @@ jobs:
           brew remove --force $(brew list --formula)
           # shellcheck disable=SC2046
           brew remove --cask --force $(brew list)
-          rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python*
+          rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python* || true
 
       - name: Install Ansible
         run: |
