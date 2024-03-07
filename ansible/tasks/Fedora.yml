@@ -51,15 +51,6 @@
         gpgcheck: true
         gpgkey: https://packages.microsoft.com/keys/microsoft.asc
 
-    - name: Add gbt repository
-      ansible.builtin.yum_repository:
-        name: gbt_release
-        description: gbt
-        baseurl: https://packagecloud.io/gbt/release/el/7/$basearch
-        repo_gpgcheck: true
-        gpgcheck: true
-        gpgkey: "https://packagecloud.io/gbt/release/gpgkey https://packagecloud.io/gbt/release/gpgkey/gbt-release-4C6E79EFF45439B6.pub.gpg"
-
     - name: Add Hashicorp repository
       ansible.builtin.yum_repository:
         name: hashicorp
@@ -280,6 +271,7 @@
           job: nice {{ ansible_user_dir }}/Documents/backups/backup.sh
           cron_file: backup
           disabled: true
+          user: "{{ ansible_user_id }}"
       loop_control:
         label: "{{ item.name }} - {{ item.cron_file }}"
 
@@ -297,6 +289,7 @@
         name: "{{ item.name }}"
         src: "{{ item.src }}"
         fstype: "{{ item.fstype }}"
+        boot: false
         opts: "{{ item.opts }}"
         state: present
       loop: "{{ fstab_entries }}"
@@ -452,7 +445,7 @@
 
     - name: Import Zoom key
       ansible.builtin.rpm_key:
-        key: https://zoom.us/linux/download/pubkey
+        key: https://zoom.us/linux/download/pubkey?version=5-12-6
       register: result
       until: result is succeeded
 
@@ -511,6 +504,7 @@
     src: ~/bin/kde_startup.sh
     dest: ~/.config/autostart-scripts/kde_startup.sh
     state: link
+    follow: false
     force: true
 
 - name: Create direcotries for konsole config (KDE)
@@ -1028,26 +1022,6 @@
       if [ "${ASCIINEMA_REC}" = "1" ]; then
         . /usr/share/git-core/contrib/completion/git-prompt.sh
         PS1='\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w\[\033[00m\]$([ "$(__git_ps1 %s)" != "main" ] && (echo -e " (\[\033[01;93m\]"$(__git_ps1 "%s")"\[\033[01;0m\])") || echo "")\$ '
-      else
-        export PS1='$(gbt $?)'
-        export GBT_CARS='Status, Dir, Git, Kubectl, Sign'
-        export GBT_CAR_DIR_BG='light_blue'
-        export GBT_CAR_DIR_DEPTH='99'
-        export GBT_CAR_DIR_FG='white'
-        export GBT_CAR_DIR_FM='bold'
-        export GBT_CAR_DIR_FORMAT='{{ Dir }}'
-        export GBT_CAR_GIT_BG='light_yellow'
-        export GBT_CAR_GIT_STASH_SYMBOL_TEXT='⚑'
-        export GBT_CAR_GIT_FORMAT='{{ Icon }}{{ Head }}{{ Status }}{{ Stash }}'
-        export GBT_CAR_HOSTNAME_BG=blue
-        export GBT_CAR_HOSTNAME_FG=light_green
-        export GBT_CAR_HOSTNAME_FM='bold'
-        export GBT_CAR_HOSTNAME_FORMAT='{{ UserHost }}'
-        export GBT_CAR_HOSTNAME_USER_FG='light_yellow'
-        export GBT_CAR_KUBECTL_BG='blue'
-        export GBT_CAR_KUBECTL_FORMAT='{{ Icon }}[{{ Context }}]'
-        export GBT_CAR_SIGN_FORMAT='{{ Symbol }} '
-        export GBT_CAR_STATUS_FORMAT='{{ Symbol }}'
       fi
 
       eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
