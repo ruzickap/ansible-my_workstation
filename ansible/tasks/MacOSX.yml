@@ -42,8 +42,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+      ansible.builtin.fail:
+        msg: Hostname and sleeping settings failed !!!
 
 - name: Install Homebrew
   ansible.builtin.shell: |
@@ -280,8 +280,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+      ansible.builtin.fail:
+        msg: Wifi configuration failed !!!
 
 # https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
 - name: Disable Reopen Windows When Logging Back
@@ -575,8 +575,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+      ansible.builtin.fail:
+        msg: iTerm2 configuration failed !!!
 
 - name: Configure Rectangle
   community.general.osx_defaults:

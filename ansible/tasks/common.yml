@@ -120,6 +120,7 @@
         remote_src: true
         force: false
         mode: u=rw,g=r,o=r
+      when: ansible_system == 'Darwin'
 
     - name: Change default in ~/.config/mc/mc.ext.ini
       community.general.ini_file:
@@ -188,9 +189,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
-
+      ansible.builtin.fail:
+        msg: Root tasks failed - check !!!
 ###############################
 # Run as user
 ###############################
@@ -703,8 +703,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+      ansible.builtin.fail:
+        msg: Secrets failed - check !!!
 
 ###################################################
 # Data
