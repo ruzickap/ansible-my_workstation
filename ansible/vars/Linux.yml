@@ -23,27 +23,27 @@ fstab_entries:
   - name: "/mnt/winxp"
     src: "//192.168.124.71/test"
     fstype: "cifs"
-    opts: "noauto,username=ruzickap,password=test123,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "username=ruzickap,password=test123,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/data"
     src: "LABEL=data"
     fstype: "xfs"
-    opts: "noatime,nodiratime,noauto"
+    opts: "noatime,nodiratime"
   - name: "/mnt/raspi/movies"
     src: "//{{ raspi_hostname }}/movies-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/music"
     src: "//{{ raspi_hostname }}/music-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/torrents"
     src: "//{{ raspi_hostname }}/torrents"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/raspi/backups"
     src: "//{{ raspi_hostname }}/backups-rw"
     fstype: "cifs"
-    opts: "noauto,credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
+    opts: "credentials={{ ansible_user_dir }}/Documents/secrets/raspi.xvx.cz-cifs-credentials,vers=3.0,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.idle-timeout=1min,iocharset=utf8,uid={{ ansible_user_id }},file_mode=0644,dir_mode=0755"
 
 rpmfusion_repositories:
   - https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
@@ -215,7 +215,6 @@ dnf_kde_packages:
 dnf_additional_packages:
   - akmod-VirtualBox # X
   - code
-  - gbt
   - gstreamer1-plugins-bad-freeworld
   - gstreamer1-plugins-ugly
   - gstreamer1-libav # X
