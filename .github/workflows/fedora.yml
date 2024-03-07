@@ -18,7 +18,7 @@ on:
 env:
   ANSIBLE_HOST_KEY_CHECKING: False
   ANSIBLE_REMOTE_PORT: 2222
-  FEDORA_VERSION: 36
+  FEDORA_VERSION: 38
   MYUSER: pruzicka
   # kics-scan ignore-line
   PASSWORD: vagrant
@@ -36,7 +36,9 @@ jobs:
 
       - name: Install brew packages
         run: |
-          brew install ansible gnu-sed hudochenkov/sshpass/sshpass vagrant
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          rm -v /usr/local/bin/2to3* /usr/local/bin/idle3* /usr/local/bin/pydoc3* /usr/local/bin/python3* || true
+          brew install ansible gnu-sed sshpass vagrant virtualbox
 
       - name: Start Fedora VirtualBox VM
         run: |
