@@ -435,8 +435,8 @@
 
       rescue:
         - name: Print when errors
-          ansible.builtin.debug:
-            msg: "I caught an error, can do stuff here to fix it, :-)"
+          ansible.builtin.fail:
+            msg: Wifi configuration failed !!!
 
     - name: Create bash completition file for rclone
       ansible.builtin.command: rclone genautocomplete bash
@@ -456,8 +456,8 @@
 
   rescue:
     - name: Print when errors
-      ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+      ansible.builtin.fail:
+        msg: Root configuration failed !!!
 
 ###############################
 # Run as {{ ansible_user_id }}
