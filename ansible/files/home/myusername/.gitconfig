@@ -64,11 +64,17 @@
 
 # https://github.com/dandavison/delta
 [delta]
-    line-numbers = false
+    # https://dandavison.github.io/delta/side-by-side-view.html
+    side-by-side = true
+    line-numbers-left-format = ""
+    line-numbers-right-format = "│ "
     diff-so-fancy = true
     hunk-header-decoration-style = ul brightblue
+    # https://dandavison.github.io/delta/grep.html
+    hyperlinks = true
+    hyperlinks-file-link-format = "vscode://file/{path}:{line}"
 
-# https://github.com/dandavison/delta#--color-moved-support
+# https://dandavison.github.io/delta/color-moved-support.html
 [diff]
     colorMoved = default
 
