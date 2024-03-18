@@ -481,6 +481,7 @@
       alias gh="env -u GITHUB_TOKEN gh $1"
 
       export PAGER="bat --style=plain --paging=never"
+      export DELTA_PAGER="bat --style=plain"
 
       eval "$(atuin init zsh --disable-up-arrow)"
 
