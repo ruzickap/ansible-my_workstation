@@ -483,8 +483,6 @@
       export PAGER="bat --style=plain --paging=never"
       export DELTA_PAGER="bat --style=plain"
 
-      eval "$(atuin init zsh --disable-up-arrow)"
-
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
@@ -520,6 +518,8 @@
 
       # Silence Instant prompt warning
       POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+      eval "$(atuin init zsh --disable-up-arrow)"
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
@@ -734,7 +734,7 @@
       value: 1
     - key: version
       # renovate: datasource=github-tags depName=exelban/stats
-      value: 2.10.4
+      value: 2.10.5
     - key: CombinedModules
       type: bool
       value: 0

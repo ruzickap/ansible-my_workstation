@@ -70,6 +70,7 @@ Configure my laptop with Ansible.
     * App Management -> Add `~/bin/pkgs_upgrade`
   * Screen Saver -> Shuffle All
   * Passwords -> Password Options -> Clean Up Automatically
+  * Keyboard -> Press ... key to -> Do Nothing
   * Keyboard -> Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
     Midnight Commander]
   * Trackpad -> Scroll & Zoom -> Zoom in or out
