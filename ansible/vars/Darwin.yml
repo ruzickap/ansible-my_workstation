@@ -27,11 +27,12 @@ homebrew_packages:
   - bat
   - cdrtools # Needed for mc to show iso details
   # - checkov # needs gcc, openblas
+  - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
   - colima
   - commitizen # git cz commands...
   - dive
-  - docker
+  # - docker
   - dockutil
   - dua-cli
   - coreutils
