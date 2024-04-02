@@ -61,7 +61,7 @@ Configure my laptop with Ansible.
   * Sound -> Play sound on startup
   * Appearance -> Show scroll bars -> Always
   * Accessibility -> Zoom -> Use scroll gesture with modifier keys to zoom
-  * Control Center ->
+  * Control Center
     * Battery -> Show in Menu Bar
     * Clock -> Show the day of the week
     * Spotlight
@@ -70,10 +70,13 @@ Configure my laptop with Ansible.
     * App Management -> Add `~/bin/pkgs_upgrade`
   * Screen Saver -> Shuffle All
   * Passwords -> Password Options -> Clean Up Automatically
-  * Keyboard -> Press ... key to -> Do Nothing
-  * Keyboard -> Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
-    Midnight Commander]
-  * Trackpad -> Scroll & Zoom -> Zoom in or out
+  * Keyboard
+    * Press ... key to -> Do Nothing
+    * Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
+      Midnight Commander]
+  * Trackpad -> Scroll & Zoom
+    * Zoom in or out
+    * Smart zoom
 
 ## Fedora
 
