@@ -16,6 +16,7 @@ login_items_enabled:
 homebrew_taps:
   - homebrew/cask-fonts
   - homebrew/cask-versions
+  - aws/tap
 
 homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
 
@@ -36,6 +37,7 @@ homebrew_packages:
   - dockutil
   - dua-cli
   - coreutils
+  - eks-node-viewer
   - eksctl
   - exiftool
   - findutils
