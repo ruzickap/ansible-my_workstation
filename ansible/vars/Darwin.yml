@@ -57,10 +57,12 @@ homebrew_packages:
   - iproute2mac
   - jless
   - jq
+  - k9s
   - kind
   - kopia
   - kops
   - krew
+  - kubecolor
   - kubernetes-cli
   - markdownlint-cli
   - midnight-commander
@@ -70,6 +72,7 @@ homebrew_packages:
   - pre-commit
   - prettier
   - qpdf # needed for decrypt password protected PDFs
+  - ratchet
   - rclone
   - rhash
   - powerlevel10k

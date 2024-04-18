@@ -473,9 +473,11 @@
       # Show complete history with timestamp
       alias history="history -i 0"
       alias ls="g --hyperlink=never --time-style=long-iso"
-      alias tree="g --hyperlink=never --time-style=long-iso --tree"
       alias mc='SHELL=/bin/bash source ${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
+      alias kubectl="kubecolor"
+      compdef kubecolor=kubectl
+      alias tree="g --hyperlink=never --time-style=long-iso --tree"
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
       # unset GITHUB_TOKEN from gh's process environment and run gh command - see https://stackoverflow.com/a/41749660 & https://github.com/cli/cli/issues/3799 for more.
       alias gh="env -u GITHUB_TOKEN gh $1"
