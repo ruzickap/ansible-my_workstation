@@ -34,6 +34,7 @@ homebrew_packages:
   - commitizen # git cz commands...
   - dive
   # - docker
+  - docker-buildx
   - dockutil
   - dua-cli
   - coreutils

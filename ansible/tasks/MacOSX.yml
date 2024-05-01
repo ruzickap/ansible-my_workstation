@@ -377,6 +377,18 @@
   changed_when: false
   loop: "{{ dock_add_items }}"
 
+- name: Create ditrcotry docker-buildx
+  ansible.builtin.file:
+    path: ~/.docker/cli-plugins
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Link the docker-buildx
+  ansible.builtin.file:
+    src: "{{ homebrew_prefix }}/bin/docker-buildx"
+    dest: ~/.docker/cli-plugins/docker-buildx
+    state: link
+
 ################################################
 # ZSH + Oh My Zsh + Powerlevel10k + fzf
 ################################################

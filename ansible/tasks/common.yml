@@ -191,6 +191,7 @@
     - name: Print when errors
       ansible.builtin.fail:
         msg: Root tasks failed - check !!!
+
 ###############################
 # Run as user
 ###############################
