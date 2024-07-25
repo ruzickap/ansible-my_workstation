@@ -14,8 +14,6 @@ login_items_enabled:
   - Stats
 
 homebrew_taps:
-  - homebrew/cask-fonts
-  - homebrew/cask-versions
   - aws/tap
 
 homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
@@ -76,7 +74,6 @@ homebrew_packages:
   - ratchet
   - rclone
   - rhash
-  - powerlevel10k
   - rsync
   - shfmt
   - shellcheck
@@ -98,10 +95,11 @@ homebrew_packages:
 
 homebrew_casks:
   - alt-tab
-  - brave-browser-beta
+  - brave-browser@beta
   - darktable
   - digikam
-  - font-meslo-lg-nerd-font # Needed for iTerm2 + powerlevel10k (Oh My Zsh Theme)
+  - font-meslo-lg-nerd-font # Needed for iTerm2 + Oh My Zsh Theme
+  - home-assistant
   - iterm2
   - kopiaui
   - keepassxc
