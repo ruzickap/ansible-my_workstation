@@ -26,6 +26,7 @@ home_data_directories:
 
 code_extensions:
   - adamhartford.vscode-base64
+  - antfu.slidev
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
   - DavidAnson.vscode-markdownlint

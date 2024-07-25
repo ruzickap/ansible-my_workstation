@@ -65,7 +65,7 @@
 # https://github.com/dandavison/delta
 [delta]
     # https://dandavison.github.io/delta/side-by-side-view.html
-    side-by-side = true
+    # side-by-side = true
     line-numbers-left-format = ""
     line-numbers-right-format = "│ "
     diff-so-fancy = true

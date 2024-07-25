@@ -390,7 +390,7 @@
     state: link
 
 ################################################
-# ZSH + Oh My Zsh + Powerlevel10k + fzf
+# ZSH + Oh My Zsh + fzf
 ################################################
 
 - name: Install oh-my-zsh
@@ -426,19 +426,6 @@
         PS1="\w ❯ "
       fi
     mode: u=rw,g=r,o=r
-
-- name: Add configurations to beginning of the ~/.zshrc
-  ansible.builtin.blockinfile:
-    dest: ~/.zshrc
-    insertbefore: BOF
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - BOF"
-    block: |
-      # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-      # Initialization code that may require console input (password prompts, [y/n]
-      # confirmations, etc.) must go above this block; everything else may go below.
-      if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-      fi
 
 - name: Add configurations to ~/.zshrc
   ansible.builtin.blockinfile:
@@ -502,11 +489,6 @@
 
       source ~/Documents/secrets/secret_variables
 
-      # Enable powerlevel10k with zsh plugins
-      source ${HOMEBREW_PREFIX}/share/powerlevel10k/powerlevel10k.zsh-theme
-      source ${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-      source ${HOMEBREW_PREFIX}/share/powerlevel10k/config/p10k-lean.zsh
-
       # Configure history stamp in oh-my-zsh
       HIST_STAMPS="yyyy-mm-dd"
 
@@ -522,16 +504,6 @@
       # Disable underline in zsh-syntax-highlighting
       ZSH_HIGHLIGHT_STYLES[path]=none
       ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-
-      # Disable adding newline before each prompt
-      POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
-
-      # Remove "newline" form the prompt to have it on single line
-      POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(${POWERLEVEL9K_LEFT_PROMPT_ELEMENTS[@]/newline/})
-      POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(${POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS[@]/newline/})
-
-      # Silence Instant prompt warning
-      POWERLEVEL9K_INSTANT_PROMPT=quiet
 
       eval "$(atuin init zsh --disable-up-arrow)"
 
@@ -682,6 +654,7 @@
       *-virtualbox.box
       *.iso
       *.ISO
+      .terraform
       /.cache
       /.colima
       /.gnupg/S.*

@@ -10,10 +10,12 @@
     "editor.formatOnSave": true
   },
   "editor.accessibilitySupport": "off",
+  "editor.autoClosingQuotes": "never",
   "editor.autoIndent": "keep",
   "editor.cursorBlinking": "smooth",
   "editor.dragAndDrop": false,
   "editor.formatOnPaste": true,
+  "editor.hover.enabled": false,
   "editor.quickSuggestions": {
     "other": "off"
   },
