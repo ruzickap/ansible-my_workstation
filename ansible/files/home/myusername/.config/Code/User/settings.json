@@ -46,6 +46,7 @@
   "window.closeWhenEmpty": true,
   "window.zoomLevel": 1,
   "workbench.activityBar.location": "hidden",
+  "workbench.editor.enablePreview": false,
   "workbench.editorAssociations": {
     "*.md": "default"
   },

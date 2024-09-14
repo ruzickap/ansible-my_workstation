@@ -472,7 +472,7 @@
       # Show complete history with timestamp
       alias history="history -i 0"
       alias ls="g --hyperlink=never --time-style=long-iso"
-      alias mc='SHELL=/bin/bash source ${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh --nomouse'
+      alias mc='SHELL=/bin/bash source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
       alias kubectl="kubecolor"
       compdef kubecolor=kubectl
