@@ -249,7 +249,7 @@
       value: "'${time-pos} / ${duration}${?percent-pos:  (${percent-pos}%)}${?frame-drop-count:${!frame-drop-count==0:  Dropped: ${frame-drop-count}}}\\n${?chapter:Chapter: ${chapter}}'"
     - option: slang
       value: cz,cze,Czech
-    - option: sub-ass-force-style
+    - option: sub-ass-style-overrides
       value: Kerning=yes
     - option: sub-border-color
       value: '"#ff262626"'

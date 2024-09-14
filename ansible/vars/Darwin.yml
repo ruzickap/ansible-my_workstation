@@ -59,7 +59,6 @@ homebrew_packages:
   - k9s
   - kind
   - kopia
-  - kops
   - krew
   - kubecolor
   - kubernetes-cli
@@ -121,3 +120,5 @@ run_applications:
 
 npm_packages:
   - mega-linter-runner
+  - "@slidev/cli"
+  - "@slidev/theme-default"

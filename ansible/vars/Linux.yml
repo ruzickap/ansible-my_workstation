@@ -242,7 +242,6 @@ homebrew:
   - hadolint # gmp
   - helm #
   - k3d #
-  - kops # go 1.14 (compile)
   - krew #
   - kubectl #
   - markdownlint-cli #
