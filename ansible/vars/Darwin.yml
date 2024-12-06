@@ -24,14 +24,12 @@ homebrew_packages:
   - awscli
   - bash
   - bat
-  - cdrtools # Needed for mc to show iso details
-  # - checkov # needs gcc, openblas
+  - checkov # needs gcc, openblas
   - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
   - colima
   - commitizen # git cz commands...
   - dive
-  # - docker
   - docker-buildx
   - dockutil
   - dua-cli
@@ -54,9 +52,9 @@ homebrew_packages:
   - htop
   - imagemagick
   - iproute2mac
-  - jless
   - jq
   - k9s
+  - keep-sorted
   - kind
   - kopia
   - krew
@@ -106,16 +104,11 @@ homebrew_casks:
   - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
-  - rectangle # Move and resize windows on macOS with keyboard shortcuts and snap areas
   - stats
-  - vagrant
   - visual-studio-code
-  - vmware-fusion
-  - vagrant-vmware-utility
 
 run_applications:
   - AltTab
-  - Rectangle
   - Stats
 
 npm_packages:

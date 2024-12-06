@@ -39,6 +39,7 @@ code_extensions:
   - redhat.vscode-yamL
   - streetsidesoftware.code-spell-checker
   - Tyriar.sort-lines
+  - wizcloud.wiz-vscode
   - yzhang.markdown-all-in-one
 
 krew_plugins:
