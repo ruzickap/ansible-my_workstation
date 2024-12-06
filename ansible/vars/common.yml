@@ -1,48 +1,51 @@
-my_hostname: peru.xvx.cz
-email: petr.ruzicka@gmail.com
-
-# Directory where there are all the data (usually $HOME)
-data_source_dir: "~"
-
-github_username: ruzickap
-
-raspi_hostname: raspi.xvx.cz
-
-# The directories which should be copy over to new system
-home_data_directories:
-  - .bash_history
-  - .gnupg
-  - .sigstore
-  - .ssh
-  - .zsh_history
-  - bin
-  - Desktop
-  - Documents
-  - Downloads
-  - git
-  - Movies
-  - Music
-  - Pictures
-
+# keep-sorted start newline_separated=yes
 code_extensions:
+  # keep-sorted start
+  - DavidAnson.vscode-markdownlint
+  - GitHub.copilot
+  - GitHub.copilot-chat
+  - Tyriar.sort-lines
   - adamhartford.vscode-base64
   - antfu.slidev
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
-  - DavidAnson.vscode-markdownlint
   - esbenp.prettier-vscode
-  - GitHub.copilot
-  - GitHub.copilot-chat
   - github.vscode-github-actions
   - golang.go
   - hashicorp.terraform
   - redhat.vscode-yamL
   - streetsidesoftware.code-spell-checker
-  - Tyriar.sort-lines
   - wizcloud.wiz-vscode
   - yzhang.markdown-all-in-one
+  # keep-sorted end
+
+# Directory where there are all the data (usually $HOME)
+data_source_dir: "~"
+
+email: petr.ruzicka@gmail.com
+
+github_username: ruzickap
+
+# The directories which should be copy over to new system
+home_data_directories:
+  # keep-sorted start
+  - .bash_history
+  - .gnupg
+  - .sigstore
+  - .ssh
+  - .zsh_history
+  - Desktop
+  - Documents
+  - Downloads
+  - Movies
+  - Music
+  - Pictures
+  - bin
+  - git
+  # keep-sorted end
 
 krew_plugins:
+  # keep-sorted start
   - cert-manager
   - get-all
   - ice
@@ -51,3 +54,9 @@ krew_plugins:
   - resource-capacity
   - stern
   - view-allocations
+  # keep-sorted end
+
+my_hostname: peru.xvx.cz
+
+raspi_hostname: raspi.xvx.cz
+# keep-sorted end

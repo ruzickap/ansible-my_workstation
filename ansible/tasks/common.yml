@@ -29,20 +29,22 @@
         value: "{{ item.value }}"
         mode: u=rw,g=r,o=r
       loop:
+        # keep-sorted start
         - option: inet_protocols
           value: ipv4
         - option: relayhost
           value: "[smtp.gmail.com]:587"
-        - option: smtp_use_tls
-          value: "yes"
         - option: smtp_sasl_auth_enable
           value: "yes"
+        - option: smtp_sasl_mechanism_filter
+          value: login
         - option: smtp_sasl_password_maps
           value: hash:/etc/postfix/sasl_passwd
         - option: smtp_sasl_security_options
           value: noanonymous
-        - option: smtp_sasl_mechanism_filter
-          value: login
+        - option: smtp_use_tls
+          value: "yes"
+        # keep-sorted end
 
     - name: Add gmail credentials /etc/postfix/sasl_passwd
       ansible.builtin.template:
@@ -91,15 +93,7 @@
         value: "{{ item.value }}"
         mode: u=rw,g=r,o=r
       loop:
-        - section: Midnight-Commander
-          option: auto_save_setup
-          value: "false"
-        - section: Midnight-Commander
-          option: drop_menus
-          value: "true"
-        - section: Midnight-Commander
-          option: editor_return_does_auto_indent
-          value: "false"
+        # keep-sorted start
         - section: Layout
           option: keybar_visible
           value: "false"
@@ -109,9 +103,19 @@
         - section: Layout
           option: message_visible
           value: "false"
+        - section: Midnight-Commander
+          option: auto_save_setup
+          value: "false"
+        - section: Midnight-Commander
+          option: drop_menus
+          value: "true"
+        - section: Midnight-Commander
+          option: editor_return_does_auto_indent
+          value: "false"
         - section: Panels
           option: navigate_with_arrows
           value: "true"
+        # keep-sorted end
 
     - name: Copy mc.ext.ini to the ~/.config/mc/
       ansible.builtin.copy:
@@ -131,6 +135,22 @@
         value: "{{ item.value }}"
         mode: u=rw,g=r,o=r
       loop:
+        # keep-sorted start
+        - section: Include/image
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: gpx
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        - section: gpx
+          option: Regex
+          value: "\\.gpx$"
+        - section: gpx
+          option: RegexIgnoreCase
+          value: "true"
+        - section: raw
+          option: Open
+          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
         - section: raw
           option: Regex
           value: "\\.(nef|orf|ori|dng|arw)$"
@@ -138,23 +158,9 @@
           option: RegexIgnoreCase
           value: "true"
         - section: raw
-          option: Open
-          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
-        - section: raw
           option: View
           value: "%view{ascii} exiftool %p"
-        - section: Include/image
-          option: View
-          value: "%view{ascii} exiftool %p"
-        - section: gpx
-          option: Regex
-          value: "\\.gpx$"
-        - section: gpx
-          option: RegexIgnoreCase
-          value: "true"
-        - section: gpx
-          option: Open
-          value: "{% if ansible_system == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        # keep-sorted end
 
     - name: Replace version specific directories
       ansible.builtin.replace:
@@ -237,6 +243,7 @@
     value: "{{ item.value }}"
     mode: u=rw,g=r,o=r
   loop:
+    # keep-sorted start
     - option: autofit-larger
       value: 100%x95%
     - option: icc-contrast
@@ -251,6 +258,8 @@
       value: cz,cze,Czech
     - option: sub-ass-style-overrides
       value: Kerning=yes
+    - option: sub-auto
+      value: all
     - option: sub-border-color
       value: '"#ff262626"'
     - option: sub-border-size
@@ -263,10 +272,9 @@
       value: '"#33000000"'
     - option: sub-shadow-offset
       value: 1
-    - option: sub-auto
-      value: all
     - option: volume-max
       value: 200
+    # keep-sorted end
 
 - name: Configure mpv
   community.general.ini_file:
@@ -276,10 +284,12 @@
     option: "{{ item.option }}"
     mode: u=rw,g=r,o=r
   loop:
+    # keep-sorted start
     - option: hwdec
     - option: keep-open
     - option: save-position-on-quit
     - option: term-osd-bar
+    # keep-sorted end
 
 - name: Put darktable configs in place
   ansible.builtin.copy:
@@ -297,6 +307,7 @@
     value: "{{ item.value }}"
     mode: u=rw,g=,o=
   loop:
+    # keep-sorted start
     - option: ask_before_delete
       value: "FALSE"
     - option: database/create_snapshot
@@ -305,14 +316,6 @@
       value: "TRUE"
     - option: opencl_tune_headroom
       value: "TRUE"
-    - option: resourcelevel
-      value: large
-    - option: slideshow_delay
-      value: 3
-    - option: ui_last/theme
-      value: darktable-elegant-darker
-    - option: write_sidecar_files
-      value: after edit
     - option: plugins/darkroom/history/expanded
       value: "TRUE"
     - option: plugins/darkroom/modulegroups_preset
@@ -325,8 +328,17 @@
       value: "TRUE"
     - option: plugins/lighttable/images_in_row
       value: 6
+    - option: resourcelevel
+      value: large
+    - option: slideshow_delay
+      value: 3
     - option: ui_last/import_ignore_nonraws
       value: "TRUE"
+    - option: ui_last/theme
+      value: darktable-elegant-darker
+    - option: write_sidecar_files
+      value: after edit
+    # keep-sorted end
 
 - name: Install krew plugins
   ansible.builtin.command: kubectl krew install {{ item }}
@@ -354,18 +366,7 @@
     value: "{{ item.value }}"
     mode: u=rw,g=,o=
   loop:
-    - section: General
-      option: AutoSaveAfterEveryChange
-      value: "false"
-    - section: General
-      option: AutoSaveOnExit
-      value: "false"
-    - section: General
-      option: MinimizeAfterUnlock
-      value: "true"
-    - section: General
-      option: UpdateCheckMessageShown
-      value: "true"
+    # keep-sorted start
     - section: Browser
       option: AlwaysAllowAccess
       value: "true"
@@ -384,6 +385,18 @@
     - section: GUI
       option: ShowExpiredEntriesOnDatabaseUnlockOffsetDays
       value: 30
+    - section: General
+      option: AutoSaveAfterEveryChange
+      value: "false"
+    - section: General
+      option: AutoSaveOnExit
+      value: "false"
+    - section: General
+      option: MinimizeAfterUnlock
+      value: "true"
+    - section: General
+      option: UpdateCheckMessageShown
+      value: "true"
     - section: PasswordGenerator
       option: AdditionalChars
       value: '",."'
@@ -405,6 +418,7 @@
     - section: Security
       option: LockDatabaseScreenLock
       value: "false"
+    # keep-sorted end
 
 - name: KeePassXC settings
   community.general.ini_file:
@@ -444,9 +458,13 @@
     value: "{{ item.value }}"
     mode: u=rw,g=,o=
   loop:
+    # keep-sorted start
     - section: Album Settings
       option: Default Tree Icon Size
       value: 16
+    - section: Album Settings
+      option: Icon Show Color Label
+      value: "false"
     - section: Album Settings
       option: Icon Show Comments
       value: "false"
@@ -461,6 +479,9 @@
       value: "true"
     - section: Album Settings
       option: Icon Show Overlays
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Pick Label
       value: "false"
     - section: Album Settings
       option: Icon Show Rating
@@ -486,6 +507,9 @@
     - section: Album Settings
       option: Show ToolTips
       value: "true"
+    - section: Album Settings
+      option: Theme
+      value: Black Body
     - section: Album Settings
       option: ToolTips Show Album Caption
       value: "false"
@@ -513,23 +537,14 @@
     - section: Album Settings
       option: ToolTips Show Titles
       value: "false"
-    - section: Album Settings
-      option: Theme
-      value: Black Body
-    - section: Album Settings
-      option: Icon Show Color Label
-      value: "false"
-    - section: Album Settings
-      option: Icon Show Pick Label
-      value: "false"
-    - section: Database Settings
-      option: Database Name
-      value: "{{ ansible_user_dir }}/Pictures/"
     - section: Database Settings
       option: Database Name Face
       value: "{{ ansible_user_dir }}/Pictures/"
     - section: Database Settings
       option: Database Name Thumbnails
+      value: "{{ ansible_user_dir }}/Pictures/"
+    - section: Database Settings
+      option: Database Name
       value: "{{ ansible_user_dir }}/Pictures/"
     - section: Database Settings
       option: Database Type
@@ -553,9 +568,6 @@
       option: JPEGCompression
       value: 98
     - section: ImageViewer Settings
-      option: TIFFCompression
-      value: "true"
-    - section: ImageViewer Settings
       option: SlideShowDelay
       value: 3
     - section: ImageViewer Settings
@@ -573,6 +585,9 @@
     - section: ImageViewer Settings
       option: SlideShowStartCurrent
       value: "true"
+    - section: ImageViewer Settings
+      option: TIFFCompression
+      value: "true"
     - section: Metadata Settings
       option: ExifTool Path
       value: /opt/homebrew/bin/
@@ -583,14 +598,15 @@
       option: Save Tags
       value: "true"
     - section: Metadata Settings
-      option: Use XMP Sidecar For Reading
+      option: Use Fast Scan At Startup
       value: "true"
     - section: Metadata Settings
-      option: Use Fast Scan At Startup
+      option: Use XMP Sidecar For Reading
       value: "true"
     - section: Versioning Settings
       option: Non-Destructive Editing Enabled
       value: "false"
+    # keep-sorted end
 
 - name: Put VS Code configuation in place
   ansible.builtin.copy:

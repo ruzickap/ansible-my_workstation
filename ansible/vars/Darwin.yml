@@ -1,5 +1,4 @@
-login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
-
+# keep-sorted start newline_separated=yes
 # Items to add to the dock
 dock_add_items:
   - /Applications/iTerm.app
@@ -8,17 +7,27 @@ dock_add_items:
 # The Dock icons size
 dock_icons_size: 36.0
 
-login_items_enabled:
-  - AltTab
-  - KeePassXC
-  - Stats
-
-homebrew_taps:
-  - aws/tap
-
-homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+homebrew_casks:
+  # keep-sorted start
+  - alt-tab
+  - brave-browser@beta
+  - darktable
+  - digikam
+  - font-meslo-lg-nerd-font # Needed for iTerm2 + Oh My Zsh Theme
+  - home-assistant
+  - iterm2
+  - keepassxc
+  - keepingyouawake
+  - kopiaui
+  - mpv
+  - mysides # Application for managing OS X Finder sidebar favorites
+  - obs
+  - stats
+  - visual-studio-code
+  # keep-sorted end
 
 homebrew_packages:
+  # keep-sorted start
   - ansible
   - atuin
   - awscli
@@ -29,11 +38,11 @@ homebrew_packages:
   - cloudflared # needed for ssh with cloudflare tunnels
   - colima
   - commitizen # git cz commands...
+  - coreutils
   - dive
   - docker-buildx
   - dockutil
   - dua-cli
-  - coreutils
   - eks-node-viewer
   - eksctl
   - exiftool
@@ -72,8 +81,8 @@ homebrew_packages:
   - rclone
   - rhash
   - rsync
-  - shfmt
   - shellcheck
+  - shfmt
   - telnet
   - terraform
   - tflint
@@ -84,34 +93,35 @@ homebrew_packages:
   - wget
   - wifi-password
   - yamllint
-  - yt-dlp
   - yq
+  - yt-dlp
   - zoxide
   - zsh-autosuggestions
   - zsh-syntax-highlighting
+  # keep-sorted end
 
-homebrew_casks:
-  - alt-tab
-  - brave-browser@beta
-  - darktable
-  - digikam
-  - font-meslo-lg-nerd-font # Needed for iTerm2 + Oh My Zsh Theme
-  - home-assistant
-  - iterm2
-  - kopiaui
-  - keepassxc
-  - keepingyouawake
-  - mpv
-  - mysides # Application for managing OS X Finder sidebar favorites
-  - obs
-  - stats
-  - visual-studio-code
+homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+
+homebrew_taps:
+  - aws/tap
+
+login_items_enabled:
+  # keep-sorted start
+  - AltTab
+  - KeePassXC
+  - Stats
+  # keep-sorted end
+
+login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
+
+npm_packages:
+  # keep-sorted start
+  - "@slidev/cli"
+  - "@slidev/theme-default"
+  - mega-linter-runner
+  # keep-sorted end
 
 run_applications:
   - AltTab
   - Stats
-
-npm_packages:
-  - mega-linter-runner
-  - "@slidev/cli"
-  - "@slidev/theme-default"
+# keep-sorted end
