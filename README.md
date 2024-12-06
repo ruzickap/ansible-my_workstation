@@ -71,7 +71,7 @@ Configure my laptop with Ansible.
   * Screen Saver -> Shuffle All
   * Passwords -> Password Options -> Clean Up Automatically
   * Keyboard
-    * Press ... key to -> Do Nothing
+    * Press ... key to -> Show Emoji & Symbols
     * Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
       Midnight Commander]
   * Trackpad -> Scroll & Zoom

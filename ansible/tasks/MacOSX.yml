@@ -411,7 +411,7 @@
     - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
       replace: DISABLE_MAGIC_FUNCTIONS="true"
     - regexp: "^plugins=.*"
-      replace: plugins=(colored-man-pages docker gh vagrant-prompt kubectl zoxide)
+      replace: plugins=(colored-man-pages docker gh kubectl zoxide)
     - regexp: "^# zstyle ':omz:update' mode auto"
       replace: "zstyle ':omz:update' mode auto"
 
@@ -565,18 +565,6 @@
       ansible.builtin.fail:
         msg: iTerm2 configuration failed !!!
 
-- name: Configure Rectangle
-  community.general.osx_defaults:
-    domain: com.knollsoft.Rectangle
-    key: "{{ item.key }}"
-    type: bool
-    value: "{{ item.value }}"
-  loop:
-    - key: launchOnLogin
-      value: "true"
-    - key: hideMenubarIcon
-      value: "true"
-
 - name: Create directory for OBS
   ansible.builtin.file:
     path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled
@@ -664,7 +652,6 @@
       /.oh-my-zsh
       /.SpaceVim
       /.Trash
-      /.vagrant.d
       /.vscode
       /Applications
       /Documents/chrome-extensions
