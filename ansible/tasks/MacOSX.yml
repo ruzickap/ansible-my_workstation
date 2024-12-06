@@ -532,6 +532,7 @@
         type: string
         value: "{{ item.value }}"
       loop:
+        # keep-sorted start
         - key: AddNewTabAtEndOfTabs
           value: 0
         - key: DoubleClickPerformsSmartSelection
@@ -540,13 +541,14 @@
           value: 1
         - key: QuitWhenAllWindowsClosed
           value: 1
-        - key: SmartPlacement
-          value: 1
         - key: SUEnableAutomaticChecks
           value: 0
+        - key: SmartPlacement
+          value: 1
         - key: TabViewType
           type: int
           value: 1
+        # keep-sorted end
 
     - name: Configure iTerm2 using PlistBuddy
       ansible.builtin.shell: |
@@ -580,6 +582,7 @@
     value: "{{ item.value }}"
     mode: u=rw,g=r,o=r
   loop:
+    # keep-sorted start
     - section: BasicWindow
       option: RecordWhenStreaming
       value: "true"
@@ -598,6 +601,7 @@
     - section: General
       option: WarnBeforeStartingStream
       value: "true"
+    # keep-sorted end
 
 - name: Configure OBS default profile
   community.general.ini_file:
@@ -608,6 +612,7 @@
     value: "{{ item.value }}"
     mode: u=rw,g=r,o=r
   loop:
+    # keep-sorted start
     - section: AdvOut
       option: Encoder
       value: com.apple.videotoolbox.videoencoder.ave.avc
@@ -620,29 +625,33 @@
     - section: AdvOut
       option: Track1Bitrate
       value: 128
+    - section: Audio
+      option: ChannelSetup
+      value: Mono
+    - section: Audio
+      option: SampleRate
+      value: 44100
     - section: Output
       option: Mode
       value: Advanced
     - section: SimpleOutput
       option: FileNameWithoutSpace
       value: "true"
-    - section: Audio
-      option: SampleRate
-      value: 44100
-    - section: Audio
-      option: ChannelSetup
-      value: Mono
+    # keep-sorted end
 
 - name: Configure Kopia
   ansible.builtin.copy:
     dest: ~/.kopiaignore
     content: |
-      .DS_Store
+      # keep-sorted start
       *-libvirt.box
       *-virtualbox.box
-      *.iso
       *.ISO
+      *.iso
+      .DS_Store
       .terraform
+      /.SpaceVim
+      /.Trash
       /.cache
       /.colima
       /.gnupg/S.*
@@ -650,21 +659,20 @@
       /.lima
       /.npm
       /.oh-my-zsh
-      /.SpaceVim
-      /.Trash
       /.vscode
       /Applications
       /Documents/chrome-extensions
       /Downloads
-      /go
       /Library
       /Movies
       /Music/Music
-      /node_modules
       /Pictures/*.db
       /Pictures/Photos Library.photoslibrary
       /Public
       /Virtual Machines*
+      /go
+      /node_modules
+      # keep-sorted end
     mode: u=rw,g=r,o=r
 
 - name: Configure AltTab
@@ -674,26 +682,28 @@
     type: string
     value: "{{ item.value }}"
   loop:
+    # keep-sorted start
     - key: fadeOutAnimation
       value: "true"
     - key: hideSpaceNumberLabels
       value: "true"
     - key: hideStatusIcons
       value: "true"
-    - key: iconSize
-      value: 20
-    - key: updatePolicy
-      value: 0
     - key: hideWindowlessApps
       value: "true"
     - key: holdShortcut
       value: "\u2318"
+    - key: iconSize
+      value: 20
     - key: menubarIcon
       value: 3
     - key: previewFocusedWindow
       value: "true"
     - key: screensToShow
       value: 1
+    - key: updatePolicy
+      value: 0
+    # keep-sorted end
   tags: skip_idempotence_test
 
 # https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
@@ -713,40 +723,24 @@
     type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
     value: "{{ item.value }}"
   loop:
-    - key: setupProcess
-      type: bool
+    # keep-sorted start
+    - key: Battery_battery_additional
+      value: innerPercentage
+    - key: Battery_notifications_low
+      value: 0.03
+    - key: CPU_line_chart_box
+      value: 0
+    - key: CPU_line_chart_color
+      value: utilization
+    - key: CPU_line_chart_frame
       value: 1
-    - key: version
-      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
+    - key: CPU_line_chart_label
+      value: 1
+    - key: CPU_widget
+      value: line_chart
     - key: CombinedModules
       type: bool
       value: 0
-    - key: update-interval
-      value: Never
-    - key: CPU_widget
-      value: line_chart
-    - key: CPU_widget
-      value: line_chart
-    - key: CPU_line_chart_label
-      value: 1
-    - key: CPU_line_chart_box
-      value: 0
-    - key: CPU_line_chart_frame
-      value: 1
-    - key: CPU_line_chart_color
-      value: utilization
-    - key: RAM_widget
-      value: line_chart
-    - key: RAM_line_chart_label
-      value: 1
-    - key: RAM_line_chart_box
-      value: 0
-    - key: RAM_line_chart_frame
-      value: 1
-    - key: RAM_line_chart_color
-      value: pressure
-    - key: Disk_widget
-      value: speed
     - key: Disk_removable
       value: 1
     - key: Disk_speed_reverseOrder
@@ -755,18 +749,34 @@
       value: 1
     - key: Disk_speed_valueColor
       value: 1
-    - key: Network_speed_reverseOrder
-      value: 1
+    - key: Disk_widget
+      value: speed
     - key: Network_speed_icon
       value: chars
+    - key: Network_speed_reverseOrder
+      value: 1
     - key: Network_speed_transparentIcons
       value: 1
     - key: Network_speed_valueColor
       value: 1
-    - key: Battery_battery_additional
-      value: innerPercentage
-    - key: Battery_notifications_low
-      value: 0.03
+    - key: RAM_line_chart_box
+      value: 0
+    - key: RAM_line_chart_color
+      value: pressure
+    - key: RAM_line_chart_frame
+      value: 1
+    - key: RAM_line_chart_label
+      value: 1
+    - key: RAM_widget
+      value: line_chart
+    - key: setupProcess
+      type: bool
+      value: 1
+    - key: update-interval
+      value: Never
+    - key: version
+      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
+    # keep-sorted end
 
 - name: Create directory for Colima
   ansible.builtin.file:
