@@ -14,6 +14,7 @@ homebrew_casks:
   - darktable
   - digikam
   - font-meslo-lg-nerd-font # Needed for iTerm2 + Oh My Zsh Theme
+  - hiddenbar
   - home-assistant
   - iterm2
   - keepassxc
@@ -23,6 +24,7 @@ homebrew_casks:
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
   - stats
+  - utm
   - visual-studio-code
   # keep-sorted end
 
@@ -57,6 +59,7 @@ homebrew_packages:
   - gnu-tar
   - gnupg
   - grep
+  - hashicorp/tap/terraform
   - helm
   - htop
   - imagemagick
@@ -84,7 +87,6 @@ homebrew_packages:
   - shellcheck
   - shfmt
   - telnet
-  - terraform
   - tflint
   - tfupdate
   - tig
@@ -104,6 +106,7 @@ homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/home
 
 homebrew_taps:
   - aws/tap
+  - hashicorp/tap
 
 login_items_enabled:
   # keep-sorted start
