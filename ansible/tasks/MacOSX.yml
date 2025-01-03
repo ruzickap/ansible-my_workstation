@@ -780,14 +780,14 @@
 
 - name: Create directory for Colima
   ansible.builtin.file:
-    path: ~/.colima/default/
+    path: ~/.colima/_templates/
     state: directory
     mode: u=rwx,g=rx,o=rx
 
 - name: Configure Colima
   ansible.builtin.copy:
-    src: files/Users/myusername/.colima/default/colima.yaml
-    dest: ~/.colima/default/colima.yaml
+    src: files/Users/myusername/.colima/_templates/default.yaml
+    dest: ~/.colima/_templates/default.yaml
     mode: u=rw,g=r,o=r
 
 - name: Configure Chrome
