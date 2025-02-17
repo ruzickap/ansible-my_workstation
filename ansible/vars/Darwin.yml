@@ -33,6 +33,7 @@ homebrew_packages:
   - ansible
   - atuin
   - awscli
+  - azure-cli
   - bash
   - bat
   - checkov # needs gcc, openblas
@@ -74,18 +75,19 @@ homebrew_packages:
   - kubernetes-cli
   - markdownlint-cli
   - midnight-commander
+  - mise
   - mpg123 # needed for mc to display mp3 files
-  - npm
   - opentofu
   - pre-commit
   - prettier
-  - qpdf # needed for decrypt password protected PDFs
   - ratchet
   - rclone
   - rhash
+  - rmtrash
   - rsync
   - shellcheck
   - shfmt
+  - sops
   - telnet
   - tflint
   - tfupdate
@@ -116,13 +118,6 @@ login_items_enabled:
   # keep-sorted end
 
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
-
-npm_packages:
-  # keep-sorted start
-  - "@slidev/cli"
-  - "@slidev/theme-default"
-  - mega-linter-runner
-  # keep-sorted end
 
 run_applications:
   - AltTab

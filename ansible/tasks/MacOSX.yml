@@ -60,6 +60,7 @@
   community.general.homebrew:
     name: "{{ homebrew_packages }}"
     update_homebrew: true
+  tags: skip_idempotence_test
 
 - name: Install Homebrew casks
   community.general.homebrew_cask:
@@ -487,8 +488,6 @@
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
-      source ~/Documents/secrets/secret_variables
-
       # Configure history stamp in oh-my-zsh
       HIST_STAMPS="yyyy-mm-dd"
 
@@ -512,6 +511,13 @@
 
       # Configure DOCKER_HOST for app
       export DOCKER_HOST=unix://$HOME/.colima/docker.sock
+
+      # SOPS: Secrets OPerationS
+      export SOPS_AGE_KEY_FILE="${HOME}/Documents/secrets/age.txt"
+      export SOPS_AGE_RECIPIENTS="age1jjuamrdk3vrk6g8qhrjnqtt4x2yvvxw7fz2nkvf78398dj7vav7s74z4zz"
+
+      # Mise activation
+      eval "$(mise activate zsh)"
 
 ################################################
 # Application configuration
@@ -657,7 +663,6 @@
       /.gnupg/S.*
       /.krew
       /.lima
-      /.npm
       /.oh-my-zsh
       /.vscode
       /Applications
