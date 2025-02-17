@@ -14,8 +14,8 @@
   "editor.autoIndent": "keep",
   "editor.cursorBlinking": "smooth",
   "editor.dragAndDrop": false,
-  "editor.formatOnPaste": true,
   "editor.hover.enabled": false,
+  "editor.parameterHints.enabled": false,
   "editor.quickSuggestions": {
     "other": "off"
   },
@@ -45,11 +45,12 @@
   "vsicons.dontShowNewVersionMessage": true,
   "window.closeWhenEmpty": true,
   "window.zoomLevel": 1,
-  "workbench.activityBar.location": "hidden",
+  "workbench.activityBar.location": "top",
   "workbench.editor.enablePreview": false,
   "workbench.editorAssociations": {
     "*.md": "default"
   },
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "newUntitledFile"
+  "workbench.startupEditor": "newUntitledFile",
+  "git.autofetch": true
 }

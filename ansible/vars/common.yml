@@ -3,7 +3,6 @@ code_extensions:
   # keep-sorted start
   - DavidAnson.vscode-markdownlint
   - GitHub.copilot
-  - GitHub.copilot-chat
   - Tyriar.sort-lines
   - adamhartford.vscode-base64
   - antfu.slidev
@@ -13,7 +12,7 @@ code_extensions:
   - github.vscode-github-actions
   - golang.go
   - hashicorp.terraform
-  - redhat.vscode-yamL
+  - redhat.vscode-yaml
   - streetsidesoftware.code-spell-checker
   - wizcloud.wiz-vscode
   - yzhang.markdown-all-in-one

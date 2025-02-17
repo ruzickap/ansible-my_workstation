@@ -1017,7 +1017,6 @@
 
       source /usr/share/fzf/shell/key-bindings.bash
       source /home/linuxbrew/.linuxbrew/opt/oci-cli/libexec/lib/python3.9/site-packages/oci_cli/bin/oci_autocomplete.sh
-      source ~/Documents/secrets/secret_variables
 
       if [ "${ASCIINEMA_REC}" = "1" ]; then
         . /usr/share/git-core/contrib/completion/git-prompt.sh

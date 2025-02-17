@@ -623,13 +623,15 @@
     creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
 
-- name: Install npm packages
-  community.general.npm:
-    name: "{{ item }}"
-    path: ~/
-  environment:
-    PATH: /usr/local/bin:{{ ansible_env.PATH }}
-  loop: "{{ npm_packages }}"
+- name: Tweak screen
+  ansible.builtin.blockinfile:
+    dest: ~/.sops.yaml
+    create: true
+    block: |
+      stores:
+        yaml:
+          indent: 2
+    mode: u=rw,g=r,o=r
 
 - name: Configure .forward to {{ email }}
   ansible.builtin.copy:
@@ -691,7 +693,7 @@
         mode: u=rw,g=,o=
 
     ###################################################
-    # Secrets coppied from local disk
+    # Secrets copied from local disk
     ###################################################
 
     - name: Create ~/Documents/secrets directory
@@ -699,14 +701,6 @@
         path: ~/Documents/secrets
         state: directory
         mode: u=rwx,g=,o=
-
-    # Needed for shell (zsh/bash)
-    - name: Copy ~/Documents/secrets/secret_variables
-      ansible.builtin.copy:
-        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
-        dest: ~/Documents/secrets/secret_variables
-        mode: u=rw,g=,o=
-      tags: data
 
     - name: Copy KeePass data
       ansible.builtin.copy:
