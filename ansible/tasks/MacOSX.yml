@@ -488,6 +488,8 @@
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
+      source ~/Documents/secrets/secret_variables
+
       # Configure history stamp in oh-my-zsh
       HIST_STAMPS="yyyy-mm-dd"
 

@@ -666,6 +666,35 @@
     dest: ~/.ansible.cfg
     mode: u=rw,g=r,o=r
 
+- name: Create ~/.config/mise
+  ansible.builtin.file:
+    path: ~/.config/mise
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure mise
+  ansible.builtin.copy:
+    dest: ~/.config/mise/config.toml
+    content: |
+      [env]
+      _.file = "~/Documents/secrets/.env.yaml"
+
+      [settings]
+      experimental = true
+      sops.age_key_file = "~/Documents/secrets/age.txt"
+
+      [tools]
+      "npm:@slidev/cli" = "latest"
+      "npm:markdown-spellcheck" = "latest"
+    mode: u=rw,g=r,o=r
+
+- name: Configure terraform
+  ansible.builtin.copy:
+    dest: ~/.terraformrc
+    content: |
+      plugin_cache_dir = "${HOME}/.terraform.d/plugin-cache"
+    mode: u=rw,g=r,o=r
+
 ###################################################
 # Secrets
 ###################################################
@@ -701,6 +730,14 @@
         path: ~/Documents/secrets
         state: directory
         mode: u=rwx,g=,o=
+
+    # Needed for shell (zsh/bash)
+    - name: Copy ~/Documents/secrets/secret_variables
+      ansible.builtin.copy:
+        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
+        dest: ~/Documents/secrets/secret_variables
+        mode: u=rw,g=,o=
+      tags: data
 
     - name: Copy KeePass data
       ansible.builtin.copy:
