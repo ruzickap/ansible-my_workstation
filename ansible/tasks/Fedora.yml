@@ -1025,7 +1025,7 @@
 
       eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 
-      PATH="${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:/usr/lib/qtchooser:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
+      PATH="${HOME}/.krew/bin:${HOME}/bin:/usr/lib/qtchooser:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
       export PATH
       {% endraw %}
 

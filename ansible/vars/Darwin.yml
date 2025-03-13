@@ -2,7 +2,7 @@
 # Items to add to the dock
 dock_add_items:
   - /Applications/iTerm.app
-  - /Applications/Google Chrome.app
+  - /Applications/Brave Browser Beta.app
 
 # The Dock icons size
 dock_icons_size: 36.0
@@ -41,7 +41,6 @@ homebrew_packages:
   - cloudflared # needed for ssh with cloudflare tunnels
   - colima
   - commitizen # git cz commands...
-  - coreutils
   - dive
   - docker-buildx
   - dockutil
@@ -49,7 +48,6 @@ homebrew_packages:
   - eks-node-viewer
   - eksctl
   - exiftool
-  - findutils
   - fzf
   - g-ls # ls replacement
   - gawk
@@ -93,6 +91,9 @@ homebrew_packages:
   - tfupdate
   - tig
   - trivy
+  - uutils-coreutils
+  - uutils-diffutils
+  - uutils-findutils
   - watch
   - wget
   - wifi-password
@@ -100,7 +101,6 @@ homebrew_packages:
   - yq
   - yt-dlp
   - zoxide
-  - zsh-autosuggestions
   - zsh-syntax-highlighting
   # keep-sorted end
 
