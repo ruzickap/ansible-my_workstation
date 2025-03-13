@@ -464,7 +464,7 @@
       export MANPATH="${MY_GENERATED_MAN}${MANPATH}"
 
       # Enable binaries for node, krew and ~/bin
-      export PATH="/usr/local/bin:${HOME}/node_modules/.bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
+      export PATH="/usr/local/bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
       export GOPATH="${HOME}/go"
 
       alias cat="bat --style=plain --paging=never"
