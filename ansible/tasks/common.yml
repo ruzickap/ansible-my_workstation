@@ -83,6 +83,7 @@
         path: ~/.config/mc/
         state: directory
         mode: u=rwx,g=rx,o=rx
+      tags: mc
 
     - name: Create ~/.config/mc/ini file
       community.general.ini_file:
@@ -116,15 +117,17 @@
           option: navigate_with_arrows
           value: "true"
         # keep-sorted end
+      tags: mc
 
     - name: Copy mc.ext.ini to the ~/.config/mc/
       ansible.builtin.copy:
         src: "{{ homebrew_prefix }}/opt/mc/etc/mc/mc.ext.ini"
         dest: ~/.config/mc/mc.ext.ini
         remote_src: true
-        force: false
         mode: u=rw,g=r,o=r
       when: ansible_system == 'Darwin'
+      changed_when: false
+      tags: mc
 
     - name: Change default in ~/.config/mc/mc.ext.ini
       community.general.ini_file:
@@ -161,12 +164,26 @@
           option: View
           value: "%view{ascii} exiftool %p"
         # keep-sorted end
+      changed_when: false
+      tags: mc
+
+    - name: Replace some scripts by "open"
+      ansible.builtin.replace:
+        dest: ~/.config/mc/mc.ext.ini
+        regexp: "Open={{ homebrew_prefix }}.*/(doc.sh|image.sh|sound.sh|video.sh) open.*"
+        replace: "Open=(open %f &)"
+      when: ansible_system == 'Darwin'
+      changed_when: false
+      tags: mc
 
     - name: Replace version specific directories
       ansible.builtin.replace:
         dest: ~/.config/mc/mc.ext.ini
-        regexp: "${{ homebrew_prefix }}/Cellar/midnight-commander/.*/libexec/"
-        replace: "${{ homebrew_prefix }}/opt/midnight-commander/libexec/"
+        regexp: "{{ homebrew_prefix }}Cellar/midnight-commander/.*/libexec/"
+        replace: "{{ homebrew_prefix }}opt/midnight-commander/libexec/"
+      when: ansible_system == 'Darwin'
+      changed_when: false
+      tags: mc
 
     - name: Create directory ~/.config for the {{ ansible_user_id }}
       ansible.builtin.file:
@@ -175,6 +192,7 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid | string }}"
         mode: u=rwx,g=,o=
+      tags: mcs
 
     - name: Copy mc configuration to to User's home directory
       ansible.builtin.copy:
@@ -184,8 +202,10 @@
         group: "{{ ansible_user_gid | string }}"
         remote_src: true
         mode: u=rwx,g=rx,o=rx
+      changed_when: false
+      tags: mc
 
-    - name: Place public ssh to autorized_key for root and {{ ansible_user_id }}
+    - name: Place public ssh to authorized_key for root and {{ ansible_user_id }}
       ansible.posix.authorized_key:
         user: "{{ item }}"
         key: https://github.com/{{ github_username }}.keys

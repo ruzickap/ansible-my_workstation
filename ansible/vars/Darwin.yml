@@ -30,6 +30,7 @@ homebrew_casks:
 
 homebrew_packages:
   # keep-sorted start
+  - ab-av1
   - ansible
   - atuin
   - awscli
