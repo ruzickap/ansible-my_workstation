@@ -1,5 +1,5 @@
 {
-  "[ keep-sorted start block=yes ]": true,
+  // keep-sorted start block=yes
   "[json][markdown][yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -40,6 +40,7 @@
     "plaintext": true,
     "markdown": true
   },
+  // https://github.com/microsoft/vscode-pull-request-github/issues/3364
   "githubPullRequests.createDraft": true,
   "githubPullRequests.defaultMergeMethod": "squash",
   "githubPullRequests.pullBranch": "never",
@@ -61,6 +62,6 @@
     "*.md": "default"
   },
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "newUntitledFile",
-  "zzz [ keep-sorted end ]": true
+  "workbench.startupEditor": "newUntitledFile"
+  // keep-sorted end
 }
