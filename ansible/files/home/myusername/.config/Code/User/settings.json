@@ -1,9 +1,10 @@
 {
-  "[markdown]": {
-    "editor.wordWrap": "off"
-  },
+  // keep-sorted start block=yes
   "[json][markdown][yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "off"
   },
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform",
@@ -29,12 +30,22 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
   "git.openRepositoryInParentFolders": "always",
+  "git.postCommitCommand": "push",
+  "git.rebaseWhenSync": true,
+  "git.suggestSmartCommit": false,
   "github.copilot.enable": {
     "*": true,
     "plaintext": true,
     "markdown": true
   },
+  // https://github.com/microsoft/vscode-pull-request-github/issues/3364
+  "githubPullRequests.createDraft": true,
+  "githubPullRequests.defaultMergeMethod": "squash",
+  "githubPullRequests.pullBranch": "never",
+  "githubPullRequests.pullRequestDescription": "Copilot",
+  "githubPullRequests.pushBranch": "always",
   "go.toolsManagement.autoUpdate": true,
   "redhat.telemetry.enabled": true,
   "security.workspace.trust.enabled": false,
@@ -51,6 +62,6 @@
     "*.md": "default"
   },
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "newUntitledFile",
-  "git.autofetch": true
+  "workbench.startupEditor": "newUntitledFile"
+  // keep-sorted end
 }

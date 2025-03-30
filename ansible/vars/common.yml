@@ -3,6 +3,7 @@ code_extensions:
   # keep-sorted start
   - DavidAnson.vscode-markdownlint
   - GitHub.copilot
+  - GitHub.vscode-github-actions
   - Tyriar.sort-lines
   - adamhartford.vscode-base64
   - antfu.slidev
@@ -10,6 +11,7 @@ code_extensions:
   - bierner.markdown-preview-github-styles
   - esbenp.prettier-vscode
   - github.vscode-github-actions
+  - github.vscode-pull-request-github
   - golang.go
   - hashicorp.terraform
   - redhat.vscode-yaml
