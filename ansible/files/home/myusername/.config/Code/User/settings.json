@@ -1,5 +1,5 @@
 {
-  // keep-sorted start block=yes
+  "[ keep-sorted start block=yes ]": true,
   "[json][markdown][yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -62,6 +62,5 @@
   },
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "newUntitledFile",
-  "zzz_my_last_line_without_comma": "my_last_line_without_comma"
-  // keep-sorted end
+  "zzz [ keep-sorted end ]": true
 }
