@@ -813,12 +813,6 @@
     state: directory
     mode: u=rwx,g=rx,o=rx
 
-- name: Create directory for infat inside ~/.config
-  ansible.builtin.file:
-    path: ~/.config/infat/
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
 - name: Create ~/.config/infat/config.toml file
   community.general.ini_file:
     path: ~/.config/infat/config.toml
