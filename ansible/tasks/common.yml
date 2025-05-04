@@ -222,20 +222,6 @@
 # Run as user
 ###############################
 
-- name: Install SpaceVim
-  ansible.builtin.shell: |
-    set -o pipefail
-    curl -sLf https://spacevim.org/install.sh | bash -s -- --install vim
-  args:
-    creates: ~/.SpaceVim
-
-- name: Create SpaceVim configuration file ~/.SpaceVim.d
-  ansible.builtin.copy:
-    src: files/home/myusername/.SpaceVim.d
-    dest: ~/
-    directory_mode: u=rwx,g=rx,o=rx
-    mode: u=rw,g=r,o=r
-
 - name: Create VirtualBox config directory
   ansible.builtin.file:
     path: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
