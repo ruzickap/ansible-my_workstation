@@ -32,6 +32,10 @@
     daemon_reload: true
   become: true
 
+- name: Run infat
+  ansible.builtin.command: infat
+  changed_when: false
+
 - name: Set default printer
   ansible.builtin.command: lpoptions -d "{{ printer_name }}"
   changed_when: false
