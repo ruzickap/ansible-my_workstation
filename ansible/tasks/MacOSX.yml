@@ -718,10 +718,7 @@
   ansible.builtin.uri:
     url: https://api.github.com/repos/exelban/stats/releases/latest
     return_content: true
-    headers:
-      Authorization: "Bearer {{ ansible_env.GITHUB_TOKEN }}"
   register: stats_release_data
-  no_log: true
 
 - name: Configure Stats
   community.general.osx_defaults:
