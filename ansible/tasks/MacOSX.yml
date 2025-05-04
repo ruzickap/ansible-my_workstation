@@ -713,6 +713,73 @@
     # keep-sorted end
   tags: skip_idempotence_test
 
+- name: Create directory for Colima
+  ansible.builtin.file:
+    path: ~/.colima/_templates/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure Colima
+  ansible.builtin.copy:
+    src: files/Users/myusername/.colima/_templates/default.yaml
+    dest: ~/.colima/_templates/default.yaml
+    mode: u=rw,g=r,o=r
+
+- name: Configure Chrome
+  community.general.osx_defaults:
+    domain: com.google.Chrome
+    key: "{{ item.key }}"
+    type: bool
+    value: "{{ item.value }}"
+  loop:
+    - key: AppleEnableSwipeNavigateWithScrolls
+      value: "FALSE"
+
+- name: Create directory for infat inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/infat/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Create directory for infat inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/infat/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Create ~/.config/infat/config.toml file
+  community.general.ini_file:
+    path: ~/.config/infat/config.toml
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - section: types
+      option: audio
+      value: '"mpv"'
+    - section: types
+      option: movie
+      value: '"mpv"'
+    - section: types
+      option: mp4-audio
+      value: '"mpv"'
+    - section: types
+      option: mp4-movie
+      value: '"mpv"'
+    - section: types
+      option: plain-text
+      value: '"Visual Studio Code"'
+    - section: types
+      option: sourcecode
+      value: '"Visual Studio Code"'
+    - section: types
+      option: text
+      value: '"Visual Studio Code"'
+    # keep-sorted end
+  notify: Run infat
+
 # https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
 - name: Get latest release of Stats
   ansible.builtin.uri:
@@ -781,73 +848,6 @@
     - key: version
       value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
     # keep-sorted end
-
-- name: Create directory for Colima
-  ansible.builtin.file:
-    path: ~/.colima/_templates/
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Configure Colima
-  ansible.builtin.copy:
-    src: files/Users/myusername/.colima/_templates/default.yaml
-    dest: ~/.colima/_templates/default.yaml
-    mode: u=rw,g=r,o=r
-
-- name: Configure Chrome
-  community.general.osx_defaults:
-    domain: com.google.Chrome
-    key: "{{ item.key }}"
-    type: bool
-    value: "{{ item.value }}"
-  loop:
-    - key: AppleEnableSwipeNavigateWithScrolls
-      value: "FALSE"
-
-- name: Create directory for infat inside ~/.config
-  ansible.builtin.file:
-    path: ~/.config/infat/
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Create directory for infat inside ~/.config
-  ansible.builtin.file:
-    path: ~/.config/infat/
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Create ~/.config/infat/config.toml file
-  community.general.ini_file:
-    path: ~/.config/infat/config.toml
-    section: "{{ item.section }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    mode: u=rw,g=r,o=r
-  loop:
-    # keep-sorted start
-    - section: types
-      option: audio
-      value: '"mpv"'
-    - section: types
-      option: movie
-      value: '"mpv"'
-    - section: types
-      option: mp4-audio
-      value: '"mpv"'
-    - section: types
-      option: mp4-movie
-      value: '"mpv"'
-    - section: types
-      option: plain-text
-      value: '"Visual Studio Code"'
-    - section: types
-      option: sourcecode
-      value: '"Visual Studio Code"'
-    - section: types
-      option: text
-      value: '"Visual Studio Code"'
-    # keep-sorted end
-  notify: Run infat
 
 ################################################
 # Interactive (can not be "automated")
