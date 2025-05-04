@@ -713,6 +713,78 @@
     # keep-sorted end
   tags: skip_idempotence_test
 
+# https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
+- name: Get latest release of Stats
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/exelban/stats/releases/latest
+    return_content: true
+    headers:
+      Authorization: "Bearer {{ ansible_env.GITHUB_TOKEN }}"
+  register: stats_release_data
+  no_log: true
+
+- name: Configure Stats
+  community.general.osx_defaults:
+    domain: eu.exelban.Stats
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    # keep-sorted start
+    - key: Battery_battery_additional
+      value: innerPercentage
+    - key: Battery_notifications_low
+      value: 0.03
+    - key: CPU_line_chart_box
+      value: 0
+    - key: CPU_line_chart_color
+      value: utilization
+    - key: CPU_line_chart_frame
+      value: 1
+    - key: CPU_line_chart_label
+      value: 1
+    - key: CPU_widget
+      value: line_chart
+    - key: CombinedModules
+      type: bool
+      value: 0
+    - key: Disk_removable
+      value: 1
+    - key: Disk_speed_reverseOrder
+      value: 1
+    - key: Disk_speed_transparentIcons
+      value: 1
+    - key: Disk_speed_valueColor
+      value: 1
+    - key: Disk_widget
+      value: speed
+    - key: Network_speed_icon
+      value: chars
+    - key: Network_speed_reverseOrder
+      value: 1
+    - key: Network_speed_transparentIcons
+      value: 1
+    - key: Network_speed_valueColor
+      value: 1
+    - key: RAM_line_chart_box
+      value: 0
+    - key: RAM_line_chart_color
+      value: pressure
+    - key: RAM_line_chart_frame
+      value: 1
+    - key: RAM_line_chart_label
+      value: 1
+    - key: RAM_widget
+      value: line_chart
+    - key: setupProcess
+      type: bool
+      value: 1
+    - key: update-interval
+      value: Never
+    - key: version
+      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
+    # keep-sorted end
+
 - name: Create directory for Colima
   ansible.builtin.file:
     path: ~/.colima/_templates/
@@ -779,75 +851,6 @@
       value: '"Visual Studio Code"'
     # keep-sorted end
   notify: Run infat
-
-# https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
-- name: Get latest release of Stats
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/exelban/stats/releases/latest
-    return_content: true
-  register: stats_release_data
-
-- name: Configure Stats
-  community.general.osx_defaults:
-    domain: eu.exelban.Stats
-    key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
-    value: "{{ item.value }}"
-  loop:
-    # keep-sorted start
-    - key: Battery_battery_additional
-      value: innerPercentage
-    - key: Battery_notifications_low
-      value: 0.03
-    - key: CPU_line_chart_box
-      value: 0
-    - key: CPU_line_chart_color
-      value: utilization
-    - key: CPU_line_chart_frame
-      value: 1
-    - key: CPU_line_chart_label
-      value: 1
-    - key: CPU_widget
-      value: line_chart
-    - key: CombinedModules
-      type: bool
-      value: 0
-    - key: Disk_removable
-      value: 1
-    - key: Disk_speed_reverseOrder
-      value: 1
-    - key: Disk_speed_transparentIcons
-      value: 1
-    - key: Disk_speed_valueColor
-      value: 1
-    - key: Disk_widget
-      value: speed
-    - key: Network_speed_icon
-      value: chars
-    - key: Network_speed_reverseOrder
-      value: 1
-    - key: Network_speed_transparentIcons
-      value: 1
-    - key: Network_speed_valueColor
-      value: 1
-    - key: RAM_line_chart_box
-      value: 0
-    - key: RAM_line_chart_color
-      value: pressure
-    - key: RAM_line_chart_frame
-      value: 1
-    - key: RAM_line_chart_label
-      value: 1
-    - key: RAM_widget
-      value: line_chart
-    - key: setupProcess
-      type: bool
-      value: 1
-    - key: update-interval
-      value: Never
-    - key: version
-      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
-    # keep-sorted end
 
 ################################################
 # Interactive (can not be "automated")
