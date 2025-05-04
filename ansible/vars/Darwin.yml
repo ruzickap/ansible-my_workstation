@@ -63,6 +63,7 @@ homebrew_packages:
   - helm
   - htop
   - imagemagick
+  - infat
   - iproute2mac
   - jq
   - k9s

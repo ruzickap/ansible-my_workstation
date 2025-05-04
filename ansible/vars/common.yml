@@ -1,22 +1,20 @@
 # keep-sorted start newline_separated=yes
 code_extensions:
   # keep-sorted start
-  - DavidAnson.vscode-markdownlint
-  - GitHub.copilot
-  - GitHub.vscode-github-actions
-  - Tyriar.sort-lines
   - adamhartford.vscode-base64
   - antfu.slidev
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
+  - davidanson.vscode-markdownlint
   - esbenp.prettier-vscode
+  - github.copilot
   - github.vscode-github-actions
   - github.vscode-pull-request-github
-  - golang.go
   - hashicorp.terraform
+  - hverlin.mise-vscode
   - redhat.vscode-yaml
   - streetsidesoftware.code-spell-checker
-  - wizcloud.wiz-vscode
+  - tyriar.sort-lines
   - yzhang.markdown-all-in-one
   # keep-sorted end
 

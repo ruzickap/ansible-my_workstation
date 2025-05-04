@@ -1,25 +1,4 @@
-[user]
-    name = Petr Ruzicka
-    email = petr.ruzicka@gmail.com
-    signingkey = ~/.ssh/id_ed25519.pub
-
-[init]
-    defaultBranch = main
-
-[gpg]
-    format = ssh
-
-[tag]
-    gpgsign = true
-
-[core]
-    pager = delta
-    editor = vim
-
-# https://switowski.com/blog/configuring-git
-[push]
-    default = current
-
+# keep-sorted start newline_separated=yes
 [alias]
     authors = log --pretty=format:'%an <%ae>'
     df = diff
@@ -42,11 +21,6 @@
     ci = commit
     st = status
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
-    #squash = "!f(){ git reset --soft HEAD~${1} && git commit --edit -m\"$(git log --format=%B --reverse HEAD..HEAD@{1})\";};f"
-
-[commit]
-    verbose = true
-    gpgsign = true
 
 [color "branch"]
     current = yellow reverse
@@ -58,11 +32,22 @@
     changed = yellow bold
     untracked = green bold
 
-# https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
-[submodule]
-    recurse = true
+[commit]
+    verbose = true
+    gpgsign = true
 
-# https://github.com/dandavison/delta
+[core]
+    pager = delta
+    editor = vim
+
+[credential "https://gist.github.com"]
+    helper =.
+    helper = !/opt/homebrew/bin/gh auth git-credential
+
+[credential "https://github.com"]
+    helper =.
+    helper = !/opt/homebrew/bin/gh auth git-credential
+
 [delta]
     # https://dandavison.github.io/delta/side-by-side-view.html
     # side-by-side = true
@@ -74,30 +59,39 @@
     hyperlinks = true
     hyperlinks-file-link-format = "vscode://file/{path}:{line}"
 
+[diff "exif"]
+  textconv = exiftool
+
 # https://dandavison.github.io/delta/color-moved-support.html
 [diff]
     colorMoved = default
-
-#[diff "sopsdiffer"]
-#    textconv = sops -d
-
-# [format]
-#     signoff = true
-# [tag]
-# 	gpgsign = true
-# [gpg "x509"]
-# 	program = gitsign
-# [gpg]
-# 	format = x509
-# [gitsign]
-# 	connectorID = https://accounts.google.com
-
-# [url "ssh://git@github.com"]
-#   insteadOf = https://github.com
 
 # Needed for GitHub verified commits: https://stackoverflow.com/questions/72844616/how-do-i-sign-git-commits-using-my-existing-ssh-key
 [gpg "ssh"]
     allowedSignersFile = ~/.config/git/allowed_signers
 
-[diff "exif"]
-  textconv = exiftool
+[gpg]
+    format = ssh
+
+[grep]
+    lineNumber = true
+
+[init]
+    defaultBranch = main
+
+# https://switowski.com/blog/configuring-git
+[push]
+    default = current
+
+# https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
+[submodule]
+    recurse = true
+
+[tag]
+    gpgsign = true
+
+[user]
+    name = Petr Ruzicka
+    email = petr.ruzicka@gmail.com
+    signingkey = ~/.ssh/id_ed25519.pub
+# keep-sorted end

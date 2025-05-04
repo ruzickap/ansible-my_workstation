@@ -43,4 +43,8 @@
     dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
   changed_when: false
   become: true
+
+- name: infat
+  ansible.builtin.command: infat
+  changed_when: false
 # keep-sorted end
