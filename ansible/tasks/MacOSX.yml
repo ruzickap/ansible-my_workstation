@@ -850,7 +850,7 @@
       option: text
       value: '"Visual Studio Code"'
     # keep-sorted end
-  notify: infat
+  notify: Run infat
 
 ################################################
 # Interactive (can not be "automated")
