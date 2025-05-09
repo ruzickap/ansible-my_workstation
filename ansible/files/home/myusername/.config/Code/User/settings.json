@@ -43,6 +43,10 @@
   "files.trimTrailingWhitespace": true,
   // Automatically do `git fetch` - https://stackoverflow.com/questions/68959453/automatically-fetching-files-in-git
   "git.autofetch": true,
+  // Deny commits directly to main - https://www.youtube.com/watch?v=Ck3FGbRyfjg
+  "git.branchProtection": ["main"],
+  // Always prompt to create a new branch when committing - https://www.youtube.com/watch?v=Ck3FGbRyfjg
+  "git.branchProtectionPrompt": "alwaysCommitToNewBranch",
   // Disable confirmation before synchronizing git repositories - https://www.youtube.com/watch?v=kii_qIq0nSU
   "git.confirmSync": false,
   // ignores the warning when it looks like the branch might have been rebased when pulling - https://code.visualstudio.com/docs/reference/default-settings
@@ -87,6 +91,7 @@
   "workbench.activityBar.location": "top",
   // disable preview file with single-click - https://stackoverflow.com/questions/40336583/how-to-disable-preview-file-with-single-click-in-vs-code
   "workbench.editor.enablePreview": false,
+  "workbench.iconTheme": "material-icon-theme",
   // "workbench.editor.enablePreview": false,
   // "workbench.editorAssociations": {
   //   "*.md": "default"

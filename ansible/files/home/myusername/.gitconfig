@@ -38,7 +38,7 @@
 
 [core]
     pager = delta
-    editor = vim
+    editor = nvim
 
 [credential "https://gist.github.com"]
     helper =.
