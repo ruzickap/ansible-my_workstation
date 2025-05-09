@@ -12,6 +12,8 @@ code_extensions:
   - github.vscode-pull-request-github
   - hashicorp.terraform
   - hverlin.mise-vscode
+  - mechatroner.rainbow-csv
+  - pkief.material-icon-theme
   - redhat.vscode-yaml
   - streetsidesoftware.code-spell-checker
   - tyriar.sort-lines

@@ -222,6 +222,13 @@
 # Run as user
 ###############################
 
+- name: Install NvChad
+  ansible.builtin.git:
+    repo: "https://github.com/NvChad/starter"
+    dest: ~/.config/nvim
+    depth: 1
+    single_branch: true
+
 - name: Create VirtualBox config directory
   ansible.builtin.file:
     path: "{% if ansible_system == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
