@@ -62,7 +62,7 @@ jobs:
           fi
 
       # https://apple.stackexchange.com/questions/313130/with-brew-how-do-i-only-list-packages-that-were-built-from-source-not-poured-f
-      - name: List brew packages that were built from source (deally empty)
+      - name: List brew packages that were built from source (ideally empty)
         run: |
           brew info --json=v1 --installed | jq -r "map(select(.installed[].poured_from_bottle | not) | .name) | unique | .[]"
 

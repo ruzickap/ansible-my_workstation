@@ -8,7 +8,7 @@ Configure my laptop with Ansible.
 ## MacOS Sonoma 14.2
 
 * Initialize new MacBook Air 13.6" with macOS Sonoma 14.2
-* Remove all applications which were preinstalled like "Box Sync", "Outlook",
+* Remove all applications that were preinstalled like "Box Sync", "Outlook",
   "OneDrive", "think-cell", ...
 * Install [Brew](https://brew.sh/)
 * Install Ansible: `brew install ansible`
@@ -19,7 +19,7 @@ Configure my laptop with Ansible.
 ### Manual configurations
 
 * Google Chrome + configure it (login, extensions, sync, ...)
-  * uBock Origin -> Filter lists -> CZ
+  * uBlock Origin -> Filter lists -> CZ
   * Google Translate -> My preferred languages -> Czech
   * Refined GitHub -> Personal token
   * Notifier for Gmail ->
@@ -100,8 +100,9 @@ dd if=~/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=
 
 Boot the USB stick...
 
-After the installation finish use `xxxx` as password to unlock the Disk (LUKS)
-and login as `pruzicka` with `xxxx` password. Then run command:
+After the installation is finished, use `xxxx` as the password
+to unlock the Disk (LUKS)
+and log in as `pruzicka` with the `xxxx` password. Then run the command:
 
 ```bash
 /var/tmp/run.sh
@@ -109,7 +110,7 @@ and login as `pruzicka` with `xxxx` password. Then run command:
 
 ## MacOS Catalina 10.5
 
-Install new macOS Catalina 10.5 and enable ssh server:
+Install macOS Catalina 10.5 and enable the SSH server:
 
 * System Preferences from the Apple menu -> System Preferences -> Sharing
   -> Remote Login (checkbox)
@@ -120,12 +121,13 @@ Install new macOS Catalina 10.5 and enable ssh server:
   sudo systemsetup -setremotelogin on
   ```
 
-* Remove all applications which were preinstalled like "Google Chrome", "Zoom",
+* Remove all applications that were preinstalled, such as
+  "Google Chrome", "Zoom",
   "Slack", "Box Sync" or `~/.vim`.
 
-* Ensure `sudo su` will give you the "root" access.
+* Ensure `sudo su` gives you "root" access.
 
-Use [Ansible](https://www.ansible.com/) to install+configure the software:
+Use [Ansible](https://www.ansible.com/) to install and configure the software:
 
 ```bash
 ./run_ansible_macos_workstation-local.sh
@@ -133,26 +135,27 @@ Use [Ansible](https://www.ansible.com/) to install+configure the software:
 ./run_ansible_my_workstation-local-mac.sh
 ```
 
-Logout or better restart your macOS.
+Log out or restart your macOS.
 
-### Configurations which needs to be done manually
+### Configurations that need to be done manually
 
-There are few things which can not be done via scripts and must be done
+There are a few things that cannot be done via script and must be done
 manually in Catalina:
 
 * iCloud - enable "Find My Mac" only
 * Internet Accounts - add Gmail account - enable "Calendars"
 * Google Chrome (Login to Google services)
-* IINA - prioritize external subs: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
+* IINA - prioritize external subtitles: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
 * IINA - set as default video player
 * iTerm2 - make iTerm2 default term
 * Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
   `~/Documents/backups/backup` binary (recompile it if needed)
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
-* For recording the audio from Zoom - create Multi-Output device with Master
+* For recording audio from Zoom, create a Multi-Output device with Master
   Device "Jabra Engage 75 2", Sample Rate: "48.0 KHz", Drift correction turned
-  on for "BlackHole 16". Then you can use this as default output device in
+  on for "BlackHole 16". Then
+  you can use this as the default output device in
   "Sound".
-  Do not use "Jabra Engage 75" (microfone) as Input, because it can only use
-  16 KHz and breaks the recording settings...
+  Do not use "Jabra Engage 75" (microphone) as Input, because it can only use
+  16 KHz and adversely affects the recording settings...
 * Load extensions into Chrome: `~/Documents/chrome-extensions`

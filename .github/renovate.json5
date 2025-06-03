@@ -4,7 +4,7 @@
   "git-submodules": {
     enabled: true,
   },
-  // Keep the extends started with ":" at the end of the list to allow overriding
+  // Keep items in 'extends' that start with ':' at the end of the list to allow overriding
   extends: [
     "config:recommended",
     "docker:pinDigests",

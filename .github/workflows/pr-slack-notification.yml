@@ -65,7 +65,7 @@ jobs:
     name: Adds emoji reaction to slack message when a PR is closed or reviewed
     if: ${{ startsWith(github.event.pull_request.html_url, 'https') || startsWith(github.event.issue.pull_request.html_url, 'https') }}
     steps:
-      # gh commands needs to be executed in the repository
+      # gh commands need to be executed in the repository
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 

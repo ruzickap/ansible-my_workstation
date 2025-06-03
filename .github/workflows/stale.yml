@@ -32,5 +32,5 @@ jobs:
           stale-pr-label: stale
           stale-pr-message: |
             This PR is stale because it has been open 60 days with no activity.
-            Remove stale label or comment or this will be closed in 7 days.
+            Remove stale label or comment or this will be closed in 7 days
           # keep-sorted end
