@@ -100,8 +100,8 @@ dd if=~/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=
 
 Boot the USB stick...
 
-After the installation is finished, use `xxxx` as the password to unlock the 
-Disk (LUKS) and log in as `pruzicka` with the `xxxx` password. Then run the 
+After the installation is finished, use `xxxx` as the password to unlock the
+Disk (LUKS) and log in as `pruzicka` with the `xxxx` password. Then run the
 command:
 
 ```bash
@@ -121,7 +121,7 @@ Install macOS Catalina 10.5 and enable the SSH server:
   sudo systemsetup -setremotelogin on
   ```
 
-* Remove all applications that were preinstalled, such as "Google Chrome", 
+* Remove all applications that were preinstalled, such as "Google Chrome",
   "Zoom", "Slack", "Box Sync" or `~/.vim`.
 
 * Ensure `sudo su` gives you "root" access.
