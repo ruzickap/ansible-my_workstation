@@ -100,9 +100,9 @@ dd if=~/Documents/iso/Fedora-Server-netinst-x86_64-32-1.6-my.iso of=/dev/sdb bs=
 
 Boot the USB stick...
 
-After the installation is finished, use `xxxx` as the password
-to unlock the Disk (LUKS)
-and log in as `pruzicka` with the `xxxx` password. Then run the command:
+After the installation is finished, use `xxxx` as the password to unlock the 
+Disk (LUKS) and log in as `pruzicka` with the `xxxx` password. Then run the 
+command:
 
 ```bash
 /var/tmp/run.sh
@@ -121,9 +121,8 @@ Install macOS Catalina 10.5 and enable the SSH server:
   sudo systemsetup -setremotelogin on
   ```
 
-* Remove all applications that were preinstalled, such as
-  "Google Chrome", "Zoom",
-  "Slack", "Box Sync" or `~/.vim`.
+* Remove all applications that were preinstalled, such as "Google Chrome", 
+  "Zoom", "Slack", "Box Sync" or `~/.vim`.
 
 * Ensure `sudo su` gives you "root" access.
 
@@ -153,8 +152,7 @@ manually in Catalina:
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
 * For recording audio from Zoom, create a Multi-Output device with Master
   Device "Jabra Engage 75 2", Sample Rate: "48.0 KHz", Drift correction turned
-  on for "BlackHole 16". Then
-  you can use this as the default output device in
+  on for "BlackHole 16". Then you can use this as the default output device in
   "Sound".
   Do not use "Jabra Engage 75" (microphone) as Input, because it can only use
   16 KHz and adversely affects the recording settings...
