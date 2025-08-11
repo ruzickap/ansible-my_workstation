@@ -12,6 +12,10 @@
     "editor.defaultFormatter": "hashicorp.terraform",
     "editor.formatOnSave": true
   },
+  // Disable the "Maximum Word Length Exceeded" notification from cSpell extension
+  "cSpell.enabledNotifications": {
+    "Maximum Word Length Exceeded": false
+  },
   // disable auto-quote feature - https://stackoverflow.com/questions/48714304/visual-studio-code-disable-auto-quote
   "editor.autoClosingQuotes": "never",
   // prevent the auto-indentation on paste - https://josh-ops.com/posts/vscode-yaml-indenting/
@@ -56,7 +60,7 @@
   "git.postCommitCommand": "push",
   // commit only staged files - https://stackoverflow.com/questions/76250716/in-vs-code-is-there-a-way-to-configure-source-control-so-that-i-must-stage-file
   "git.suggestSmartCommit": false,
-  // https://timdeschryver.dev/blog/gain-control-over-commit-messages-generated-by-github-copilot | https://gist.github.com/okineadev/8a3f392a93ae50e8d523e4ba7f9f9ac3
+  // https://timdeschryver.dev/blog/gain-control-over-commit-messages-generated-by-github-copilot
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
       // "text": "Follow the Conventional Commits format for commit messages. Use the structure below:\n\n```\n<type>[optional scope]: <description>\n\n[optional body]\n```\n\nGuidelines:\n\n1. **Type and Scope**: Choose an appropriate type (e.g., `feat`, `fix`).\n\n2. **Description**: Write a concise, informative description in the header; use backticks if referencing code or specific terms.\n\n3. **Body**: For additional details, use a well-structured body section:\n   - Use bullet points (`*`) for clarity.\n   - Clearly describe the motivation, context, or technical details behind the change, if applicable.\n\nCommit messages should be clear, informative, and professional, aiding readability and project tracking and each line of the commit message can not exceed 80 characters."

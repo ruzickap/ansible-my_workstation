@@ -284,7 +284,7 @@
       ansible.builtin.fail:
         msg: Wifi configuration failed !!!
 
-# https://www.jamf.com/jamf-nation/discussions/33942/disable-reopen-windows-when-logging-back-in-mojave-and-higher
+# https://community.jamf.com/general-discussions-2/disable-reopen-windows-when-logging-back-in-mojave-and-higher-8325
 - name: Disable Reopen Windows When Logging Back
   community.general.osx_defaults:
     domain: com.apple.loginwindow
@@ -468,7 +468,6 @@
       export GOPATH="${HOME}/go"
 
       alias cat="bat --style=plain --paging=never"
-      alias cd="z"
       alias dos2unix="sed -i 's/\r$//'"
       # Show complete history with timestamp
       alias history="history -i 0"
@@ -482,8 +481,10 @@
       # unset GITHUB_TOKEN from gh's process environment and run gh command - see https://stackoverflow.com/a/41749660 & https://github.com/cli/cli/issues/3799 for more.
       alias gh="env -u GITHUB_TOKEN gh $1"
 
-      export PAGER="bat --style=plain --paging=never"
       export DELTA_PAGER="bat --style=plain"
+      export EDITOR='nvim'
+      export SOPS_EDITOR='code --wait'
+      export PAGER="bat --style=plain --paging=never"
 
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
