@@ -1,1 +1,2 @@
-https://mirrors.rpmfusion.org/.*/fedora/rpmfusion-.*-release-
+https://mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
+file://
