@@ -19,7 +19,7 @@ permissions: read-all
 
 jobs:
   macos:
-    runs-on: macos-26
+    runs-on: macos-latest
     timeout-minutes: 100
     steps:
       - name: Uninstall Homebrew packages
