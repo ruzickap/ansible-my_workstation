@@ -59,5 +59,9 @@ krew_plugins:
 
 my_hostname: peru.xvx.cz
 
+postfix_form: petr.ruzicka@mylabs.dev
+
+postfix_relayhost: live.smtp.mailtrap.io:2525
+
 raspi_hostname: raspi.xvx.cz
 # keep-sorted end

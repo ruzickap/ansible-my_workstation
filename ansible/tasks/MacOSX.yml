@@ -395,7 +395,7 @@
 ################################################
 
 - name: Install oh-my-zsh
-  ansible.builtin.shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  ansible.builtin.shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   args:
     creates: ~/.oh-my-zsh
 
@@ -469,7 +469,6 @@
 
       alias cat="bat --style=plain --paging=never"
       alias dos2unix="sed -i 's/\r$//'"
-      # Show complete history with timestamp
       alias history="history -i 0"
       alias ls="g --hyperlink=never --time-style=long-iso"
       alias mc='SHELL=/bin/bash source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
@@ -478,8 +477,7 @@
       compdef kubecolor=kubectl
       alias tree="g --hyperlink=never --time-style=long-iso --tree"
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
-      # unset GITHUB_TOKEN from gh's process environment and run gh command - see https://stackoverflow.com/a/41749660 & https://github.com/cli/cli/issues/3799 for more.
-      alias gh="env -u GITHUB_TOKEN gh $1"
+      alias vim='nvim'
 
       export DELTA_PAGER="bat --style=plain"
       export EDITOR='nvim'
@@ -521,6 +519,9 @@
 
       # Mise activation
       eval "$(mise activate zsh)"
+
+      zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+      source <(carapace _carapace)
 
 ################################################
 # Application configuration
