@@ -43,6 +43,7 @@ Configure my laptop with Ansible.
 * Slack
 * VS Code - [Move Search to panel](https://stackoverflow.com/questions/50058584/vs-code-toggle-search-icon-in-activity-bar-move-from-panel-or-back)
 * iTerm2 -> Make iTerm2 Default Term
+* Messages -> Edit -> Spelling and Grammar -> "uncheck all"
 * OneDrive
 
   ```bash

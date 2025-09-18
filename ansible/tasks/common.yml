@@ -33,7 +33,9 @@
         - option: inet_protocols
           value: ipv4
         - option: relayhost
-          value: "[smtp.gmail.com]:587"
+          value: "{{ postfix_relayhost }}"
+        - option: sender_canonical_maps
+          value: "regexp:/etc/postfix/sender_canonical"
         - option: smtp_sasl_auth_enable
           value: "yes"
         - option: smtp_sasl_mechanism_filter
@@ -46,15 +48,25 @@
           value: "yes"
         # keep-sorted end
 
-    - name: Add gmail credentials /etc/postfix/sasl_passwd
-      ansible.builtin.template:
-        src: files/etc/postfix/sasl_passwd.j2
-        dest: /etc/postfix/sasl_passwd
+    - name: Add credentials /etc/postfix/sasl_passwd
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sasl_passwd
+        create: true
+        block: |
+          {{ postfix_relayhost }} {{ postfix_smtp_username }}:{{ postfix_smtp_password }}
         mode: u=rw,g=,o=
       notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
       no_log: true
       tags:
         - secrets
+
+    - name: Add from credentials /etc/postfix/sender_canonical
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sender_canonical
+        create: true
+        block: |
+          /.*/ {{ postfix_form }}
+        mode: u=rw,g=r,o=r
 
     - name: Add printer and make it default
       ansible.builtin.shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd -o auth-info-required=negotiate && sleep 1
