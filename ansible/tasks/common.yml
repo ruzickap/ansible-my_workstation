@@ -78,18 +78,6 @@
         - printer
         - skip_test
 
-    - name: Tweak screen
-      ansible.builtin.blockinfile:
-        dest: /etc/screenrc
-        create: true
-        block: |
-          defscrollback 10000
-          startup_message off
-          termcapinfo xterm ti@:te@
-          hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
-          vbell off
-        mode: u=rw,g=r,o=r
-
     - name: Create directory for mc inside ~/.config
       ansible.builtin.file:
         path: ~/.config/mc/
@@ -373,7 +361,7 @@
     creates: ~/.krew/store/{{ item }}
   loop: "{{ krew_plugins }}"
 
-- name: Create direcotry for KeePassXC settings
+- name: Create directory for KeePassXC settings
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -633,24 +621,22 @@
       value: "false"
     # keep-sorted end
 
-- name: Put VS Code configuation in place
+- name: Put Cursor configuration in place
   ansible.builtin.copy:
-    src: files/home/myusername/.config/Code
+    src: files/home/myusername/.config/Cursor
     dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
     directory_mode: u=rwx,g=rx,o=rx
     mode: u=rw,g=r,o=r
-  tags: vscode
 
-- name: Install the VS Code extensions
-  ansible.builtin.command: code --install-extension {{ item }}
+- name: Install the Cursor extensions
+  ansible.builtin.command: cursor --install-extension {{ item }}
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
   args:
-    creates: ~/.vscode/extensions/{{ item | lower }}*
-  loop: "{{ code_extensions }}"
-  tags: vscode
+    creates: ~/.cursor/extensions/{{ item | lower }}*
+  loop: "{{ cursor_extensions }}"
 
-- name: Tweak screen
+- name: Tweak sops
   ansible.builtin.blockinfile:
     dest: ~/.sops.yaml
     create: true

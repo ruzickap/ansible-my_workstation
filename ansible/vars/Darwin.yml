@@ -1,7 +1,7 @@
 # keep-sorted start newline_separated=yes
 # Items to add to the dock
 dock_add_items:
-  - /Applications/iTerm.app
+  - /Applications/iTerm.app # codespell:ignore
   - /Applications/Brave Browser Beta.app
 
 # The Dock icons size
@@ -11,9 +11,10 @@ homebrew_casks:
   # keep-sorted start
   - alt-tab
   - brave-browser@beta
+  - cursor
   - darktable
   - digikam
-  - font-meslo-lg-nerd-font # Needed for iTerm2 + Oh My Zsh Theme
+  - font-meslo-lg-nerd-font # Needed for iTerm2 + oh-my-zsh theme
   - hiddenbar
   - home-assistant
   - iterm2
@@ -25,7 +26,6 @@ homebrew_casks:
   - obs
   - stats
   - utm
-  - visual-studio-code
   # keep-sorted end
 
 homebrew_packages:
@@ -79,8 +79,9 @@ homebrew_packages:
   - mise
   - mpg123 # needed for mc to display mp3 files
   - nvim
+  - oh-my-posh
   - opentofu
-  - pre-commit
+  - prek
   - prettier
   - ratchet
   - rclone
@@ -105,6 +106,7 @@ homebrew_packages:
   - yq
   - yt-dlp
   - zoxide
+  - zsh-completions
   - zsh-syntax-highlighting
   # keep-sorted end
 

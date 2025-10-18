@@ -173,7 +173,7 @@
         replace: "options kvm_intel nested=1"
         mode: u=rw,g=r,o=r
 
-    - name: Chnage kernel settings using sysctl
+    - name: Change kernel settings using sysctl
       ansible.posix.sysctl:
         name: "{{ item.name }}"
         value: "{{ item.value }}"
@@ -238,7 +238,7 @@
         - option: PARALLEL_SHUTDOWN
           value: 10
 
-    - name: Chnage sddm config file (/etc/sddm.conf)
+    - name: Change sddm config file (/etc/sddm.conf)
       community.general.ini_file:
         path: /etc/sddm.conf
         no_extra_spaces: true
@@ -438,7 +438,7 @@
           ansible.builtin.fail:
             msg: Wifi configuration failed !!!
 
-    - name: Create bash completition file for rclone
+    - name: Create bash completion file for rclone
       ansible.builtin.command: rclone genautocomplete bash
       args:
         creates: /etc/bash_completion.d/rclone
@@ -507,7 +507,7 @@
     follow: false
     force: true
 
-- name: Create direcotries for konsole config (KDE)
+- name: Create directories for konsole config (KDE)
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -618,7 +618,7 @@
     - option: BatteryCriticalLevel
       value: 3
 
-- name: Chnage PowerManagement settings
+- name: Change PowerManagement settings
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -627,7 +627,7 @@
     - src: files/home/myusername/.config/powermanagementprofilesrc
       dest: ~/.config/powermanagementprofilesrc
 
-- name: Chnage Desktop Effects settings
+- name: Change Desktop Effects settings
   community.general.ini_file:
     path: ~/.config/kwinrc
     no_extra_spaces: true
@@ -676,7 +676,7 @@
     value: "false"
     mode: u=rw,g=,o=
 
-- name: Chnage Desktop Sessions settings
+- name: Change Desktop Sessions settings
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
