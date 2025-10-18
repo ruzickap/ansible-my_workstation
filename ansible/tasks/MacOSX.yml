@@ -391,30 +391,20 @@
     state: link
 
 ################################################
-# ZSH + Oh My Zsh + fzf
+# ZSH + oh-my-posh + fzf
 ################################################
 
-- name: Install oh-my-zsh
-  ansible.builtin.shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-  args:
-    creates: ~/.oh-my-zsh
+- name: Create directory for oh-my-posh
+  ansible.builtin.file:
+    path: ~/.config/oh-my-posh
+    state: directory
+    mode: u=rwx,g=rx,o=rx
 
-- name: Change ~/.zshrc
-  ansible.builtin.replace:
-    dest: ~/.zshrc
-    regexp: "{{ item.regexp }}"
-    replace: "{{ item.replace }}"
+- name: Download oh-my-posh cobalt2 theme
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/cobalt2.omp.json
+    dest: ~/.config/oh-my-posh/cobalt2.omp.json
     mode: u=rw,g=r,o=r
-  loop:
-    - regexp: '^ZSH_THEME="robbyrussell"'
-      replace: '# ZSH_THEME="robbyrussell"'
-    # Fix slows down copy-pasting
-    - regexp: '^# DISABLE_MAGIC_FUNCTIONS="true"'
-      replace: DISABLE_MAGIC_FUNCTIONS="true"
-    - regexp: "^plugins=.*"
-      replace: plugins=(colored-man-pages docker gh kubectl zoxide)
-    - regexp: "^# zstyle ':omz:update' mode auto"
-      replace: "zstyle ':omz:update' mode auto"
 
 # Needed for bash scripts or ansible
 - name: Add path to binaries to ~/.bashrc
@@ -467,6 +457,11 @@
       export PATH="/usr/local/bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
       export GOPATH="${HOME}/go"
 
+      # zsh-completions
+      FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
+      autoload -Uz compinit
+      compinit
+
       alias cat="bat --style=plain --paging=never"
       alias dos2unix="sed -i 's/\r$//'"
       alias history="history -i 0"
@@ -481,19 +476,13 @@
 
       export DELTA_PAGER="bat --style=plain"
       export EDITOR='nvim'
-      export SOPS_EDITOR='code --wait'
+      export SOPS_EDITOR='cursor --wait'
       export PAGER="bat --style=plain --paging=never"
 
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
       source ~/Documents/secrets/secret_variables
-
-      # Configure history stamp in oh-my-zsh
-      HIST_STAMPS="yyyy-mm-dd"
-
-      # Configure configure Ctrl+w as delete in bash (https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#kill-word-or-backward-kill-word-do--dont-delete-a-symbol-wordchars)
-      WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>:,|"'"'"
 
       # Add highlighters to zsh-syntax-highlighting (default is 'main')
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
@@ -522,6 +511,8 @@
 
       zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
       source <(carapace _carapace)
+
+      eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
 
 ################################################
 # Application configuration
@@ -562,8 +553,8 @@
 
     - name: Configure iTerm2 using PlistBuddy
       ansible.builtin.shell: |
-        open --background -a iTerm
-        osascript -e 'quit app "iTerm"'
+        open --background -a iTerm  # codespell:ignore
+        osascript -e 'quit app "iTerm"'  # codespell:ignore
         sleep 10
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Custom Directory"       "Recycle"'                ~/Library/Preferences/com.googlecode.iterm2.plist
         /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                      ~/Library/Preferences/com.googlecode.iterm2.plist
@@ -663,12 +654,11 @@
       /.Trash
       /.cache
       /.colima
+      /.cursor
       /.gnupg/S.*
       /.krew
       /.lima
       /.local
-      /.oh-my-zsh
-      /.vscode
       /Applications
       /Documents/chrome-extensions
       /Downloads
@@ -838,13 +828,13 @@
       value: '"mpv"'
     - section: types
       option: plain-text
-      value: '"Visual Studio Code"'
+      value: '"Cursor"'
     - section: types
       option: sourcecode
-      value: '"Visual Studio Code"'
+      value: '"Cursor"'
     - section: types
       option: text
-      value: '"Visual Studio Code"'
+      value: '"Cursor"'
     # keep-sorted end
   notify: Run infat
 
@@ -858,7 +848,7 @@
 
 - name: Interactive - press ENTER to continue
   ansible.builtin.pause:
-    prompt: "Manually Approve/Configure all appliations/popups and continue by pressing ENTER"
+    prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
   tags: interactive
 
 # MacOS will open several windows which needs to be confirmed otherwise it will fail

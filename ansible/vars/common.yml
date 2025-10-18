@@ -1,5 +1,5 @@
 # keep-sorted start newline_separated=yes
-code_extensions:
+cursor_extensions:
   # keep-sorted start
   - adamhartford.vscode-base64
   - antfu.slidev
