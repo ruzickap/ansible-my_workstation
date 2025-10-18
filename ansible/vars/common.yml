@@ -7,7 +7,6 @@ cursor_extensions:
   - bierner.markdown-preview-github-styles
   - davidanson.vscode-markdownlint
   - esbenp.prettier-vscode
-  - github.copilot
   - github.vscode-github-actions
   - github.vscode-pull-request-github
   - hashicorp.terraform
