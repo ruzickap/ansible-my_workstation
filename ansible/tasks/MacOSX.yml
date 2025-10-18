@@ -422,6 +422,7 @@
   ansible.builtin.blockinfile:
     dest: ~/.zshrc
     prepend_newline: true
+    create: true
     block: |
       # set history size
       export HISTSIZE=50000
