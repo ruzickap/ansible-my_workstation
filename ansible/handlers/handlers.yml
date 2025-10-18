@@ -33,7 +33,7 @@
   become: true
 
 - name: Run infat
-  ansible.builtin.command: infat
+  ansible.builtin.command: infat --config ~/.config/infat/config.toml
   changed_when: false
 
 - name: Set default printer
