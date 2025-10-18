@@ -378,7 +378,7 @@
   changed_when: false
   loop: "{{ dock_add_items }}"
 
-- name: Create ditrcotry docker-buildx
+- name: Create directory docker-buildx
   ansible.builtin.file:
     path: ~/.docker/cli-plugins
     state: directory
