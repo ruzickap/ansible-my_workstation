@@ -463,15 +463,20 @@
       autoload -Uz compinit
       compinit
 
+      # Add home and end key bindings to be able to use the USB keyboard to navigate the terminal
+      bindkey '\e[H'    beginning-of-line # Home
+      bindkey '\e[F'    end-of-line # End
+
       alias cat="bat --style=plain --paging=never"
       alias dos2unix="sed -i 's/\r$//'"
       alias history="history -i 0"
-      alias ls="g --hyperlink=never --time-style=long-iso"
+      alias ll="eza -l --git --git-repos --icons=auto"
+      alias ls="eza --icons=auto"
       alias mc='SHELL=/bin/bash source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
-      alias kubectl="kubecolor"
       compdef kubecolor=kubectl
-      alias tree="g --hyperlink=never --time-style=long-iso --tree"
+      alias k="kubecolor"
+      alias tree="eza --tree --icons=auto"
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
       alias vim='nvim'
 
@@ -495,7 +500,6 @@
       ZSH_HIGHLIGHT_STYLES[path]=none
       ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 
-      eval "$(atuin init zsh --disable-up-arrow)"
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
@@ -507,13 +511,13 @@
       export SOPS_AGE_KEY_FILE="${HOME}/Documents/secrets/age.txt"
       export SOPS_AGE_RECIPIENTS="age1jjuamrdk3vrk6g8qhrjnqtt4x2yvvxw7fz2nkvf78398dj7vav7s74z4zz"
 
-      # Mise activation
-      eval "$(mise activate zsh)"
-
       zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
       source <(carapace _carapace)
 
+      eval "$(atuin init zsh --disable-up-arrow)"
+      eval "$(mise activate zsh)"
       eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
+      eval "$(zoxide init zsh)"
 
 ################################################
 # Application configuration

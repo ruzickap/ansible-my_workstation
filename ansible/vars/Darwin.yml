@@ -50,8 +50,8 @@ homebrew_packages:
   - eks-node-viewer
   - eksctl
   - exiftool
+  - eza
   - fzf
-  - g-ls # ls replacement
   - gawk
   - gh
   - git
