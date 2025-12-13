@@ -31,6 +31,7 @@ homebrew_casks:
 homebrew_packages:
   # keep-sorted start
   - ab-av1
+  - aicommit2
   - ansible
   - atuin
   - awscli
@@ -42,7 +43,6 @@ homebrew_packages:
   - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
   - colima
-  - commitizen # git cz commands...
   - dive
   - docker-buildx
   - dockutil
@@ -51,6 +51,7 @@ homebrew_packages:
   - eksctl
   - exiftool
   - eza
+  - fd
   - fzf
   - gawk
   - gh
@@ -74,7 +75,6 @@ homebrew_packages:
   - krew
   - kubecolor
   - kubernetes-cli
-  - markdownlint-cli
   - midnight-commander
   - mise
   - mpg123 # needed for mc to display mp3 files
@@ -101,7 +101,6 @@ homebrew_packages:
   - uutils-findutils
   - watch
   - wget
-  - wifi-password
   - yamllint
   - yq
   - yt-dlp
@@ -121,6 +120,7 @@ login_items_enabled:
   - AltTab
   - KeePassXC
   - Stats
+  - hiddenbar
   # keep-sorted end
 
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858

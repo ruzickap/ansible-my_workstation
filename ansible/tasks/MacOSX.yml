@@ -463,6 +463,19 @@
       autoload -Uz compinit
       compinit
 
+      # https://unix.stackexchange.com/questions/470714/replicate-oh-my-zsh-directory-tab-completion-selection-with-arrow-keys
+      # https://unix.stackexchange.com/questions/267551/how-can-i-configure-zsh-completion-to-launch-a-menu-for-command-options
+      zstyle ':completion:*' menu yes select
+
+      # https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
+      # https://unix.stackexchange.com/questions/621606/zsh-completion-with-up-and-down-arrows
+      autoload -U up-line-or-beginning-search
+      autoload -U down-line-or-beginning-search
+      zle -N up-line-or-beginning-search
+      zle -N down-line-or-beginning-search
+      bindkey "^[[A" up-line-or-beginning-search # Up
+      bindkey "^[[B" down-line-or-beginning-search # Down
+
       # Add home and end key bindings to be able to use the USB keyboard to navigate the terminal
       bindkey '\e[H'    beginning-of-line # Home
       bindkey '\e[F'    end-of-line # End
@@ -488,7 +501,12 @@
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
+      source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
       source ~/Documents/secrets/secret_variables
+
+      # ignore # on command line - https://unix.stackexchange.com/questions/557486/allowing-comments-in-interactive-zsh-commands
+      setopt INTERACTIVE_COMMENTS
 
       # Add highlighters to zsh-syntax-highlighting (default is 'main')
       ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
@@ -499,7 +517,6 @@
       # Disable underline in zsh-syntax-highlighting
       ZSH_HIGHLIGHT_STYLES[path]=none
       ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-
 
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
@@ -715,8 +732,6 @@
   ansible.builtin.uri:
     url: https://api.github.com/repos/exelban/stats/releases/latest
     return_content: true
-    headers:
-      Authorization: "Bearer {{ ansible_env.GITHUB_TOKEN }}"
   register: stats_release_data
   no_log: true
 
@@ -842,6 +857,27 @@
       value: '"Cursor"'
     # keep-sorted end
   notify: Run infat
+
+- name: Create directory for aicommit2
+  ansible.builtin.file:
+    path: ~/Library/Application Support/aicommit2
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure aicommit2
+  community.general.ini_file:
+    path: ~/Library/Application Support/aicommit2/config.ini
+    no_extra_spaces: true
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - option: logging
+      value: "false"
+    - option: maxLength
+      value: 72
+    # keep-sorted end
 
 ################################################
 # Interactive (can not be "automated")

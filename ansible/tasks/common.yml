@@ -304,6 +304,18 @@
     - option: term-osd-bar
     # keep-sorted end
 
+- name: Create directory for VLC
+  ansible.builtin.file:
+    path: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/org.videolan.vlc{% else %}~/.config/vlc{% endif %}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy VLC media library file
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/vlc/ml.xspf
+    dest: "{% if ansible_system == 'Darwin' %}~/Library/Application Support/org.videolan.vlc{% else %}~/.config/vlc{% endif %}/ml.xspf"
+    mode: u=rw,g=r,o=r
+
 - name: Put darktable configs in place
   ansible.builtin.copy:
     src: files/home/myusername/.config/darktable

@@ -1,4 +1,4 @@
-wifi_interface: "{{ ansible_facts | json_query('*.{ my_device: device, my_module: module} | [?my_module==`iwlwifi`].my_device') | list | join(',') }}"
+convertinwifi_interface: "{{ ansible_facts | json_query('*.{ my_device: device, my_module: module} | [?my_module==`iwlwifi`].my_device') | list | join(',') }}"
 
 plymouth_theme: spinner
 
@@ -143,13 +143,13 @@ dnf_graphical_packages:
   - hplip # HP driver for CUPS (needed for HP printers)
   - ImageMagick # Need convert for some scripts
   - libva-intel-hybrid-driver # Needed for mpv
-  - mesa-dri-drivers # Neded for X (GLX)
+  - mesa-dri-drivers # Needed for X (GLX)
   - purple-facebook
   - purple-telegram
   - texlive
   - texlive-chktex # LaTeX linter
   - texlive-cslatex
-  - texlive-dvisvgm # Needed for convertin dvi->svg (systemd_cheatsheet)
+  - texlive-dvisvgm # Needed for converting dvi->svg (systemd_cheatsheet)
   - texlive-europasscv # Needed for CV
   - texlive-lastpage # Needed for CV
   - texlive-menukeys # Needed for cheatsheets
@@ -242,7 +242,6 @@ homebrew:
   - k3d #
   - krew #
   - kubectl #
-  - markdownlint-cli #
   - pre-commit # libyaml
   - speedtest-cli #
   - stern
