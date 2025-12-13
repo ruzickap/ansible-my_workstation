@@ -1,7 +1,7 @@
 - name: Get GeneratedUID for the current user
   ansible.builtin.shell: |
     set -o pipefail
-    dscl . -read {{ ansible_user_dir }}/ GeneratedUID | awk '{ print $2 }'
+    dscl . -read {{ ansible_facts["user_dir"] }}/ GeneratedUID | awk '{ print $2 }'
   register: dscl_output
   changed_when: false
 
@@ -141,7 +141,7 @@
     value: "{{ item.value }}"
   loop:
     - key: NewWindowTargetPath
-      value: file://{{ ansible_user_dir }}/
+      value: file://{{ ansible_facts["user_dir"] }}/
     - key: NewWindowTarget
       value: PfHm
 
@@ -359,13 +359,13 @@
 #     - name: Create link from "/System/Volumes/Data/mnt/raspi_hostname" to ~/Documents/
 #       ansible.builtin.file:
 #         src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-#         dest: "{{ ansible_user_dir }}/Documents/{{ raspi_hostname }}"
+#         dest: "{{ ansible_facts["user_dir"] }}/Documents/{{ raspi_hostname }}"
 #         state: link
 
 # - name: Configure Finder sidebar favourites
 #   ansible.builtin.shell: |
 #     mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
-#     mysides add {{ ansible_user_id }} file://{{ ansible_user_dir }}
+#     mysides add {{ ansible_facts["user_id"] }} file://{{ ansible_facts["user_dir"] }}
 #   changed_when: false
 
 - name: Remove all Dock items
@@ -641,7 +641,7 @@
       value: com.apple.videotoolbox.videoencoder.ave.avc
     - section: AdvOut
       option: RecFilePath
-      value: "{{ ansible_user_dir }}/Desktop"
+      value: "{{ ansible_facts['user_dir'] }}/Desktop"
     - section: AdvOut
       option: RecFormat
       value: mp4
@@ -733,7 +733,7 @@
     url: https://api.github.com/repos/exelban/stats/releases/latest
     return_content: true
     headers:
-      Authorization: "Bearer {{ ansible_env.GITHUB_TOKEN }}"
+      Authorization: "Bearer {{ ansible_facts['env']['GITHUB_TOKEN'] }}"
   register: stats_release_data
   no_log: true
 
