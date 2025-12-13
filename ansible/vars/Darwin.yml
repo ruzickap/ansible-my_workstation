@@ -109,7 +109,7 @@ homebrew_packages:
   - zsh-syntax-highlighting
   # keep-sorted end
 
-homebrew_prefix: "{% if (ansible_architecture | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
 
 homebrew_taps:
   - aws/tap
