@@ -75,5 +75,5 @@ jobs:
         run: |
           for FORMULA in $(brew leaves --installed-on-request); do
             echo "*** ${FORMULA}"
-            brew deps --tree --installed "${FORMULA}"
+            brew deps --installed "${FORMULA}"
           done

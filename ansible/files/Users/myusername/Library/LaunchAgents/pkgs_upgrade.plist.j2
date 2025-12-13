@@ -10,7 +10,7 @@
     <array>
       <string>/usr/bin/caffeinate</string>
       <string>-ims</string>
-      <string>{{ ansible_user_dir }}/bin/pkgs_upgrade</string>
+      <string>{{ ansible_facts['user_dir'] }}/bin/pkgs_upgrade</string>
     </array>
 
     <key>StartCalendarInterval</key>
