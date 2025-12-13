@@ -6,7 +6,7 @@ EVENT="$2"
 
 # shellcheck disable=SC1091
 if echo "$INTERFACE" | grep -q -E '(^wlp|^enp)' && [ "$EVENT" = "up" ]; then
-  . /home/[% ansible_user_id %]/Documents/secrets/secret_variables
+  . /home/[% ansible_facts['user_id'] %]/Documents/secrets/secret_variables
   ansible -m setup -c local -i "localhost," localhost -a 'filter=ansible_default_ipv?' --tree /tmp/
   test "$(jq -r '.ansible_facts.ansible_default_ipv4.address' /tmp/localhost)" != "null" && ansible -m cloudflare_dns -c local -i "localhost," localhost --extra-vars @/tmp/localhost -a "zone=[% my_hostname.split('.', 1)[1] %] record=[% my_hostname.split('.')[0] %] type=A value={{ ansible_facts.ansible_default_ipv4.address }} solo=true proxied=no account_email=${CLOUDFLARE_EMAIL} account_api_token=${CLOUDFLARE_API_KEY}" > /tmp/cloudflare_dns
   rm /tmp/localhost

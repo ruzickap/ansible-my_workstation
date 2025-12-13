@@ -32,8 +32,8 @@
       ansible.builtin.rpm_key:
         key: "{{ item }}"
       loop:
-        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-free-fedora-{{ ansible_distribution_version }}
-        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-{{ ansible_distribution_version }}
+        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-free-fedora-{{ ansible_facts['distribution_version'] }}
+        - /usr/share/distribution-gpg-keys/rpmfusion/RPM-GPG-KEY-rpmfusion-nonfree-fedora-{{ ansible_facts['distribution_version'] }}
 
     - name: Install rpmfusion repositories
       ansible.builtin.dnf:
@@ -82,7 +82,7 @@
 
     - name: Add "ansible_user_id" user
       ansible.builtin.user:
-        name: "{{ ansible_user_id }}"
+        name: "{{ ansible_facts['user_id'] }}"
         comment: "Petr Ruzicka"
         groups: docker,libvirt,lp,printadmin,wireshark,wheel
         password: "{{ fedora_username_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
@@ -212,10 +212,10 @@
           value: email
         - section: email
           option: email_from
-          value: root@{{ ansible_fqdn }}
+          value: root@{{ ansible_facts['fqdn'] }}
         - section: command_email
           option: email_from
-          value: root@{{ ansible_fqdn }}
+          value: root@{{ ansible_facts['fqdn'] }}
 
     # - name: Blacklist pcspkr kernel module
     #   kernel_blacklist:
@@ -250,7 +250,7 @@
         - option: Session
           value: plasma.desktop
         - option: User
-          value: "{{ ansible_user_id }}"
+          value: "{{ ansible_facts['user_id'] }}"
 
     - name: Create cron.d entries
       ansible.builtin.cron:
@@ -267,11 +267,11 @@
           weekday: "*"
           minute: 0
           hour: 1
-          ansible.builtin.user: "{{ ansible_user_dir }}"
-          job: nice {{ ansible_user_dir }}/Documents/backups/backup.sh
+          ansible.builtin.user: "{{ ansible_facts['user_dir'] }}"
+          job: nice {{ ansible_facts['user_dir'] }}/Documents/backups/backup.sh
           cron_file: backup
           disabled: true
-          user: "{{ ansible_user_id }}"
+          user: "{{ ansible_facts['user_id'] }}"
       loop_control:
         label: "{{ item.name }} - {{ item.cron_file }}"
 
@@ -460,7 +460,7 @@
         msg: Root configuration failed !!!
 
 ###############################
-# Run as {{ ansible_user_id }}
+# Run as {{ ansible_facts['user_id'] }}
 ###############################
 
 - name: Create Documents, Movies, Music, Pictures directories
@@ -996,7 +996,7 @@
     mode: u=rw,g=,o=
   tags: secrets
 
-- name: Configure .bashrc for {{ ansible_user_id }}
+- name: Configure .bashrc for {{ ansible_facts['user_id'] }}
   ansible.builtin.blockinfile:
     dest: ~/.bashrc
     block: |

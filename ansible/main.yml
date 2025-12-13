@@ -3,16 +3,18 @@
   force_handlers: true
 
   vars_files:
-    - vars/{{ ansible_system }}.yml
     - vars/common.yml
 
   tasks:
+    - name: Include OS specific vars
+      ansible.builtin.include_vars: vars/{{ ansible_facts['system'] }}.yml
+
     - name: Add ansible_user_id to sudoers to become root easily
       ansible.builtin.lineinfile:
-        dest: /etc/sudoers.d/01_{{ ansible_user_id }}
+        dest: /etc/sudoers.d/01_{{ ansible_facts['user_id'] }}
         create: true
-        regexp: "^{{ ansible_user_id }} ALL="
-        line: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL"
+        regexp: "^{{ ansible_facts['user_id'] }} ALL="
+        line: "{{ ansible_facts['user_id'] }} ALL=(ALL) NOPASSWD:ALL"
         validate: "visudo -cf %s"
         mode: u=rw,g=r,o=
       become: true
@@ -22,7 +24,7 @@
       tags: secrets
 
     - name: Include OS specific tasks list in play
-      ansible.builtin.include_tasks: tasks/{{ ansible_distribution }}.yml
+      ansible.builtin.include_tasks: tasks/{{ ansible_facts['distribution'] }}.yml
 
     - name: Include common tasks list in play
       ansible.builtin.import_tasks: tasks/common.yml

@@ -42,9 +42,9 @@
 
 - name: Set login picture
   ansible.builtin.shell: |
-    dscl . delete /Users/{{ ansible_user_id }} JPEGPhoto
-    dscl . delete /Users/{{ ansible_user_id }} Picture
-    dsimport /Library/Caches/{{ ansible_user_id }}.picture.dsimport /Local/Default M
+    dscl . delete /Users/{{ ansible_facts['user_id'] }} JPEGPhoto
+    dscl . delete /Users/{{ ansible_facts['user_id'] }} Picture
+    dsimport /Library/Caches/{{ ansible_facts['user_id'] }}.picture.dsimport /Local/Default M
   changed_when: false
   become: true
 # keep-sorted end
