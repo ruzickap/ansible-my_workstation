@@ -72,8 +72,10 @@ jobs:
           brew list --formula | xargs -P8 -I {} sh -c "brew info {} | ggrep -E '[0-9]* files, ' | grep -v 'KB' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'" | sort -h -r -k2 - | column -t
 
       - name: Brew packages dependency tree
+        env:
+          HOMEBREW_NO_ENV_HINTS: 1
         run: |
           for FORMULA in $(brew leaves --installed-on-request); do
             echo "*** ${FORMULA}"
-            brew deps --installed "${FORMULA}"
+            brew deps --installed --tree "${FORMULA}"
           done
