@@ -1,2 +1,6 @@
-https://mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
+# keep-sorted start
 file://
+macos-defaults\.com
+medium\.com
+mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
+# keep-sorted end
