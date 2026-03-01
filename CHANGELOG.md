@@ -1,5 +1,60 @@
 # Changelog
 
+## [2.2.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.1.0...v2.2.0) (2026-03-01)
+
+
+### Features
+
+* add aicommit2 and vlc playlist ([#185](https://github.com/ruzickap/ansible-my_workstation/issues/185)) ([3dcd633](https://github.com/ruzickap/ansible-my_workstation/commit/3dcd63312d60b06afbf35e2fea1b50e48e775969))
+* add default github repo files ([#159](https://github.com/ruzickap/ansible-my_workstation/issues/159)) ([291ffbe](https://github.com/ruzickap/ansible-my_workstation/commit/291ffbeb24f75576dd53a4ea43dbb9029fb274fa))
+* add default github repo files ([#163](https://github.com/ruzickap/ansible-my_workstation/issues/163)) ([948100f](https://github.com/ruzickap/ansible-my_workstation/commit/948100fcdcc137abc10983d02c73147f112fdca2))
+* add default github repo files ([#167](https://github.com/ruzickap/ansible-my_workstation/issues/167)) ([38ebad1](https://github.com/ruzickap/ansible-my_workstation/commit/38ebad1fd49e1414a9e37c85f65c3d0ba30946c8))
+* add GitHub default templates ([#134](https://github.com/ruzickap/ansible-my_workstation/issues/134)) ([1b4b144](https://github.com/ruzickap/ansible-my_workstation/commit/1b4b1445a637eb9c085b653d1e2506a2972794c2))
+* add infat and remove SpaceVim ([#157](https://github.com/ruzickap/ansible-my_workstation/issues/157)) ([13d71de](https://github.com/ruzickap/ansible-my_workstation/commit/13d71de58f789b65ff6f64859ab396f78268eaa9))
+* add keep-sorted ([#145](https://github.com/ruzickap/ansible-my_workstation/issues/145)) ([d322e1d](https://github.com/ruzickap/ansible-my_workstation/commit/d322e1d9bbac4acd09009c28e1d017f0005053bf))
+* add mise+sops, remove npm and secrets ([#147](https://github.com/ruzickap/ansible-my_workstation/issues/147)) ([687d813](https://github.com/ruzickap/ansible-my_workstation/commit/687d8137d0612d54d4df0ed41e750b909d8d4e70))
+* add nvim and nvchad, update vscode settings ([#158](https://github.com/ruzickap/ansible-my_workstation/issues/158)) ([c9951be](https://github.com/ruzickap/ansible-my_workstation/commit/c9951be66d9e232f9ea92410535464f8c1b35b33))
+* add secret_variables and terraformrc ([#148](https://github.com/ruzickap/ansible-my_workstation/issues/148)) ([04fe521](https://github.com/ruzickap/ansible-my_workstation/commit/04fe52165cd96def18efb0a8fa569f948cabee3a))
+* add/update default repository files ([#164](https://github.com/ruzickap/ansible-my_workstation/issues/164)) ([baacee7](https://github.com/ruzickap/ansible-my_workstation/commit/baacee7df85298f3da354a2c2f5e3deb4a8929f3))
+* add/update default repository files ([#169](https://github.com/ruzickap/ansible-my_workstation/issues/169)) ([cfc3e92](https://github.com/ruzickap/ansible-my_workstation/commit/cfc3e92ca5364b1c017da473e5f546072dc1b1d5))
+* **ansible:** use builtin.fail instead of builtin.debug ([3670f5f](https://github.com/ruzickap/ansible-my_workstation/commit/3670f5f496c2b31ab688d9b1169a84058681ea24))
+* **fedora:** remove gbt ([72854cb](https://github.com/ruzickap/ansible-my_workstation/commit/72854cb7307f39a8192a18c0b164b56ca957bb2a))
+* **gha:** Add GitHub Actions workflow files ([#100](https://github.com/ruzickap/ansible-my_workstation/issues/100)) ([38b5dc8](https://github.com/ruzickap/ansible-my_workstation/commit/38b5dc89b5e278f1d14aced7ae0cd821e07b5471))
+* **gha:** Add GitHub repo files ([#115](https://github.com/ruzickap/ansible-my_workstation/issues/115)) ([13bd3f4](https://github.com/ruzickap/ansible-my_workstation/commit/13bd3f4653361ced63a46685c850f369b4850674))
+* **gh:** add default GitHub repo files ([#116](https://github.com/ruzickap/ansible-my_workstation/issues/116)) ([46c91c2](https://github.com/ruzickap/ansible-my_workstation/commit/46c91c25d6789de6cecdf7c699c815c05fd8c1c5))
+* **gh:** add default GitHub repo files ([#117](https://github.com/ruzickap/ansible-my_workstation/issues/117)) ([c9542ef](https://github.com/ruzickap/ansible-my_workstation/commit/c9542ef6f4514f32074ab08147479d4459aeaa41))
+* **gh:** add default GitHub repo files ([#120](https://github.com/ruzickap/ansible-my_workstation/issues/120)) ([db7bfc7](https://github.com/ruzickap/ansible-my_workstation/commit/db7bfc75524fbae6ac1505f0f5b90776bc71112f))
+* **gh:** add default GitHub repo files ([#122](https://github.com/ruzickap/ansible-my_workstation/issues/122)) ([58db096](https://github.com/ruzickap/ansible-my_workstation/commit/58db096be3af8a0c6dfbaca50e1790712b1332e8))
+* **gh:** add default github repo files ([#142](https://github.com/ruzickap/ansible-my_workstation/issues/142)) ([a2d3b9f](https://github.com/ruzickap/ansible-my_workstation/commit/a2d3b9f589caf47d162f917ac972b54d6a8d72ca))
+* **gh:** add default github repo files ([#156](https://github.com/ruzickap/ansible-my_workstation/issues/156)) ([c567476](https://github.com/ruzickap/ansible-my_workstation/commit/c567476b72f8d69d1df12f937fa51141cb767364))
+* **gha:** make checkov config part of megalinter ([798e6fe](https://github.com/ruzickap/ansible-my_workstation/commit/798e6fec65b0c8f02bf46de404b62dc2707dc413))
+* **gha:** unify GHA - renovate, megalinter, markdown, and others ([f52b521](https://github.com/ruzickap/ansible-my_workstation/commit/f52b5219e8cc647840c52eb33c7395740a06ccce))
+* **git:** add hyperlinks + side-by-side delta configuration ([#126](https://github.com/ruzickap/ansible-my_workstation/issues/126)) ([7dfa4b8](https://github.com/ruzickap/ansible-my_workstation/commit/7dfa4b83fe53e0cc3ea2ed0233d72ee0f2fec8c6))
+* **mac:** add atuin ([#124](https://github.com/ruzickap/ansible-my_workstation/issues/124)) ([ead9134](https://github.com/ruzickap/ansible-my_workstation/commit/ead9134c62d7b077c01490ed1faeb1bdb072e68f))
+* **mac:** add cilium cli ([#127](https://github.com/ruzickap/ansible-my_workstation/issues/127)) ([cf0d3b5](https://github.com/ruzickap/ansible-my_workstation/commit/cf0d3b59a8aac3322d41e36bfc1fe1cb5d809987))
+* **mac:** add docker-buildx ([#131](https://github.com/ruzickap/ansible-my_workstation/issues/131)) ([df0c401](https://github.com/ruzickap/ansible-my_workstation/commit/df0c4017735cf65bd26c41b9ad30a5cec33d94e1))
+* **mac:** add eks-node-viewer ([#128](https://github.com/ruzickap/ansible-my_workstation/issues/128)) ([16e577d](https://github.com/ruzickap/ansible-my_workstation/commit/16e577d3308dd2dfbe118e74cb998aaf930a0c89))
+* **mac:** add gpg+ssh allowedSignersFile to gitconfig ([bcc746e](https://github.com/ruzickap/ansible-my_workstation/commit/bcc746e1839669221c8ad52c54937bf941c72f07))
+* **mac:** add kopiaui ([0af5711](https://github.com/ruzickap/ansible-my_workstation/commit/0af571183649c9da8763494b93e6e42d47bc5964))
+* **mac:** add kubecolor and ratchet ([#129](https://github.com/ruzickap/ansible-my_workstation/issues/129)) ([d30844b](https://github.com/ruzickap/ansible-my_workstation/commit/d30844b53a6f222f8e8a338eb0493d8a813e6660))
+* **mac:** add tflint and tfupdate, minor mpv and vscode changes ([94d958a](https://github.com/ruzickap/ansible-my_workstation/commit/94d958a0b2c9f52ce2e6536fda8980b0cc6d749e))
+* **mac:** move to MacBook Air and macOS 14.2.1 ([44f62e2](https://github.com/ruzickap/ansible-my_workstation/commit/44f62e2c837409d02068b2c35acd98cc2c654610))
+* **mac:** replace eza by g-ls ([#121](https://github.com/ruzickap/ansible-my_workstation/issues/121)) ([20fbed9](https://github.com/ruzickap/ansible-my_workstation/commit/20fbed9e0752828a1f17f3bcf7abedbc43c5f199))
+* **mac:** simplify zshrc, fix history, add cloudflared ([48e9441](https://github.com/ruzickap/ansible-my_workstation/commit/48e944121e2247d784cf8d1edb4235252c05d579))
+* oh-my-zsh -&gt; oh-my-posh, vscode -&gt; cursor, pre-commit -&gt; prek ([#175](https://github.com/ruzickap/ansible-my_workstation/issues/175)) ([4c3d7b2](https://github.com/ruzickap/ansible-my_workstation/commit/4c3d7b2c602d27ca1a446732002ad6766567ae19))
+* remove kops, add slidev, minor config changes ([#137](https://github.com/ruzickap/ansible-my_workstation/issues/137)) ([9e3953e](https://github.com/ruzickap/ansible-my_workstation/commit/9e3953eec54779183e63601f3675caf492b40459))
+* remove powerlevel10k ([#135](https://github.com/ruzickap/ansible-my_workstation/issues/135)) ([a03949c](https://github.com/ruzickap/ansible-my_workstation/commit/a03949c96c1d506ee3697a569f673a0e02f17a29))
+* remove unused apps - vagrant, Rectangle, vmware-fusion ([#143](https://github.com/ruzickap/ansible-my_workstation/issues/143)) ([81bb60a](https://github.com/ruzickap/ansible-my_workstation/commit/81bb60aa0b90153ac054dfe2a8318d3fa30b9cbd))
+* replace g-ls by eza ([#177](https://github.com/ruzickap/ansible-my_workstation/issues/177)) ([20a261a](https://github.com/ruzickap/ansible-my_workstation/commit/20a261a4dd4acdf823b87f0d1062ff5d0532e9f4))
+* Update macOS workflow and enhance VSCode settings for GitHub integration ([#151](https://github.com/ruzickap/ansible-my_workstation/issues/151)) ([96c8334](https://github.com/ruzickap/ansible-my_workstation/commit/96c8334aac1ea3a3a3f7e06ca31526b18ea93f4a))
+* use latest terraform, add utm+hiddenbar, fix colima ([#146](https://github.com/ruzickap/ansible-my_workstation/issues/146)) ([c1e463b](https://github.com/ruzickap/ansible-my_workstation/commit/c1e463bf91244f851ae076d05fe6edcce2cf500e))
+* use rust based coreutils / findutils ([#149](https://github.com/ruzickap/ansible-my_workstation/issues/149)) ([1475b67](https://github.com/ruzickap/ansible-my_workstation/commit/1475b6791bec9c35a6930a3f848a90f4d59e1cae))
+
+
+### Bug Fixes
+
+* fix issues with mc and add mc tag ([#150](https://github.com/ruzickap/ansible-my_workstation/issues/150)) ([e1fb11d](https://github.com/ruzickap/ansible-my_workstation/commit/e1fb11dd6bd34016c1b27034b252f09c4656091e))
+
 ## [2.1.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.0.0...v2.1.0) (2024-01-04)
 
 
