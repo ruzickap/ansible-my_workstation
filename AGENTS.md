@@ -12,7 +12,7 @@ Fedora Linux). Primary languages: YAML (Ansible), Bash, Jinja2.
 ansible-galaxy install -r ansible/requirements.yml
 
 # Run playbook locally (macOS)
-cd ansible
+cd ansible || exit
 ansible-playbook --connection=local -i "127.0.0.1," main.yml
 
 # Run playbook skipping certain tags (CI mode)
