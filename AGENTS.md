@@ -2,108 +2,158 @@
 
 ## Overview
 
-This document provides guidelines and best practices for AI agents working
-on this repository. Follow these standards to ensure consistency, quality,
-and maintainability across all contributions.
+Ansible repository that configures personal workstations (macOS and
+Fedora Linux). Primary languages: YAML (Ansible), Bash, Jinja2.
 
-## Table of Contents
+## Build / Lint / Test Commands
 
-- [AI Agent Guidelines](#ai-agent-guidelines)
-  - [Overview](#overview)
-  - [Table of Contents](#table-of-contents)
-  - [Markdown Files](#markdown-files)
-    - [Linting and Formatting](#linting-and-formatting)
-    - [Markdown Best Practices](#markdown-best-practices)
-  - [Version Control](#version-control)
-    - [Commit Messages](#commit-messages)
-      - [Format Rules](#format-rules)
-      - [Commit Message Structure](#commit-message-structure)
-        - [Example](#example)
-    - [Branching](#branching)
-    - [Pull Requests](#pull-requests)
-  - [Quality \& Best Practices](#quality--best-practices)
+```bash
+# Install Ansible Galaxy dependencies
+ansible-galaxy install -r ansible/requirements.yml
+
+# Run playbook locally (macOS)
+cd ansible || exit
+ansible-playbook --connection=local -i "127.0.0.1," main.yml
+
+# Run playbook skipping certain tags (CI mode)
+ansible-playbook --skip-tags data,interactive,secrets,skip_test \
+  --connection=local -i "127.0.0.1," main.yml
+
+# Run a single tagged subset of tasks
+ansible-playbook --tags mc --connection=local -i "127.0.0.1," main.yml
+
+# Lint Ansible files
+ansible-lint -c ansible/.ansible-lint.yml ansible/
+
+# Lint shell scripts
+shellcheck --exclude=SC2317 run_ansible_my_workstation*.sh
+shfmt --case-indent --indent 2 --space-redirects -d run_ansible_my_workstation*.sh
+
+# Lint Markdown
+rumdl .
+
+# Check links
+lychee --config lychee.toml .
+
+# Validate GitHub Actions workflows
+actionlint
+
+# Full CI linting (requires Docker)
+mega-linter-runner --flavor documentation
+```
+
+## Ansible Conventions
+
+- **FQCN required**: Always use fully qualified collection names
+  (e.g., `ansible.builtin.copy`, `community.general.ini_file`),
+  never short names like `copy` or `file`
+- **Collections**: `ansible.builtin`, `ansible.posix`,
+  `community.general` (defined in `ansible/requirements.yml`)
+- **Task naming**: Every task must have a descriptive `name:` field
+- **File modes**: Use symbolic notation (`mode: u=rw,g=r,o=r`)
+  not octal (`mode: "0644"`)
+- **Become**: Use `become: true` in block-level when multiple tasks
+  need root, or per-task when only one does
+- **Tags**: Use tags for selective execution and test control:
+  - `secrets` - tasks using vault-encrypted variables
+  - `data` - tasks involving large data operations
+  - `interactive` - tasks requiring user input
+  - `skip_test` - tasks that should not run in CI
+  - `skip_idempotence_test` - tasks that are not idempotent
+  - Feature-specific tags: `mc`, `printer`, etc.
+- **Variables**: Define in `ansible/vars/common.yml` (shared),
+  `ansible/vars/Darwin.yml` (macOS), `ansible/vars/Linux.yml`
+  (Fedora)
+- **OS-specific tasks**: `ansible/tasks/MacOSX.yml` (macOS),
+  `ansible/tasks/Fedora.yml` (Fedora), `ansible/tasks/common.yml`
+  (shared)
+- **ansible-lint skips**: `package-latest`, `yaml[comments]`,
+  `yaml[document-start]`, `yaml[line-length]`
+
+## Sorted Lists
+
+This repo uses `# keep-sorted start` / `# keep-sorted end` comments
+to maintain alphabetical ordering in YAML lists, config blocks, and
+variable definitions. Always preserve these markers and keep items
+sorted alphabetically within them.
+
+## Shell Scripts
+
+- **Linting**: Must pass `shellcheck` (SC2317 excluded)
+- **Formatting**: `shfmt --case-indent --indent 2 --space-redirects`
+- **Variables**: Use uppercase with braces (`${MY_VARIABLE}`)
+- **Indentation**: 2 spaces, no tabs
 
 ## Markdown Files
 
-### Linting and Formatting
-
-- **Markdown compliance**: Ensure all Markdown files pass `rumdl` checks
-- **Code blocks**: For `bash`/`shell` code blocks:
-  - Verify they pass `shellcheck` validation
-  - Format with `shfmt` for consistency
-
-### Markdown Best Practices
-
-- Use proper heading hierarchy (don't skip levels)
-- Wrap lines at 80 characters for readability
-- Use semantic HTML only when necessary
-- Prefer code fences over inline code for multi-line examples
+- Must pass `rumdl` checks (`CHANGELOG.md` excluded)
+- Wrap lines at 72 characters
+- Use proper heading hierarchy (no skipped levels)
 - Include language identifiers in code fences
+- Shell code blocks must also pass `shellcheck` and `shfmt`
+
+## JSON Files
+
+- Must pass `jsonlint --comments` validation
+- `.devcontainer/devcontainer.json` is excluded from linting
+
+## Link Checking
+
+- `lychee` validates URLs (config in `lychee.toml`)
+- Accepts status codes 200 and 429
+- Excludes `CHANGELOG.md`, private IPs, template variables
+
+## Security Scanning
+
+- **Checkov**: IaC scanner (skips `CKV_GHA_7`)
+- **DevSkim**: Pattern scanner (ignores DS162092, DS137138)
+- **KICS**: Fails on HIGH severity only
+- **Trivy**: HIGH/CRITICAL severity, ignores unfixed
+
+## GitHub Actions
+
+- Pin actions to full SHA commits, never tags
+- Use minimal permissions (`permissions: read-all`)
+- Validate changes with `actionlint`
 
 ## Version Control
 
 ### Commit Messages
 
-#### Format Rules
+Conventional commit format: `<type>: <description>`
 
-- **Conventional commit format**: Use standard types (`feat`, `fix`, `docs`,
-  `chore`, `refactor`, `test`, `style`, `perf`, `ci`, `build`, `revert`)
-- **Line limits**: Subject ≤ 80 characters, body lines ≤ 80 characters
-- **Single blank line**: Between subject and body, between body paragraphs
+- Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`,
+  `style`, `perf`, `ci`, `build`, `revert`
+- Subject: imperative mood, lowercase, no period, max 72 chars
+- Body: wrap at 72 chars, explain what and why
+- Reference issues: `Fixes`, `Closes`, `Resolves`
 
-#### Commit Message Structure
-
-- **Subject line**:
-  - Imperative mood (e.g., "add" not "added" or "adds")
-  - Use lower case (except for proper nouns and abbreviations)
-  - No period at the end
-  - Maximum 80 characters
-  - Format: `<type>: <description>`
-
-- **Body** (optional but recommended for non-trivial changes):
-  - Explain **what** changed and **why**
-  - Wrap lines at 80 characters
-  - Use Markdown formatting
-  - Separate paragraphs with blank lines
-  - Reference issues using keywords: `Fixes`, `Closes`, `Resolves`
-
-##### Example
-
-```markdown
+```text
 feat: add automated dependency updates
 
 - Implement Dependabot configuration
 - Configure weekly security updates
-- Add auto-merge for patch/minor updates
 
 Resolves: #123
 ```
 
 ### Branching
 
-- **Naming convention**: Follow the
-  [Conventional Branch](https://conventional-branch.github.io/)
-  specification
+Follow conventional branch format: `<type>/<description>`
 
-- **Naming guidelines**:
-  - Keep branch names concise and descriptive
-  - Use kebab-case (lower case with hyphens)
-  - Include issue number when applicable: `feat/123-add-feature-name`
+- `feature/` or `feat/`, `bugfix/` or `fix/`, `hotfix/`,
+  `release/`, `chore/`
+- Lowercase, hyphens only, no consecutive/trailing hyphens
 
 ### Pull Requests
 
-- **Always create draft PR** - Create pull requests as drafts initially
-- **Title format** - Use conventional commit format (`feat: add new feature`)
-- **Description** - Include clear explanation of changes and motivation
-- **Link issues** - Reference related issues using keywords (Fixes, Closes,
-  Resolves)
+- Always create as **draft** initially
+- Title must follow conventional commit format
+- Include clear description and link related issues
 
-## Quality & Best Practices
+## General Style
 
-- Pass pre-commit hooks
-- Follow project coding standards
-- Include tests for new functionality
-- Update documentation for user-facing changes
-- Make atomic, focused commits
-- Explain reasoning behind changes
-- Maintain consistent formatting
+- **Indentation**: 2 spaces everywhere (YAML, shell, JSON)
+- **No tabs**: Spaces only in all files
+- **Formatting**: Consistent formatting across all file types
+- **Atomic commits**: One logical change per commit
