@@ -87,7 +87,7 @@ sorted alphabetically within them.
 ## Markdown Files
 
 - Must pass `rumdl` checks (`CHANGELOG.md` excluded)
-- Wrap lines at 72 characters
+- Wrap lines at 80 characters
 - Use proper heading hierarchy (no skipped levels)
 - Include language identifiers in code fences
 - Shell code blocks must also pass `shellcheck` and `shfmt`
