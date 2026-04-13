@@ -1,10 +1,12 @@
 # keep-sorted start newline_separated=yes
-cursor_extensions:
+code_extensions:
   # keep-sorted start
+  - TakumiI.markdowntable
   - adamhartford.vscode-base64
   - antfu.slidev
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
+  - emanuelebartolesi.vscode-copilot-insights
   - esbenp.prettier-vscode
   - github.vscode-github-actions
   - github.vscode-pull-request-github
@@ -14,9 +16,22 @@ cursor_extensions:
   - pkief.material-icon-theme
   - redhat.vscode-yaml
   - rvben.rumdl
+  - sst-dev.opencode
   - streetsidesoftware.code-spell-checker
   - tyriar.sort-lines
   - yzhang.markdown-all-in-one
+  # keep-sorted end
+
+code_opencode_agent_skills:
+  # keep-sorted start block=yes
+  - repo: anthropics/skills
+    skill: skill-creator
+  - repo: antonbabenko/terraform-skill
+    skill: terraform-skill
+  - repo: github/awesome-copilot
+    skill: git-commit
+  - repo: hashicorp/agent-skills
+    skill: terraform-style-guide
   # keep-sorted end
 
 # Directory where there are all the data (usually $HOME)

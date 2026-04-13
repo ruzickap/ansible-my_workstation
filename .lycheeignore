@@ -1,6 +1,14 @@
 # keep-sorted start
+api\.githubcopilot\.com
+dns-analytics\.mcp\.cloudflare\.com
 file://
+learn\.microsoft\.com/api/mcp
 macos-defaults\.com
+mcp\.app\.wiz\.io
+mcp\.atlassian\.com
+mcp\.context7\.com
+mcp\.exa\.ai
+mcp\.grep\.app
 medium\.com
 mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
 # keep-sorted end

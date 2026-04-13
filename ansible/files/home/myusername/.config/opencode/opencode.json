@@ -1,0 +1,57 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "mcp": {
+    "atlassian-mcp-server": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    },
+    "aws-knowledge-mcp-server": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://knowledge-mcp.global.api.aws"
+    },
+    "azure-knowledge": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "cloudflare-dns-analytics": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://dns-analytics.mcp.cloudflare.com/sse"
+    },
+    "context7.com": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "exa.ai": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "github": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "grep.app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app"
+    },
+    "kiwi.com": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.kiwi.com"
+    },
+    "wiz.io": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.app.wiz.io"
+    }
+  },
+  "instructions": ["AGENTS.md"],
+  "model": "github-copilot/claude-opus-4.6",
+  "plugin": [],
+  "share": "disabled"
+}

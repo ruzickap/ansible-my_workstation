@@ -633,20 +633,20 @@
       value: "false"
     # keep-sorted end
 
-- name: Put Cursor configuration in place
+- name: Put Code configuration in place
   ansible.builtin.copy:
-    src: files/home/myusername/.config/Cursor
+    src: files/home/myusername/.config/Code
     dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
     directory_mode: u=rwx,g=rx,o=rx
     mode: u=rw,g=r,o=r
 
-- name: Install the Cursor extensions
-  ansible.builtin.command: cursor --install-extension {{ item }}
+- name: Install the Code extensions
+  ansible.builtin.command: code --install-extension {{ item }}
   environment:
     PATH: /usr/local/bin:{{ ansible_facts['env']['PATH'] }}
   args:
-    creates: ~/.cursor/extensions/{{ item | lower }}*
-  loop: "{{ cursor_extensions }}"
+    creates: ~/.vscode/extensions/{{ item | lower }}*
+  loop: "{{ code_extensions }}"
 
 - name: Tweak sops
   ansible.builtin.blockinfile:
@@ -672,12 +672,12 @@
     mode: u=rwx,g=rx,o=rx
 
 - name: Place public ssh to autorized_key for root and {{ ansible_facts['user_id'] }}
-  ansible.posix.authorized_key:
-    user: "{{ ansible_facts['user_id'] }}"
-    key: https://github.com/{{ github_username }}.keys
+  ansible.builtin.blockinfile:
     path: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
-    manage_dir: false
-    comment: "{{ email }}"
+    create: true
+    block: |
+      petr.ruzicka@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh
+    mode: u=rw,g=r,o=r
 
 - name: Configure git
   ansible.builtin.copy:
@@ -719,6 +719,15 @@
     content: |
       plugin_cache_dir = "${HOME}/.terraform.d/plugin-cache"
     mode: u=rw,g=r,o=r
+
+- name: Add agent skills
+  ansible.builtin.command: >-
+    skills add https://github.com/{{ item.repo }}
+    --skill {{ item.skill }}
+    --global --yes
+  args:
+    creates: ~/.agents/skills/{{ item.skill }}
+  loop: "{{ code_opencode_agent_skills }}"
 
 ###################################################
 # Secrets

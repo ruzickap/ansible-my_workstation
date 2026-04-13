@@ -15,7 +15,7 @@ homebrew_casks:
   - darktable
   - digikam
   - font-meslo-lg-nerd-font # Needed for iTerm2 + oh-my-zsh theme
-  - hiddenbar
+  - grammarly-desktop
   - home-assistant
   - iterm2
   - keepassxc
@@ -25,13 +25,15 @@ homebrew_casks:
   - mysides # Application for managing OS X Finder sidebar favorites
   - obs
   - stats
+  - thaw
   - utm
+  - visual-studio-code
   # keep-sorted end
 
 homebrew_packages:
   # keep-sorted start
   - ab-av1
-  - aicommit2
+  - actions-up
   - ansible
   - atuin
   - awscli
@@ -52,6 +54,7 @@ homebrew_packages:
   - exiftool
   - eza
   - fd
+  - fnox
   - fzf
   - gawk
   - gh
@@ -78,18 +81,19 @@ homebrew_packages:
   - midnight-commander
   - mise
   - mpg123 # needed for mc to display mp3 files
-  - nvim
+  - neovim
   - oh-my-posh
+  - opencode
   - opentofu
   - prek
   - prettier
-  - ratchet
   - rclone
   - rhash
   - rmtrash
   - rsync
   - shellcheck
   - shfmt
+  - skills
   - sops
   - telnet
   - tflint
@@ -120,7 +124,7 @@ login_items_enabled:
   - AltTab
   - KeePassXC
   - Stats
-  - hiddenbar
+  - Thaw
   # keep-sorted end
 
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
