@@ -1,6 +1,7 @@
 # keep-sorted start newline_separated=yes
 code_extensions:
   # keep-sorted start
+  - TakumiI.markdowntable
   - adamhartford.vscode-base64
   - antfu.slidev
   - bierner.markdown-mermaid
@@ -17,7 +18,6 @@ code_extensions:
   - rvben.rumdl
   - sst-dev.opencode
   - streetsidesoftware.code-spell-checker
-  - takumil.markdowntable
   - tyriar.sort-lines
   - yzhang.markdown-all-in-one
   # keep-sorted end

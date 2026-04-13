@@ -847,13 +847,13 @@
       value: '"mpv"'
     - section: types
       option: plain-text
-      value: '"Code"'
+      value: '"Visual Studio Code"'
     - section: types
       option: sourcecode
-      value: '"Code"'
+      value: '"Visual Studio Code"'
     - section: types
       option: text
-      value: '"Code"'
+      value: '"Visual Studio Code"'
     # keep-sorted end
   notify: Run infat
 
