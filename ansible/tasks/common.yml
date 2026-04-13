@@ -725,6 +725,8 @@
     skills add https://github.com/{{ item.repo }}
     --skill {{ item.skill }}
     --global --yes
+  args:
+    creates: ~/.agents/skills/{{ item.skill }}
   loop: "{{ code_opencode_agent_skills }}"
 
 ###################################################
