@@ -65,7 +65,6 @@
 - name: Install Homebrew casks
   community.general.homebrew_cask:
     name: "{{ homebrew_casks }}"
-    install_options: no-quarantine
 
 # https://www.mactrast.com/2017/03/show-status-bar-finder-macos-sierra/
 - name: Show status bar
@@ -435,8 +434,6 @@
       # Do not share history between sessions (like bash)
       setopt NO_SHARE_HISTORY
 
-      # Remove the quarantine flag when it installs a package
-      export HOMEBREW_CASK_OPTS="--no-quarantine"
       # Use bat for the brew cat command
       export HOMEBREW_BAT=1
       # Cleanup all cached files older than this many days
