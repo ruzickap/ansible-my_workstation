@@ -28,7 +28,7 @@
   // Editor window font size - https://stackoverflow.com/questions/33701933/how-to-change-environments-font-size
   "editor.fontSize": 14,
   // disable tooltip hint message - https://stackoverflow.com/questions/41115285/how-can-i-disable-hover-tooltip-hints-in-vs-code
-  "editor.hover.enabled": false,
+  "editor.hover.enabled": "off",
   // "editor.parameterHints.enabled": false,
   // "editor.quickSuggestions": {
   //   "other": "off"
@@ -63,8 +63,7 @@
   // https://timdeschryver.dev/blog/gain-control-over-commit-messages-generated-by-github-copilot
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      // "text": "Follow the Conventional Commits format for commit messages. Use the structure below:\n\n```\n<type>[optional scope]: <description>\n\n[optional body]\n```\n\nGuidelines:\n\n1. **Type and Scope**: Choose an appropriate type (e.g., `feat`, `fix`).\n\n2. **Description**: Write a concise, informative description in the header; use backticks if referencing code or specific terms.\n\n3. **Body**: For additional details, use a well-structured body section:\n   - Use bullet points (`*`) for clarity.\n   - Clearly describe the motivation, context, or technical details behind the change, if applicable.\n\nCommit messages should be clear, informative, and professional, aiding readability and project tracking and each line of the commit message can not exceed 80 characters."
-      "text": "Follow the Conventional Commits specification to create clear and consistent commit history. The number of commit message characters must not exceed 80."
+      "text": "Follow the Conventional Commits specification to create clear and consistent commit history. The number of commit message characters must not exceed 72."
     }
   ],
   "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
@@ -86,6 +85,8 @@
   "redhat.telemetry.enabled": true,
   // https://stackoverflow.com/questions/67914899/how-can-i-disable-workspace-trust-in-vs-code-1-57
   "security.workspace.trust.enabled": false,
+  // Allow keybindings to be sent to the shell in the integrated terminal
+  "terminal.integrated.sendKeybindingsToShell": true,
   // "terminal.integrated.env.osx": {
   //   "FIG_NEW_SESSION": "1"
   // },

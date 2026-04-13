@@ -28,7 +28,8 @@ Configure my laptop with Ansible.
   * KeePassXC -> General ->
     * Automatically fill in single-credential entries
     * Allow filling HTTP Basic Auth credentials
-    * Show a banner on the page when new credentials can be saved to the database
+    * Show a banner on the page when new credentials can be saved to the
+      database
   * KeePassXC -> Connected Databases
 * Zoom
   * General -> Add Zoom to macOS menu bar
@@ -54,8 +55,8 @@ Configure my laptop with Ansible.
 
 * MacOS
   * Apple ID
-    * Disable synchronization of the Photos, iCloud Calendars, Reminders, Safari,
-      Stocks, ...
+    * Disable synchronization of the Photos, iCloud Calendars, Reminders,
+      Safari, Stocks, ...
   * Notifications
     * Allow notifications when the screen is locked
     * Slack -> Alerts

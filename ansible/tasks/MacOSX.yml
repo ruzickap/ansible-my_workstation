@@ -495,7 +495,7 @@
 
       export DELTA_PAGER="bat --style=plain"
       export EDITOR='nvim'
-      export SOPS_EDITOR='cursor --wait'
+      export SOPS_EDITOR='code --wait'
       export PAGER="bat --style=plain --paging=never"
 
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
@@ -676,11 +676,11 @@
       /.Trash
       /.cache
       /.colima
-      /.cursor
       /.gnupg/S.*
       /.krew
       /.lima
       /.local
+      /.vscode
       /Applications
       /Documents/chrome-extensions
       /Downloads
@@ -850,36 +850,20 @@
       value: '"mpv"'
     - section: types
       option: plain-text
-      value: '"Cursor"'
+      value: '"Code"'
     - section: types
       option: sourcecode
-      value: '"Cursor"'
+      value: '"Code"'
     - section: types
       option: text
-      value: '"Cursor"'
+      value: '"Code"'
     # keep-sorted end
   notify: Run infat
 
-- name: Create directory for aicommit2
-  ansible.builtin.file:
-    path: ~/Library/Application Support/aicommit2
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Configure aicommit2
-  community.general.ini_file:
-    path: ~/Library/Application Support/aicommit2/config.ini
-    no_extra_spaces: true
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    mode: u=rw,g=r,o=r
-  loop:
-    # keep-sorted start
-    - option: logging
-      value: "false"
-    - option: maxLength
-      value: 72
-    # keep-sorted end
+- name: Copy opencode configuration
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/opencode
+    dest: ~/.config/
 
 ################################################
 # Interactive (can not be "automated")
