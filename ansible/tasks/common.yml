@@ -648,16 +648,6 @@
     creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
 
-- name: Tweak sops
-  ansible.builtin.blockinfile:
-    dest: ~/.sops.yaml
-    create: true
-    block: |
-      stores:
-        yaml:
-          indent: 2
-    mode: u=rw,g=r,o=r
-
 - name: Configure .forward to {{ email }}
   ansible.builtin.copy:
     dest: ~/.forward
@@ -701,16 +691,14 @@
   ansible.builtin.copy:
     dest: ~/.config/mise/config.toml
     content: |
-      [env]
-      _.file = "~/Documents/secrets/.env.yaml"
+      [tools]
+      "npm:markdown-spellcheck" = "latest"
+      "npm:markdown-table-formatter" = "latest"
 
       [settings]
-      experimental = true
-      sops.age_key_file = "~/Documents/secrets/age.txt"
-
-      [tools]
-      "npm:@slidev/cli" = "latest"
-      "npm:markdown-spellcheck" = "latest"
+      env_cache = true
+      env_cache_ttl = "12h"
+      trusted_config_paths = ["/"]
     mode: u=rw,g=r,o=r
 
 - name: Configure terraform
@@ -722,9 +710,9 @@
 
 - name: Add agent skills
   ansible.builtin.command: >-
-    skills add https://github.com/{{ item.repo }}
-    --skill {{ item.skill }}
-    --global --yes
+    gh skill install {{ item.repo }}
+    {{ item.skill }}
+    --agent warp --scope user
   args:
     creates: ~/.agents/skills/{{ item.skill }}
   loop: "{{ code_opencode_agent_skills }}"

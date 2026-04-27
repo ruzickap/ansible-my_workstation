@@ -93,8 +93,6 @@ homebrew_packages:
   - rsync
   - shellcheck
   - shfmt
-  - skills
-  - sops
   - telnet
   - tflint
   - tfupdate
