@@ -492,7 +492,6 @@
 
       export DELTA_PAGER="bat --style=plain"
       export EDITOR='nvim'
-      export SOPS_EDITOR='code --wait'
       export PAGER="bat --style=plain --paging=never"
 
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
@@ -520,10 +519,6 @@
 
       # Configure DOCKER_HOST for app
       export DOCKER_HOST=unix://$HOME/.colima/docker.sock
-
-      # SOPS: Secrets OPerationS
-      export SOPS_AGE_KEY_FILE="${HOME}/Documents/secrets/age.txt"
-      export SOPS_AGE_RECIPIENTS="age1jjuamrdk3vrk6g8qhrjnqtt4x2yvvxw7fz2nkvf78398dj7vav7s74z4zz"
 
       zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
       source <(carapace _carapace)
