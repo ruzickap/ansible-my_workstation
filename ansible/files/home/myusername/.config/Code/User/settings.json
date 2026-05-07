@@ -29,10 +29,6 @@
   "editor.fontSize": 14,
   // disable tooltip hint message - https://stackoverflow.com/questions/41115285/how-can-i-disable-hover-tooltip-hints-in-vs-code
   "editor.hover.enabled": "off",
-  // "editor.parameterHints.enabled": false,
-  // "editor.quickSuggestions": {
-  //   "other": "off"
-  // },
   "editor.rulers": [80],
   // disable suggestion - https://prathapreddy-mudium.medium.com/how-to-disable-abc-suggestion-on-vs-code-7a0bbb3c3395
   "editor.suggest.showWords": false,
@@ -60,26 +56,12 @@
   "git.postCommitCommand": "push",
   // commit only staged files - https://stackoverflow.com/questions/76250716/in-vs-code-is-there-a-way-to-configure-source-control-so-that-i-must-stage-file
   "git.suggestSmartCommit": false,
-  // https://timdeschryver.dev/blog/gain-control-over-commit-messages-generated-by-github-copilot
-  "github.copilot.chat.commitMessageGeneration.instructions": [
-    {
-      "text": "Follow the Conventional Commits specification to create clear and consistent commit history. The number of commit message characters must not exceed 72."
-    }
-  ],
-  "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
-    {
-      "text": "Include a summary of the pull request changes."
-    }
-  ],
   // Enable copilot in markdown - https://github.com/orgs/community/discussions/7146
   "github.copilot.enable": {
     "*": true,
     "plaintext": true,
     "markdown": true
   },
-  // "githubPullRequests.defaultMergeMethod": "squash",
-  // "githubPullRequests.pullBranch": "never",
-  // "githubPullRequests.pullRequestDescription": "Copilot",
   "githubPullRequests.pushBranch": "always",
   "mise.checkForNewMiseVersion": false,
   "redhat.telemetry.enabled": true,
@@ -87,9 +69,6 @@
   "security.workspace.trust.enabled": false,
   // Allow keybindings to be sent to the shell in the integrated terminal
   "terminal.integrated.sendKeybindingsToShell": true,
-  // "terminal.integrated.env.osx": {
-  //   "FIG_NEW_SESSION": "1"
-  // },
   // Disable showing opening the release notes - https://stackoverflow.com/questions/45913900/visual-studio-code-keeps-opening-the-release-notes
   "update.showReleaseNotes": false,
   "window.closeWhenEmpty": true,
@@ -97,10 +76,6 @@
   // disable preview file with single-click - https://stackoverflow.com/questions/40336583/how-to-disable-preview-file-with-single-click-in-vs-code
   "workbench.editor.enablePreview": false,
   "workbench.iconTheme": "material-icon-theme",
-  // "workbench.editor.enablePreview": false,
-  // "workbench.editorAssociations": {
-  //   "*.md": "default"
-  // },
   "workbench.startupEditor": "newUntitledFile"
   // keep-sorted end
 }
