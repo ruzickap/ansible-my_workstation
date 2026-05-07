@@ -13,12 +13,12 @@ code_extensions:
   - hashicorp.terraform
   - hverlin.mise-vscode
   - mechatroner.rainbow-csv
-  - pkief.material-icon-theme
   - redhat.vscode-yaml
   - rvben.rumdl
   - sst-dev.opencode
   - streetsidesoftware.code-spell-checker
   - tyriar.sort-lines
+  - vscode-icons-team.vscode-icons
   - yzhang.markdown-all-in-one
   # keep-sorted end
 
