@@ -1,0 +1,101 @@
+# Changelog
+
+## [2.1.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.0.0...v2.1.0) (2024-01-04)
+
+
+### Features
+
+* **fonts:** add fonts, simplify+improve zsh configuration ([6f2444d](https://github.com/ruzickap/ansible-my_workstation/commit/6f2444d6b4d2310ada9938e04218b206579d47ac))
+* **gha:** mega-linter config file, add opentofu, remove plugins ([0f62735](https://github.com/ruzickap/ansible-my_workstation/commit/0f6273592698e90136f44b24aa86dddc7031a22a))
+* **mac:** add colima configuration ([53e68ee](https://github.com/ruzickap/ansible-my_workstation/commit/53e68eeed79001693ce38fc1e987a770552e1fce))
+* **mac:** add dockutil + add Sonoma section to README ([02581f4](https://github.com/ruzickap/ansible-my_workstation/commit/02581f4ed5bfebf2371c17e658221b3271983580))
+* **mac:** add zoxide, DOCKER_HOST, and few VS Code settings ([b00a4f6](https://github.com/ruzickap/ansible-my_workstation/commit/b00a4f616bdf3c37bb20952e966c170241f26292))
+* **mac:** remove aerial ([08c0762](https://github.com/ruzickap/ansible-my_workstation/commit/08c07621f29564b1d1e3c39b554c811ff3851d97))
+* **mac:** remove dockutil, add built from source check for brew ([081c99d](https://github.com/ruzickap/ansible-my_workstation/commit/081c99d8cefd5108da51ff05de90ea2984bc3e98))
+* **mac:** remove unused npm packages and meld ([77ca621](https://github.com/ruzickap/ansible-my_workstation/commit/77ca62118781ed6b59dba555691dad19563beeb7))
+* **zsh:** changes to ZSH_HIGHLIGHT_MAXLENGTH parameter ([b9d9a25](https://github.com/ruzickap/ansible-my_workstation/commit/b9d9a257beb5b64ea21f025ae4f68bcca45d6f5d))
+
+## 2.0.0 (2023-11-05)
+
+## What's Changed
+* feat(upgrade): upgrade to MacBook Air and macOS 14 by @ruzickap in https://github.com/ruzickap/ansible-my_workstation/pull/79
+
+
+**Full Changelog**: https://github.com/ruzickap/ansible-my_workstation/compare/v1.1.0...v2.0.0
+
+## [v1.1.0](https://github.com/ruzickap/ansible-my_workstation/compare/v1.0.0...v1.1.0)
+
+- feat(code): update all + fix gha [`#77`](https://github.com/ruzickap/ansible-my_workstation/pull/77)
+- feat(gh-actions): add lint-pr-title [`#70`](https://github.com/ruzickap/ansible-my_workstation/pull/70)
+- Improve SpaceVim, add/remove apps, add TF_PLUGIN_CACHE_DIR [`#62`](https://github.com/ruzickap/ansible-my_workstation/pull/62)
+- Add Code settings, remove kind [`#59`](https://github.com/ruzickap/ansible-my_workstation/pull/59)
+- Move from master to main [`#58`](https://github.com/ruzickap/ansible-my_workstation/pull/58)
+- Add zsh plugins, remove aws-vault [`#57`](https://github.com/ruzickap/ansible-my_workstation/pull/57)
+- Use modern yt-dlp instead of youtube-dl [`#56`](https://github.com/ruzickap/ansible-my_workstation/pull/56)
+- Use super-linter:slim [`#55`](https://github.com/ruzickap/ansible-my_workstation/pull/55)
+- Add VSCode extensions [`#54`](https://github.com/ruzickap/ansible-my_workstation/pull/54)
+- Upgrade GH Actions versions [`#53`](https://github.com/ruzickap/ansible-my_workstation/pull/53)
+- Fix URL of Let's Encrypt Staging certificate [`#52`](https://github.com/ruzickap/ansible-my_workstation/pull/52)
+- Add kubectl plugin, gpxsee, add Darktable colored_sliders [`#51`](https://github.com/ruzickap/ansible-my_workstation/pull/51)
+- Remove homebrew taps for Linux, remove kubetail, fix casks [`eb12ac5`](https://github.com/ruzickap/ansible-my_workstation/commit/eb12ac554f0b8009255763e9591e95514a4bab78)
+- Add few more darktable 3.4 config parameters [`87e34b2`](https://github.com/ruzickap/ansible-my_workstation/commit/87e34b214174c012c104c1cf620b5edeca2fccae)
+- Add Lens configuration, disable screensaver at right top corner [`bfb0565`](https://github.com/ruzickap/ansible-my_workstation/commit/bfb0565448b3f2965cc43df3e84d81d5891a13cd)
+- Remove menumeters, add let's encrypt staging cert, packages cleanup [`8fdbb6d`](https://github.com/ruzickap/ansible-my_workstation/commit/8fdbb6d03177190a4fdc64fc5f58977c07c33562)
+- Replace Kap by OBS and add aws-vault [`ae3b376`](https://github.com/ruzickap/ansible-my_workstation/commit/ae3b376a0572630e7e29b37337fc6b81563bc970)
+- Add Fedora 33, remove RPM Fusion GPG keys [`4e98cdf`](https://github.com/ruzickap/ansible-my_workstation/commit/4e98cdfd19b2836b7d9351834fea1f226d281528)
+- Add new packages to MacOS [`b7f337c`](https://github.com/ruzickap/ansible-my_workstation/commit/b7f337c89febb5687948c89af4218fc0413ed219)
+- Update python+pip, improve README, remove packages, add AWS_PAGER [`f7ab366`](https://github.com/ruzickap/ansible-my_workstation/commit/f7ab3660f318698d6209d74709cb06ac0690b861)
+- Remove qBittorrent and add qemu, box-sync, slack, tigervnc-viewer [`f42cacf`](https://github.com/ruzickap/ansible-my_workstation/commit/f42cacf63f21c2af08e9a03ccda7f27e146f39ac)
+- Add local provisioning script for MacOS + few more improvements [`8dd8ae8`](https://github.com/ruzickap/ansible-my_workstation/commit/8dd8ae800c3a4549c38db455b4a5f0fc6ef26086)
+
+## [v1.0.0](https://github.com/ruzickap/ansible-my_workstation/compare/v0.1.0...v1.0.0) (2020-09-29)
+
+- Remove Fluor [`#33`](https://github.com/ruzickap/ansible-my_workstation/pull/33)
+- Few fixes found during real MacOS usage [`#32`](https://github.com/ruzickap/ansible-my_workstation/pull/32)
+- Improve KDE config files for Fedora 32 [`93e2580`](https://github.com/ruzickap/ansible-my_workstation/commit/93e25802f3192d843a3d211b4efe445c18582093)
+- Improve LaunchAgents backup and pkgs_upgrade [`9eb3798`](https://github.com/ruzickap/ansible-my_workstation/commit/9eb3798e086b951c64e24fa715e4642a9a832dea)
+- Use Hashicorp repository for Terraform and Packer [`7c5bb12`](https://github.com/ruzickap/ansible-my_workstation/commit/7c5bb12de09ee174979d044cd84308de00a072b3)
+- Add rpmfusion gpg keys [`00ff202`](https://github.com/ruzickap/ansible-my_workstation/commit/00ff202acf220fbbf71994223f5d860f2f7235d0)
+- Use delta instead of diff-so-fancy for git [`c875699`](https://github.com/ruzickap/ansible-my_workstation/commit/c87569980edd08b0d21c6f8f252f6e916f14b0e2)
+- Tweak Homebrew by adding env variables to .zshrc [`25310c9`](https://github.com/ruzickap/ansible-my_workstation/commit/25310c90863510a0455d3c0ee1ad522d781dcb05)
+- Fix gh-cli configuration, remove autojump, remove unused apps [`20ac697`](https://github.com/ruzickap/ansible-my_workstation/commit/20ac6975c1765c7b76766a804c3f6b9a71d9a2ac)
+- Add brew update, remove jdownloader [`63c34b3`](https://github.com/ruzickap/ansible-my_workstation/commit/63c34b362bb725b432e7a3fe71258ee83eb74ec9)
+- Fix Aerial, remove brew autoupdate, better PATH handling in zsh/bash [`9a55f8b`](https://github.com/ruzickap/ansible-my_workstation/commit/9a55f8ba14081338f85c51852637dc63b8a9deac)
+- Fix idempotence tests [`2e135ac`](https://github.com/ruzickap/ansible-my_workstation/commit/2e135ac68922e32f3abbc73df80e7b44f154d320)
+- Add backup and function keys for specific apps [`0c731e8`](https://github.com/ruzickap/ansible-my_workstation/commit/0c731e811c12a2e2b1f76ceee01d7703c2cd34cb)
+- Remove temporary file /tmp/localhost in ddns-update [`5a75337`](https://github.com/ruzickap/ansible-my_workstation/commit/5a75337c3ad078e24e7e5abc36211ee21a8848d8)
+
+## v0.1.0 (2020-09-02)
+
+- Improve iTerm2 config tasks [`#30`](https://github.com/ruzickap/ansible-my_workstation/pull/30)
+- Fix mode in ansible playbooks, add cert-manager to krew plugins [`#29`](https://github.com/ruzickap/ansible-my_workstation/pull/29)
+- Add alias "exa -g" as ls, README and run_* script updated [`#28`](https://github.com/ruzickap/ansible-my_workstation/pull/28)
+- Remove KeepingYouAwake and Vagrant Manager [`#27`](https://github.com/ruzickap/ansible-my_workstation/pull/27)
+- Add Docker Desktop, AltTab, Stats + config changes [`#26`](https://github.com/ruzickap/ansible-my_workstation/pull/26)
+- Add JDownloader and Kap configurations, oci-cli installed by brew [`#25`](https://github.com/ruzickap/ansible-my_workstation/pull/25)
+- README updated, code improved (removed changed_when: false) [`#24`](https://github.com/ruzickap/ansible-my_workstation/pull/24)
+- Add smb shares, cleanup + improvements, Chromium -&gt; Google Chrome [`#23`](https://github.com/ruzickap/ansible-my_workstation/pull/23)
+- Fix macos tests [`#22`](https://github.com/ruzickap/ansible-my_workstation/pull/22)
+- Add launchd agent for ddns [`#21`](https://github.com/ruzickap/ansible-my_workstation/pull/21)
+- Remove caddy, add data rsync, switch to VS Code, code cleanup [`#20`](https://github.com/ruzickap/ansible-my_workstation/pull/20)
+- Add gh configuration [`#19`](https://github.com/ruzickap/ansible-my_workstation/pull/19)
+- Action my markdown link checker [`#17`](https://github.com/ruzickap/ansible-my_workstation/pull/17)
+- Remove handlers / notify [`#16`](https://github.com/ruzickap/ansible-my_workstation/pull/16)
+- Prevent MenuMeters to show main screen when running for the first time [`#15`](https://github.com/ruzickap/ansible-my_workstation/pull/15)
+- Add markdown linter [`#14`](https://github.com/ruzickap/ansible-my_workstation/pull/14)
+- Used fd-find Fedora package instead of fd installed by homebrew [`#13`](https://github.com/ruzickap/ansible-my_workstation/pull/13)
+- Add ssh_connection parameters to ansible.cfg [`#12`](https://github.com/ruzickap/ansible-my_workstation/pull/12)
+- Add file sharing, skip interactive tasks in MacOS, add doc examples [`#11`](https://github.com/ruzickap/ansible-my_workstation/pull/11)
+- Fix ansible-lint, README updated, fix issues in MacOSX.yml [`#10`](https://github.com/ruzickap/ansible-my_workstation/pull/10)
+- Update README file [`#9`](https://github.com/ruzickap/ansible-my_workstation/pull/9)
+- Clean Ansible code and GH Actions [`#8`](https://github.com/ruzickap/ansible-my_workstation/pull/8)
+- Use btrfs for Fedora (fedora-ks.cfg) kickstart [`#7`](https://github.com/ruzickap/ansible-my_workstation/pull/7)
+- Fix login picture + minor Ansible code changes [`#6`](https://github.com/ruzickap/ansible-my_workstation/pull/6)
+- Improve ansible.cfg to print handy stats [`#5`](https://github.com/ruzickap/ansible-my_workstation/pull/5)
+- Add interactive prompt before "interactive tasks" [`#4`](https://github.com/ruzickap/ansible-my_workstation/pull/4)
+- Simplify Ansible installation using brew [`#3`](https://github.com/ruzickap/ansible-my_workstation/pull/3)
+- Add Fedora [`#2`](https://github.com/ruzickap/ansible-my_workstation/pull/2)
+- Add MacOS [`#1`](https://github.com/ruzickap/ansible-my_workstation/pull/1)
+- Disable sleeping in MacOS, tweak display sleep settings, disable Caddy [`12f5610`](https://github.com/ruzickap/ansible-my_workstation/commit/12f561036b19730fcd90ae1340baa6984194b33c)
+- Enable tap-to-click + night shift, remove termtosvg and add mas [`05dd8d2`](https://github.com/ruzickap/ansible-my_workstation/commit/05dd8d2b8ed694d7974be126645cefcd45c14740)
+- Initial commit [`b271a2c`](https://github.com/ruzickap/ansible-my_workstation/commit/b271a2cbe57219052636fb867a7114cc12b9dce0)

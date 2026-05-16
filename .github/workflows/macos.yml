@@ -1,0 +1,83 @@
+name: macos
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - .github/workflows/macos.yml
+      - ansible/files/**
+      - ansible/handlers/**
+      - ansible/main.yml
+      - ansible/tasks/MacOSX.yml
+      - ansible/tasks/common.yml
+      - ansible/vars/Darwin.yml
+      - ansible/vars/common.yml
+
+permissions: read-all
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 100
+    steps:
+      - name: Uninstall Homebrew packages
+        run: |
+          set -euxo pipefail
+          # shellcheck disable=SC2046
+          brew remove --force $(brew list --formula)
+          # shellcheck disable=SC2046
+          brew remove --cask --force $(brew list)
+          rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python* || true
+
+      - name: Install Ansible
+        run: |
+          brew install ansible
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Ansible
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ansible || exit
+          echo "test_password" > vault-my_workstation.password
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test --connection=local -i "127.0.0.1," main.yml
+
+      - name: Ansible - Idempotence tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ansible || exit
+          ansible-playbook --skip-tags data,interactive,secrets,skip_test,skip_idempotence_test --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
+          # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
+          if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
+            echo -e '\n✅ Idempotence test: pass'
+            exit 0
+          else
+            echo -e '\n❗️ Idempotence test: fail\n'
+            grep -B 2 '^changed:' /tmp/ansible.log
+            exit 1
+          fi
+
+      # https://apple.stackexchange.com/questions/313130/with-brew-how-do-i-only-list-packages-that-were-built-from-source-not-poured-f
+      - name: List brew packages that were built from source (ideally empty)
+        run: |
+          brew info --json=v1 --installed | jq -r "map(select(.installed[].poured_from_bottle | not) | .name) | unique | .[]"
+
+      # https://gist.github.com/eguven/23d8c9fc78856bd20f65f8bcf03e691b
+      - name: List brew packages and their sizes
+        run: |
+          brew list --formula | xargs -P8 -I {} sh -c "brew info {} | ggrep -E '[0-9]* files, ' | grep -v 'KB' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'" | sort -h -r -k2 - | column -t
+
+      - name: Brew packages dependency tree
+        env:
+          HOMEBREW_NO_ENV_HINTS: 1
+        run: |
+          for FORMULA in $(brew leaves --installed-on-request); do
+            echo "*** ${FORMULA}"
+            brew deps --installed --tree "${FORMULA}"
+          done

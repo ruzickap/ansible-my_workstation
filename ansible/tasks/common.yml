@@ -1,0 +1,791 @@
+###############################
+# Run as root
+###############################
+
+- name: Run tasks as root
+  become: true
+  block:
+    - name: Add hostname to /etc/hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        regexp: "^127.0.1.1"
+        line: 127.0.1.1   {{ ansible_facts["fqdn"] }}   {{ ansible_facts["hostname"] }}
+        mode: u=rw,g=r,o=r
+      changed_when: false
+
+    - name: Configure aliases
+      ansible.builtin.lineinfile:
+        dest: /etc/aliases
+        regexp: ^root:\s+
+        line: "root:           {{ email }}"
+        mode: u=rw,g=r,o=r
+      notify: Newaliases
+
+    - name: Configure postfix
+      community.general.ini_file:
+        path: /etc/postfix/main.cf
+        section: null
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        # keep-sorted start
+        - option: inet_protocols
+          value: ipv4
+        - option: relayhost
+          value: "{{ postfix_relayhost }}"
+        - option: sender_canonical_maps
+          value: "regexp:/etc/postfix/sender_canonical"
+        - option: smtp_sasl_auth_enable
+          value: "yes"
+        - option: smtp_sasl_mechanism_filter
+          value: login
+        - option: smtp_sasl_password_maps
+          value: hash:/etc/postfix/sasl_passwd
+        - option: smtp_sasl_security_options
+          value: noanonymous
+        - option: smtp_use_tls
+          value: "yes"
+        # keep-sorted end
+
+    - name: Add credentials /etc/postfix/sasl_passwd
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sasl_passwd
+        create: true
+        block: |
+          {{ postfix_relayhost }} {{ postfix_smtp_username }}:{{ postfix_smtp_password }}
+        mode: u=rw,g=,o=
+      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+      no_log: true
+      tags:
+        - secrets
+
+    - name: Add from credentials /etc/postfix/sender_canonical
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sender_canonical
+        create: true
+        block: |
+          /.*/ {{ postfix_form }}
+        mode: u=rw,g=r,o=r
+
+    - name: Add printer and make it default
+      ansible.builtin.shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd -o auth-info-required=negotiate && sleep 1
+      args:
+        creates: /etc/cups/ppd/{{ printer_name }}.ppd
+      notify: Set default printer
+      when: cups_printer_device_uri is defined
+      tags:
+        - printer
+        - skip_test
+
+    - name: Create directory for mc inside ~/.config
+      ansible.builtin.file:
+        path: ~/.config/mc/
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+      tags: mc
+
+    - name: Create ~/.config/mc/ini file
+      community.general.ini_file:
+        path: ~/.config/mc/ini
+        no_extra_spaces: true
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        # keep-sorted start
+        - section: Layout
+          option: keybar_visible
+          value: "false"
+        - section: Layout
+          option: menubar_visible
+          value: "false"
+        - section: Layout
+          option: message_visible
+          value: "false"
+        - section: Midnight-Commander
+          option: auto_save_setup
+          value: "false"
+        - section: Midnight-Commander
+          option: drop_menus
+          value: "true"
+        - section: Midnight-Commander
+          option: editor_return_does_auto_indent
+          value: "false"
+        - section: Panels
+          option: navigate_with_arrows
+          value: "true"
+        # keep-sorted end
+      tags: mc
+
+    - name: Copy mc.ext.ini to the ~/.config/mc/
+      ansible.builtin.copy:
+        src: "{{ homebrew_prefix }}/opt/mc/etc/mc/mc.ext.ini"
+        dest: ~/.config/mc/mc.ext.ini
+        remote_src: true
+        mode: u=rw,g=r,o=r
+      when: ansible_facts['system'] == 'Darwin'
+      changed_when: false
+      tags: mc
+
+    - name: Change default in ~/.config/mc/mc.ext.ini
+      community.general.ini_file:
+        path: ~/.config/mc/mc.ext.ini
+        no_extra_spaces: true
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        # keep-sorted start
+        - section: Include/image
+          option: View
+          value: "%view{ascii} exiftool %p"
+        - section: gpx
+          option: Open
+          value: "{% if ansible_facts['system'] == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        - section: gpx
+          option: Regex
+          value: "\\.gpx$"
+        - section: gpx
+          option: RegexIgnoreCase
+          value: "true"
+        - section: raw
+          option: Open
+          value: "{% if ansible_facts['system'] == 'Linux' %}xdg-{% endif %}open %f &> /dev/null"
+        - section: raw
+          option: Regex
+          value: "\\.(nef|orf|ori|dng|arw)$"
+        - section: raw
+          option: RegexIgnoreCase
+          value: "true"
+        - section: raw
+          option: View
+          value: "%view{ascii} exiftool %p"
+        # keep-sorted end
+      changed_when: false
+      tags: mc
+
+    - name: Replace some scripts by "open"
+      ansible.builtin.replace:
+        dest: ~/.config/mc/mc.ext.ini
+        regexp: "Open={{ homebrew_prefix }}.*/(doc.sh|image.sh|sound.sh|video.sh) open.*"
+        replace: "Open=(open %f &)"
+      when: ansible_facts['system'] == 'Darwin'
+      changed_when: false
+      tags: mc
+
+    - name: Replace version specific directories
+      ansible.builtin.replace:
+        dest: ~/.config/mc/mc.ext.ini
+        regexp: "{{ homebrew_prefix }}Cellar/midnight-commander/.*/libexec/"
+        replace: "{{ homebrew_prefix }}opt/midnight-commander/libexec/"
+      when: ansible_facts['system'] == 'Darwin'
+      changed_when: false
+      tags: mc
+
+    - name: Create directory ~/.config for the {{ ansible_facts['user_id'] }}
+      ansible.builtin.file:
+        path: "{{ ansible_facts['user_dir'] }}/.config/"
+        state: directory
+        owner: "{{ ansible_facts['user_id'] }}"
+        group: "{{ ansible_facts['user_gid'] | string }}"
+        mode: u=rwx,g=,o=
+      tags: mcs
+
+    - name: Copy mc configuration to to User's home directory
+      ansible.builtin.copy:
+        src: ~/.config/mc
+        dest: "{{ ansible_facts['user_dir'] }}/.config/"
+        owner: "{{ ansible_facts['user_id'] }}"
+        group: "{{ ansible_facts['user_gid'] | string }}"
+        remote_src: true
+        mode: u=rwx,g=rx,o=rx
+      changed_when: false
+      tags: mc
+
+    - name: Place public ssh to authorized_key for root and {{ ansible_facts['user_id'] }}
+      ansible.posix.authorized_key:
+        user: "{{ item }}"
+        key: https://github.com/{{ github_username }}.keys
+        comment: "{{ email }}"
+      loop:
+        - "{{ ansible_facts['user_id'] }}"
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.fail:
+        msg: Root tasks failed - check !!!
+
+###############################
+# Run as user
+###############################
+
+- name: Install NvChad
+  ansible.builtin.git:
+    repo: "https://github.com/NvChad/starter"
+    dest: ~/.config/nvim
+    depth: 1
+    single_branch: true
+
+- name: Create VirtualBox config directory
+  ansible.builtin.file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Put VirtualBox configuration in place
+  ansible.builtin.template:
+    src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
+    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
+    mode: u=rw,g=,o=
+
+- name: Create directory for mpv inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/mpv/
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Configure mpv
+  community.general.ini_file:
+    path: ~/.config/mpv/mpv.conf
+    no_extra_spaces: true
+    section: null
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - option: autofit-larger
+      value: 100%x95%
+    - option: icc-contrast
+      value: 1000
+    - option: osd-font-size
+      value: 30
+    - option: osd-level
+      value: 2
+    - option: osd-status-msg
+      value: "'${time-pos} / ${duration}${?percent-pos:  (${percent-pos}%)}${?frame-drop-count:${!frame-drop-count==0:  Dropped: ${frame-drop-count}}}\\n${?chapter:Chapter: ${chapter}}'"
+    - option: slang
+      value: cz,cze,Czech
+    - option: sub-ass-style-overrides
+      value: Kerning=yes
+    - option: sub-auto
+      value: all
+    - option: sub-border-color
+      value: '"#ff262626"'
+    - option: sub-border-size
+      value: 2.0
+    - option: sub-color
+      value: '"#e6d21a"'
+    - option: sub-font-size
+      value: 40
+    - option: sub-shadow-color
+      value: '"#33000000"'
+    - option: sub-shadow-offset
+      value: 1
+    - option: volume-max
+      value: 200
+    # keep-sorted end
+
+- name: Configure mpv
+  community.general.ini_file:
+    path: ~/.config/mpv/mpv.conf
+    section: null
+    allow_no_value: true
+    option: "{{ item.option }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - option: hwdec
+    - option: keep-open
+    - option: save-position-on-quit
+    - option: term-osd-bar
+    # keep-sorted end
+
+- name: Create directory for VLC
+  ansible.builtin.file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/org.videolan.vlc{% else %}~/.config/vlc{% endif %}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy VLC media library file
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/vlc/ml.xspf
+    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/org.videolan.vlc{% else %}~/.config/vlc{% endif %}/ml.xspf"
+    mode: u=rw,g=r,o=r
+
+- name: Put darktable configs in place
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/darktable
+    dest: ~/.config/
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
+
+- name: Configure darktable
+  community.general.ini_file:
+    path: ~/.config/darktable/darktablerc
+    no_extra_spaces: true
+    section: null
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    # keep-sorted start
+    - option: ask_before_delete
+      value: "FALSE"
+    - option: database/create_snapshot
+      value: never
+    - option: opencl
+      value: "TRUE"
+    - option: opencl_tune_headroom
+      value: "TRUE"
+    - option: plugins/darkroom/history/expanded
+      value: "TRUE"
+    - option: plugins/darkroom/modulegroups_preset
+      value: "modules: all"
+    - option: plugins/imageio/format/jpeg/quality
+      value: 97
+    - option: plugins/imageio/format/tiff/compresslevel
+      value: 9
+    - option: plugins/lighttable/export/high_quality_processing
+      value: "TRUE"
+    - option: plugins/lighttable/images_in_row
+      value: 6
+    - option: resourcelevel
+      value: large
+    - option: slideshow_delay
+      value: 3
+    - option: ui_last/import_ignore_nonraws
+      value: "TRUE"
+    - option: ui_last/theme
+      value: darktable-elegant-darker
+    - option: write_sidecar_files
+      value: after edit
+    # keep-sorted end
+
+- name: Install krew plugins
+  ansible.builtin.command: kubectl krew install {{ item }}
+  environment:
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['HOME'] }}/.krew/bin:{{ ansible_facts['env']['PATH'] }}"
+  args:
+    creates: ~/.krew/store/{{ item }}
+  loop: "{{ krew_plugins }}"
+
+- name: Create directory for KeePassXC settings
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=rx
+  loop:
+    - "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc"
+    - "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Caches{% else %}~/.config{% endif %}/keepassxc"
+
+- name: KeePassXC settings
+  community.general.ini_file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    # keep-sorted start
+    - section: Browser
+      option: AlwaysAllowAccess
+      value: "true"
+    - section: Browser
+      option: Enabled
+      value: "true"
+    - section: Browser
+      option: HttpAuthPermission
+      value: "true"
+    - section: GUI
+      option: CheckForUpdates
+      value: "false"
+    - section: GUI
+      option: MonospaceNotes
+      value: "true"
+    - section: GUI
+      option: ShowExpiredEntriesOnDatabaseUnlockOffsetDays
+      value: 30
+    - section: General
+      option: AutoSaveAfterEveryChange
+      value: "false"
+    - section: General
+      option: AutoSaveOnExit
+      value: "false"
+    - section: General
+      option: MinimizeAfterUnlock
+      value: "true"
+    - section: General
+      option: UpdateCheckMessageShown
+      value: "true"
+    - section: PasswordGenerator
+      option: AdditionalChars
+      value: '",."'
+    - section: PasswordGenerator
+      option: AdvancedMode
+      value: "true"
+    - section: PasswordGenerator
+      option: Length
+      value: 16
+    - section: PasswordGenerator
+      option: SpecialChars
+      value: "false"
+    - section: SSHAgent
+      option: Enabled
+      value: "true"
+    - section: Security
+      option: ClearSearch
+      value: "true"
+    - section: Security
+      option: LockDatabaseScreenLock
+      value: "false"
+    # keep-sorted end
+
+- name: KeePassXC settings
+  community.general.ini_file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/caches/{% else %}~/.config{% endif %}/keepassxc/keepassxc.ini"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: General
+      option: LastActiveDatabase
+      value: "{{ ansible_facts['user_dir'] }}/Documents/secrets/keepass2.kdbx"
+
+- name: Configure digikam "systemrc"
+  community.general.ini_file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Preferences{% else %}~/.config{% endif %}/digikam_systemrc"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    - section: System
+      option: disableFaceEngine
+      value: "true"
+    - section: System
+      option: disableOpenCL
+      value: "false"
+
+- name: Configure digikam
+  community.general.ini_file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Preferences{% else %}~/.config{% endif %}/digikamrc"
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=,o=
+  loop:
+    # keep-sorted start
+    - section: Album Settings
+      option: Default Tree Icon Size
+      value: 16
+    - section: Album Settings
+      option: Icon Show Color Label
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Comments
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Fullscreen
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Image Format
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Modification Date
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Overlays
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Pick Label
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Rating
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Resolution
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Size
+      value: "true"
+    - section: Album Settings
+      option: Icon Show Tags
+      value: "false"
+    - section: Album Settings
+      option: Icon Show Title
+      value: "false"
+    - section: Album Settings
+      option: Show Album ToolTips
+      value: "true"
+    - section: Album Settings
+      option: Show Folder Tree View Items Count
+      value: "true"
+    - section: Album Settings
+      option: Show ToolTips
+      value: "true"
+    - section: Album Settings
+      option: Theme
+      value: Black Body
+    - section: Album Settings
+      option: ToolTips Show Album Caption
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Album Category
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Album Collection
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Comments
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show File Date
+      value: "true"
+    - section: Album Settings
+      option: ToolTips Show File Size
+      value: "true"
+    - section: Album Settings
+      option: ToolTips Show Label Rating
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Tags
+      value: "false"
+    - section: Album Settings
+      option: ToolTips Show Titles
+      value: "false"
+    - section: Database Settings
+      option: Database Name Face
+      value: "{{ ansible_facts['user_dir'] }}/Pictures/"
+    - section: Database Settings
+      option: Database Name Thumbnails
+      value: "{{ ansible_facts['user_dir'] }}/Pictures/"
+    - section: Database Settings
+      option: Database Name
+      value: "{{ ansible_facts['user_dir'] }}/Pictures/"
+    - section: Database Settings
+      option: Database Type
+      value: QSQLITE
+    - section: General Settings
+      option: Clean core DB At Start
+      value: "true"
+    - section: General Settings
+      option: Icon Theme
+      value: breeze-dark
+    - section: General Settings
+      option: Show Splash
+      value: "false"
+    - section: General Settings
+      option: Show Trash Delete Dialog
+      value: "false"
+    - section: General Settings
+      option: Use Large Thumbs
+      value: "true"
+    - section: ImageViewer Settings
+      option: JPEGCompression
+      value: 98
+    - section: ImageViewer Settings
+      option: SlideShowDelay
+      value: 3
+    - section: ImageViewer Settings
+      option: SlideShowPrintApertureFocal
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowPrintDate
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowPrintExpoSensitivity
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowPrintName
+      value: "true"
+    - section: ImageViewer Settings
+      option: SlideShowStartCurrent
+      value: "true"
+    - section: ImageViewer Settings
+      option: TIFFCompression
+      value: "true"
+    - section: Metadata Settings
+      option: ExifTool Path
+      value: /opt/homebrew/bin/
+    - section: Metadata Settings
+      option: Rescan File If Modified
+      value: "true"
+    - section: Metadata Settings
+      option: Save Tags
+      value: "true"
+    - section: Metadata Settings
+      option: Use Fast Scan At Startup
+      value: "true"
+    - section: Metadata Settings
+      option: Use XMP Sidecar For Reading
+      value: "true"
+    - section: Versioning Settings
+      option: Non-Destructive Editing Enabled
+      value: "false"
+    # keep-sorted end
+
+- name: Put Code configuration in place
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/Code
+    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/{% else %}~/.config/{% endif %}"
+    directory_mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
+
+- name: Install the Code extensions
+  ansible.builtin.command: code --install-extension {{ item }}
+  environment:
+    PATH: /usr/local/bin:{{ ansible_facts['env']['PATH'] }}
+  args:
+    creates: ~/.vscode/extensions/{{ item | lower }}*
+  loop: "{{ code_extensions }}"
+
+- name: Configure .forward to {{ email }}
+  ansible.builtin.copy:
+    dest: ~/.forward
+    content: |
+      {{ email }}
+    mode: u=rw,g=r,o=r
+
+- name: Create ~/.config/git
+  ansible.builtin.file:
+    path: ~/.config/git
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Place public ssh to autorized_key for root and {{ ansible_facts['user_id'] }}
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
+    create: true
+    block: |
+      petr.ruzicka@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh
+    mode: u=rw,g=r,o=r
+
+- name: Configure git
+  ansible.builtin.copy:
+    src: files/home/myusername/.gitconfig
+    dest: ~/.gitconfig
+    mode: u=rw,g=r,o=r
+
+- name: Configure Ansible
+  ansible.builtin.copy:
+    src: files/home/myusername/.ansible.cfg
+    dest: ~/.ansible.cfg
+    mode: u=rw,g=r,o=r
+
+- name: Create ~/.config/mise
+  ansible.builtin.file:
+    path: ~/.config/mise
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure mise
+  ansible.builtin.copy:
+    dest: ~/.config/mise/config.toml
+    content: |
+      [tools]
+      "npm:markdown-spellcheck" = "latest"
+      "npm:markdown-table-formatter" = "latest"
+
+      [settings]
+      env_cache = true
+      env_cache_ttl = "12h"
+      trusted_config_paths = ["/"]
+    mode: u=rw,g=r,o=r
+
+- name: Configure terraform
+  ansible.builtin.copy:
+    dest: ~/.terraformrc
+    content: |
+      plugin_cache_dir = "${HOME}/.terraform.d/plugin-cache"
+    mode: u=rw,g=r,o=r
+
+- name: Add agent skills
+  ansible.builtin.command: >-
+    gh skill install {{ item.repo }}
+    {{ item.skill }}
+    --agent warp --scope user
+  args:
+    creates: ~/.agents/skills/{{ item.skill }}
+  loop: "{{ code_opencode_agent_skills }}"
+
+###################################################
+# Secrets
+###################################################
+
+- name: Secrets
+  no_log: true
+  tags: secrets
+  block:
+    - name: Copy rclone configuration
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/rclone
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    - name: Copy gh configuration files
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/gh
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    - name: Copy asciinema configuration
+      ansible.builtin.copy:
+        src: files/home/myusername/.config/asciinema
+        dest: ~/.config/
+        mode: u=rw,g=,o=
+
+    ###################################################
+    # Secrets copied from local disk
+    ###################################################
+
+    - name: Create ~/Documents/secrets directory
+      ansible.builtin.file:
+        path: ~/Documents/secrets
+        state: directory
+        mode: u=rwx,g=,o=
+
+    # Needed for shell (zsh/bash)
+    - name: Copy ~/Documents/secrets/secret_variables
+      ansible.builtin.copy:
+        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
+        dest: ~/Documents/secrets/secret_variables
+        mode: u=rw,g=,o=
+      tags: data
+
+    - name: Copy KeePass data
+      ansible.builtin.copy:
+        src: "{{ data_source_dir }}/Documents/secrets/{{ item }}"
+        dest: ~/Documents/secrets/{{ item }}
+        mode: u=rw,g=,o=
+      loop:
+        - keepass2.kdbx
+        - keepass.key
+      tags: data
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.fail:
+        msg: Secrets failed - check !!!
+
+###################################################
+# Data
+###################################################
+
+- name: Copy data (this will take a long time)
+  ansible.posix.synchronize:
+    src: "{{ data_source_dir }}/{{ item }}"
+    dest: ~/
+    rsync_opts:
+      - "--quiet"
+  loop: "{{ home_data_directories }}"
+  tags:
+    - data

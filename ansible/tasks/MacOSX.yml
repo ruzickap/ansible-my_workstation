@@ -1,0 +1,878 @@
+- name: Get GeneratedUID for the current user
+  ansible.builtin.shell: |
+    set -o pipefail
+    dscl . -read {{ ansible_facts["user_dir"] }}/ GeneratedUID | awk '{ print $2 }'
+  register: dscl_output
+  changed_when: false
+
+- name: Get wi-fi interface
+  ansible.builtin.shell: |
+    set -o pipefail
+    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; print $2 }'
+  register: networksetup
+  changed_when: false
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    generateduid: "{{ dscl_output.stdout }}"
+    wifi_interface: "{{ networksetup.stdout }}"
+
+- name: Set secret facts
+  ansible.builtin.set_fact:
+    raspi_username: "{{ lookup('ini', 'username section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
+    raspi_password: "{{ lookup('ini', 'password section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
+  tags:
+    - secrets
+
+- name: Set Hostname + Disable sleeping
+  become: true
+  block:
+    - name: Set hibernation mode to not back memory up to persistent storage
+      ansible.builtin.command: pmset -a hibernatemode 0
+      changed_when: false
+
+    # https://eclecticlight.co/2017/01/20/power-management-in-detail-using-pmset/
+    - name: Turn display off after 30 minutes when running on power adapter
+      ansible.builtin.command: pmset -a displaysleep 30
+      changed_when: false
+
+    - name: Turn display off after 5 minutes when running on battery
+      ansible.builtin.command: pmset -b displaysleep 5
+      changed_when: false
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.fail:
+        msg: Hostname and sleeping settings failed !!!
+
+- name: Install Homebrew
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  args:
+    creates: "{{ homebrew_prefix }}"
+
+- name: Install Homebrew taps
+  community.general.homebrew_tap:
+    name: "{{ homebrew_taps | join(',') }}"
+
+- name: Install Homebrew packages
+  community.general.homebrew:
+    name: "{{ homebrew_packages }}"
+    update_homebrew: true
+  tags: skip_idempotence_test
+
+- name: Install Homebrew casks
+  community.general.homebrew_cask:
+    name: "{{ homebrew_casks }}"
+
+# https://www.mactrast.com/2017/03/show-status-bar-finder-macos-sierra/
+- name: Show status bar
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: ShowStatusBar
+    type: bool
+    value: true
+
+# https://www.techjunkie.com/show-path-finder-title-bar/
+# https://macos-defaults.com/finder/showpathbar.html
+- name: Show path bar
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
+# https://macos-defaults.com/finder/fxpreferredviewstyle.html
+- name: Use list view in all Finder windows by default
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: FXPreferredViewStyle
+    value: Nlsv
+
+# https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
+- name: Display full posix path in Finder title Bar
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: _FXShowPosixPathInTitle
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/disable-the-extension-change-warning-in-os-x-finder/
+# https://macos-defaults.com/finder/fxenableextensionchangewarning.html
+- name: Disable the extension change warning in Finder
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: FXEnableExtensionChangeWarning
+    type: bool
+    value: false
+
+# https://macos-defaults.com/finder/fxdefaultsearchscope.html
+- name: Search the current folder by default
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: FXDefaultSearchScope
+    type: string
+    value: "SCcf"
+
+# https://macos-defaults.com/finder/_fxsortfoldersfirst.html
+- name: Keep folders on top
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: _FXSortFoldersFirst
+    type: bool
+    value: "true"
+
+# https://macos-defaults.com/finder/fxremoveoldtrashitems.html
+- name: Remove items from the Trash after 30 days
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: FXRemoveOldTrashItems
+    type: bool
+    value: "true"
+
+- name: Set a default folder when opening Finder ($HOME)
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: "{{ item.key }}"
+    type: string
+    value: "{{ item.value }}"
+  loop:
+    - key: NewWindowTargetPath
+      value: file://{{ ansible_facts["user_dir"] }}/
+    - key: NewWindowTarget
+      value: PfHm
+
+# https://www.makeuseof.com/tag/hidden-mac-settings-defaults-command/
+# https://macos-defaults.com/finder/quitmenuitem.html
+- name: Add the Quit Option to Finder
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: QuitMenuItem
+    type: bool
+    value: "true"
+
+# https://www.defaults-write.com/disable-screenshots-shadow-mac/
+# https://macos-defaults.com/screenshots/disable-shadow.html
+- name: Disable screenshot shadows on a Mac
+  community.general.osx_defaults:
+    domain: com.apple.screencapture
+    key: disable-shadow
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/disable-the-warning-before-emptying-the-trash/
+- name: Disable the warning before emptying the Trash
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: WarnOnEmptyTrash
+    type: bool
+    value: false
+
+# https://macos-defaults.com/dock/orientation.html
+- name: Show the Dock on the left-hand side
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: orientation
+    type: string
+    value: left
+
+# https://macos-defaults.com/dock/tilesize.html
+- name: Set the icon size of Dock items to "dock_icons_size" pixels
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: tilesize
+    type: float
+    value: "{{ dock_icons_size }}"
+
+# https://macos-defaults.com/dock/autohide.html
+- name: Automatically hide and show the Dock
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: true
+
+# https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
+- name: Magnification icon size
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: largesize
+    type: int
+    value: 70
+
+# https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
+- name: Disable screensaver when mouse is right top
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    # Disable screensaver when mouse is right top
+    - key: wvous-tr-corner
+      value: 6
+    - key: wvous-tr-modifier
+      value: 0
+
+- name: Change keyboard repeat delays
+  community.general.osx_defaults:
+    key: "{{ item.key }}"
+    type: int
+    value: "{{ item.value }}"
+  loop:
+    - key: InitialKeyRepeat
+      value: 25
+    - key: KeyRepeat
+      value: 2
+
+# https://osxdaily.com/2018/10/22/hide-show-recent-apps-mac-dock/
+# https://macos-defaults.com/dock/show-recents.html
+- name: Hide 'recent applications' from dock
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: "false"
+
+- name: Do not show the keyboard layout in status bar
+  community.general.osx_defaults:
+    domain: com.apple.TextInputMenu
+    key: visible
+    type: bool
+    value: "false"
+
+- name: Use F1, F2, ... as standard function keys
+  community.general.osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.keyboard.fnState
+    type: bool
+    value: "true"
+
+- name: Always show scrollbars
+  community.general.osx_defaults:
+    key: AppleShowScrollBars
+    type: string
+    value: Always
+
+- name: Configure wifi interface if exists
+  when: wifi_interface|length > 0
+  tags: secrets
+  block:
+    - name: Add Open wifi accounts
+      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ open_wifi }}"
+
+    - name: Add WPA/WPA2 Personal wifi accounts
+      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
+      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
+      register: networksetup
+      loop: "{{ wpa_personal_wifi }}"
+      loop_control:
+        label: "{{ item.ssid }}"
+
+    - name: Unlock keychain (needed for "security add-generic-password")
+      ansible.builtin.command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
+      changed_when: false
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.fail:
+        msg: Wifi configuration failed !!!
+
+# https://community.jamf.com/general-discussions-2/disable-reopen-windows-when-logging-back-in-mojave-and-higher-8325
+- name: Disable Reopen Windows When Logging Back
+  community.general.osx_defaults:
+    domain: com.apple.loginwindow
+    key: TALLogoutSavesState
+    type: bool
+    value: "false"
+
+# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
+- name: Enable tap-to-click
+  community.general.osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: Clicking
+    type: int
+    value: 1
+
+- name: Add pkgs_upgrade Launch Agent
+  ansible.builtin.template:
+    src: files/Users/myusername/Library/LaunchAgents/pkgs_upgrade.plist.j2
+    dest: ~/Library/LaunchAgents/pkgs_upgrade.plist
+    mode: u=rw,g=r,o=r
+
+- name: Activate ~/Library/LaunchAgents/pkgs_upgrade.plist
+  ansible.builtin.command: launchctl load ~/Library/LaunchAgents/pkgs_upgrade.plist
+  changed_when: launchctl.stderr | length == 0
+  register: launchctl
+
+# https://szymonkrajewski.pl/macos-backup-restic/
+- name: Add backup Launch Agent
+  ansible.builtin.template:
+    src: files/Users/myusername/Library/LaunchAgents/backup.plist.j2
+    dest: ~/Library/LaunchAgents/backup.plist
+    mode: u=rw,g=r,o=r
+
+- name: Activate ~/Library/LaunchAgents/backup.plist
+  ansible.builtin.command: launchctl load ~/Library/LaunchAgents/backup.plist
+  changed_when: launchctl.stderr | length == 0
+  register: launchctl
+
+# - name: Configure Samba shares
+#   become: true
+#   block:
+#     - name: Configure SMB shares via automount
+#       ansible.builtin.lineinfile:
+#         path: /etc/auto_master
+#         regexp: "^/-                      auto_smb        -nosuid,noowner"
+#         line: "/-                      auto_smb        -nosuid,noowner"
+#         mode: u=rw,g=r,o=r
+
+#     - name: Set the file to read-only to prevent overwrite by macOS updates
+#       ansible.builtin.command: chflags schg /etc/auto_master
+#       changed_when: false
+
+#     - name: Create "/System/Volumes/Data/mnt/raspi_hostname" directory for network shares
+#       ansible.builtin.file:
+#         path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+#         state: directory
+#         mode: u=rwx,g=rx,o=rx
+
+#     # https://gist.github.com/rudelm/7bcc905ab748ab9879ea
+#     - name: Configure SMB shares via automount
+#       ansible.builtin.copy:
+#         dest: /etc/auto_smb
+#         mode: u=rw,g=,o=
+#         content: |
+#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
+#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
+#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
+#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
+#       tags:
+#         - secrets
+
+#     - name: Create link from "/System/Volumes/Data/mnt/raspi_hostname" to ~/Documents/
+#       ansible.builtin.file:
+#         src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
+#         dest: "{{ ansible_facts["user_dir"] }}/Documents/{{ raspi_hostname }}"
+#         state: link
+
+# - name: Configure Finder sidebar favourites
+#   ansible.builtin.shell: |
+#     mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
+#     mysides add {{ ansible_facts["user_id"] }} file://{{ ansible_facts["user_dir"] }}
+#   changed_when: false
+
+- name: Remove all Dock items
+  ansible.builtin.command: dockutil --remove all --no-restart
+  changed_when: false
+
+- name: Add Dock items
+  ansible.builtin.command: dockutil --add '{{ item }}' --no-restart
+  register: dock_add
+  changed_when: false
+  loop: "{{ dock_add_items }}"
+
+- name: Create directory docker-buildx
+  ansible.builtin.file:
+    path: ~/.docker/cli-plugins
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Link the docker-buildx
+  ansible.builtin.file:
+    src: "{{ homebrew_prefix }}/bin/docker-buildx"
+    dest: ~/.docker/cli-plugins/docker-buildx
+    state: link
+
+################################################
+# ZSH + oh-my-posh + fzf
+################################################
+
+- name: Create directory for oh-my-posh
+  ansible.builtin.file:
+    path: ~/.config/oh-my-posh
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Download oh-my-posh cobalt2 theme
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/cobalt2.omp.json
+    dest: ~/.config/oh-my-posh/cobalt2.omp.json
+    mode: u=rw,g=r,o=r
+
+# Needed for bash scripts or ansible
+- name: Add path to binaries to ~/.bashrc
+  ansible.builtin.copy:
+    dest: ~/.bashrc
+    content: |
+      export MC_XDG_OPEN=open
+
+      if ps $PPID |grep mc; then
+        PS1="\w ❯ "
+      fi
+    mode: u=rw,g=r,o=r
+
+- name: Add configurations to ~/.zshrc
+  ansible.builtin.blockinfile:
+    dest: ~/.zshrc
+    prepend_newline: true
+    create: true
+    block: |
+      # set history size
+      export HISTSIZE=50000
+      # save history after logout
+      export SAVEHIST=10000
+      # save only one command if 2 common are same and consistent
+      setopt HIST_IGNORE_ALL_DUPS
+      # add timestamp for each entry
+      setopt EXTENDED_HISTORY
+      # Do not share history between sessions (like bash)
+      setopt NO_SHARE_HISTORY
+
+      # Use bat for the brew cat command
+      export HOMEBREW_BAT=1
+      # Cleanup all cached files older than this many days
+      export HOMEBREW_CLEANUP_MAX_AGE_DAYS=7
+      # Fail on the failure of installation from a bottle rather than falling back to building from source
+      export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
+      # Stop Homebrew auto update
+      export HOMEBREW_NO_AUTO_UPDATE=1
+
+      # Enable homebrew, find, sed, coreutils
+      MY_GENERATED_PATH=$(for BIN in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin ; do echo -n "${BIN}:"; done)
+      export PATH="${MY_GENERATED_PATH}${PATH}"
+
+      # Enable man pages
+      MY_GENERATED_MAN=$(for MAN in ${HOMEBREW_PREFIX}/opt/*/libexec/gnuman ; do echo -n "${MAN}:"; done)
+      export MANPATH="${MY_GENERATED_MAN}${MANPATH}"
+
+      # Enable binaries for node, krew and ~/bin
+      export PATH="/usr/local/bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
+      export GOPATH="${HOME}/go"
+
+      # zsh-completions
+      FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
+      autoload -Uz compinit
+      compinit
+
+      # https://unix.stackexchange.com/questions/470714/replicate-oh-my-zsh-directory-tab-completion-selection-with-arrow-keys
+      # https://unix.stackexchange.com/questions/267551/how-can-i-configure-zsh-completion-to-launch-a-menu-for-command-options
+      zstyle ':completion:*' menu yes select
+
+      # https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
+      # https://unix.stackexchange.com/questions/621606/zsh-completion-with-up-and-down-arrows
+      autoload -U up-line-or-beginning-search
+      autoload -U down-line-or-beginning-search
+      zle -N up-line-or-beginning-search
+      zle -N down-line-or-beginning-search
+      bindkey "^[[A" up-line-or-beginning-search # Up
+      bindkey "^[[B" down-line-or-beginning-search # Down
+
+      # Add home and end key bindings to be able to use the USB keyboard to navigate the terminal
+      bindkey '\e[H'    beginning-of-line # Home
+      bindkey '\e[F'    end-of-line # End
+
+      alias cat="bat --style=plain --paging=never"
+      alias dos2unix="sed -i 's/\r$//'"
+      alias history="history -i 0"
+      alias ll="eza -l --git --git-repos --icons=auto"
+      alias ls="eza --icons=auto"
+      alias mc='SHELL=/bin/bash source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
+      alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
+      compdef kubecolor=kubectl
+      alias k="kubecolor"
+      alias tree="eza --tree --icons=auto"
+      alias unix2dos="awk 'sub(\"$\",\"\r\")' "
+      alias vim='nvim'
+
+      export DELTA_PAGER="bat --style=plain"
+      export EDITOR='nvim'
+      export PAGER="bat --style=plain --paging=never"
+
+      source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
+      source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
+
+      source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+      source ~/Documents/secrets/secret_variables
+
+      # ignore # on command line - https://unix.stackexchange.com/questions/557486/allowing-comments-in-interactive-zsh-commands
+      setopt INTERACTIVE_COMMENTS
+
+      # Add highlighters to zsh-syntax-highlighting (default is 'main')
+      ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+
+      # If you don't set a sane max length the highlighter will highlight large pastes of text, which is painfully slow
+      ZSH_HIGHLIGHT_MAXLENGTH=180
+
+      # Disable underline in zsh-syntax-highlighting
+      ZSH_HIGHLIGHT_STYLES[path]=none
+      ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+
+      # Disable Kopia updates checks
+      export KOPIA_CHECK_FOR_UPDATES=false
+
+      # Configure DOCKER_HOST for app
+      export DOCKER_HOST=unix://$HOME/.colima/docker.sock
+
+      zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+      source <(carapace _carapace)
+
+      eval "$(atuin init zsh --disable-up-arrow)"
+      eval "$(mise activate zsh)"
+      eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
+      eval "$(zoxide init zsh)"
+
+################################################
+# Application configuration
+################################################
+
+- name: Check if iTerm2 config file is present (~/Library/Preferences/com.googlecode.iterm2.plist)
+  ansible.builtin.stat:
+    path: ~/Library/Preferences/com.googlecode.iterm2.plist
+  register: com_googlecode_iterm2_plist
+
+- name: Configure iTerm2
+  when: not com_googlecode_iterm2_plist.stat.exists
+  block:
+    - name: Configure iTerm2
+      community.general.osx_defaults:
+        domain: com.googlecode.iterm2
+        key: "{{ item.key }}"
+        type: string
+        value: "{{ item.value }}"
+      loop:
+        # keep-sorted start
+        - key: AddNewTabAtEndOfTabs
+          value: 0
+        - key: DoubleClickPerformsSmartSelection
+          value: 1
+        - key: FocusFollowsMouse
+          value: 1
+        - key: QuitWhenAllWindowsClosed
+          value: 1
+        - key: SUEnableAutomaticChecks
+          value: 0
+        - key: SmartPlacement
+          value: 1
+        - key: TabViewType
+          type: int
+          value: 1
+        # keep-sorted end
+
+    - name: Configure iTerm2 using PlistBuddy
+      ansible.builtin.shell: |
+        open --background -a iTerm  # codespell:ignore
+        osascript -e 'quit app "iTerm"'  # codespell:ignore
+        sleep 10
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Custom Directory"       "Recycle"'                ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                      ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Normal Font"            "MesloLGSNFM-Regular 13"' ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                       ~/Library/Preferences/com.googlecode.iterm2.plist
+        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                   ~/Library/Preferences/com.googlecode.iterm2.plist
+      changed_when: false
+
+  rescue:
+    - name: Print when errors
+      ansible.builtin.fail:
+        msg: iTerm2 configuration failed !!!
+
+- name: Create directory for OBS
+  ansible.builtin.file:
+    path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure OBS
+  community.general.ini_file:
+    path: ~/Library/Application Support/obs-studio/global.ini
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - section: BasicWindow
+      option: RecordWhenStreaming
+      value: "true"
+    - section: BasicWindow
+      option: SysTrayMinimizeToTray
+      value: "true"
+    - section: General
+      option: EnableAutoUpdates
+      value: "false"
+    - section: General
+      option: FirstRun
+      value: "true"
+    - section: General
+      option: LastVersion
+      value: 503316482
+    - section: General
+      option: WarnBeforeStartingStream
+      value: "true"
+    # keep-sorted end
+
+- name: Configure OBS default profile
+  community.general.ini_file:
+    path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled/basic.ini
+    no_extra_spaces: true
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - section: AdvOut
+      option: Encoder
+      value: com.apple.videotoolbox.videoencoder.ave.avc
+    - section: AdvOut
+      option: RecFilePath
+      value: "{{ ansible_facts['user_dir'] }}/Desktop"
+    - section: AdvOut
+      option: RecFormat
+      value: mp4
+    - section: AdvOut
+      option: Track1Bitrate
+      value: 128
+    - section: Audio
+      option: ChannelSetup
+      value: Mono
+    - section: Audio
+      option: SampleRate
+      value: 44100
+    - section: Output
+      option: Mode
+      value: Advanced
+    - section: SimpleOutput
+      option: FileNameWithoutSpace
+      value: "true"
+    # keep-sorted end
+
+- name: Configure Kopia
+  ansible.builtin.copy:
+    dest: ~/.kopiaignore
+    content: |
+      # keep-sorted start
+      *-libvirt.box
+      *-virtualbox.box
+      *.ISO
+      *.iso
+      .DS_Store
+      .terraform
+      /.Trash
+      /.cache
+      /.colima
+      /.gnupg/S.*
+      /.krew
+      /.lima
+      /.local
+      /.vscode
+      /Applications
+      /Documents/chrome-extensions
+      /Downloads
+      /Library
+      /Movies
+      /Music/Music
+      /Pictures/*.db
+      /Pictures/Photos Library.photoslibrary
+      /Public
+      /Virtual Machines*
+      /go
+      /node_modules
+      # keep-sorted end
+    mode: u=rw,g=r,o=r
+
+- name: Configure AltTab
+  community.general.osx_defaults:
+    domain: com.lwouis.alt-tab-macos
+    key: "{{ item.key }}"
+    type: string
+    value: "{{ item.value }}"
+  loop:
+    # keep-sorted start
+    - key: fadeOutAnimation
+      value: "true"
+    - key: hideSpaceNumberLabels
+      value: "true"
+    - key: hideStatusIcons
+      value: "true"
+    - key: hideWindowlessApps
+      value: "true"
+    - key: holdShortcut
+      value: "\u2318"
+    - key: iconSize
+      value: 20
+    - key: menubarIcon
+      value: 3
+    - key: previewFocusedWindow
+      value: "true"
+    - key: screensToShow
+      value: 1
+    - key: updatePolicy
+      value: 0
+    # keep-sorted end
+  tags: skip_idempotence_test
+
+# https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
+- name: Get latest release of Stats
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/exelban/stats/releases/latest
+    return_content: true
+    headers:
+      Authorization: "Bearer {{ ansible_facts['env']['GITHUB_TOKEN'] }}"
+  register: stats_release_data
+  no_log: true
+
+- name: Configure Stats
+  community.general.osx_defaults:
+    domain: eu.exelban.Stats
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    value: "{{ item.value }}"
+  loop:
+    # keep-sorted start
+    - key: Battery_battery_additional
+      value: innerPercentage
+    - key: Battery_notifications_low
+      value: 0.03
+    - key: CPU_line_chart_box
+      value: 0
+    - key: CPU_line_chart_color
+      value: utilization
+    - key: CPU_line_chart_frame
+      value: 1
+    - key: CPU_line_chart_label
+      value: 1
+    - key: CPU_widget
+      value: line_chart
+    - key: CombinedModules
+      type: bool
+      value: 0
+    - key: Disk_removable
+      value: 1
+    - key: Disk_speed_reverseOrder
+      value: 1
+    - key: Disk_speed_transparentIcons
+      value: 1
+    - key: Disk_speed_valueColor
+      value: 1
+    - key: Disk_widget
+      value: speed
+    - key: Network_speed_icon
+      value: chars
+    - key: Network_speed_reverseOrder
+      value: 1
+    - key: Network_speed_transparentIcons
+      value: 1
+    - key: Network_speed_valueColor
+      value: 1
+    - key: RAM_line_chart_box
+      value: 0
+    - key: RAM_line_chart_color
+      value: pressure
+    - key: RAM_line_chart_frame
+      value: 1
+    - key: RAM_line_chart_label
+      value: 1
+    - key: RAM_widget
+      value: line_chart
+    - key: setupProcess
+      type: bool
+      value: 1
+    - key: update-interval
+      value: Never
+    - key: version
+      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
+    # keep-sorted end
+
+- name: Create directory for Colima
+  ansible.builtin.file:
+    path: ~/.colima/_templates/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure Colima
+  ansible.builtin.copy:
+    src: files/Users/myusername/.colima/_templates/default.yaml
+    dest: ~/.colima/_templates/default.yaml
+    mode: u=rw,g=r,o=r
+
+- name: Configure Chrome
+  community.general.osx_defaults:
+    domain: com.google.Chrome
+    key: "{{ item.key }}"
+    type: bool
+    value: "{{ item.value }}"
+  loop:
+    - key: AppleEnableSwipeNavigateWithScrolls
+      value: "FALSE"
+
+- name: Create directory for infat inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/infat/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Create ~/.config/infat/config.toml file
+  community.general.ini_file:
+    path: ~/.config/infat/config.toml
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start
+    - section: types
+      option: audio
+      value: '"mpv"'
+    - section: types
+      option: movie
+      value: '"mpv"'
+    - section: types
+      option: mp4-audio
+      value: '"mpv"'
+    - section: types
+      option: mp4-movie
+      value: '"mpv"'
+    - section: types
+      option: plain-text
+      value: '"Visual Studio Code"'
+    - section: types
+      option: sourcecode
+      value: '"Visual Studio Code"'
+    - section: types
+      option: text
+      value: '"Visual Studio Code"'
+    # keep-sorted end
+  notify: Run infat
+
+- name: Copy opencode configuration
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/opencode
+    dest: ~/.config/
+
+################################################
+# Interactive (can not be "automated")
+################################################
+- name: Run Applications which needs some manual tasks (approvals)
+  ansible.builtin.command: open -a "{{ item }}"
+  changed_when: false
+  loop: "{{ run_applications }}"
+
+- name: Interactive - press ENTER to continue
+  ansible.builtin.pause:
+    prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
+  tags: interactive
+
+# MacOS will open several windows which needs to be confirmed otherwise it will fail
+- name: Allow programs to be started after login
+  ansible.builtin.command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
+  changed_when: false
+  loop: "{{ login_items_enabled }}"
+  tags: interactive

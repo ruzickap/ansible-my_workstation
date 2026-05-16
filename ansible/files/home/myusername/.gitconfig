@@ -1,0 +1,95 @@
+# keep-sorted start newline_separated=yes
+[alias]
+    authors = log --pretty=format:'%an <%ae>'
+    df = diff
+    dt = difftool
+    ll = log --first-parent --pretty=format:'%h %s'
+    ls = ls-files
+    rb = rebase
+    changes = diff --name-status -r
+    stat = diff --stat -r
+    statd = diff --stat -r  --diff-filter=DR
+    who = shortlog -s --
+    fo = fetch origin
+    fu = fetch upstream
+    undo = reset --hard
+    gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+    pr = pull --rebase
+    review-main = push origin HEAD:refs/for/main
+    co = checkout
+    br = branch
+    ci = commit
+    st = status
+    lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %C(bold green)(%cr)%Creset -%C(bold yellow)%d%Creset %s%Creset' --abbrev-commit --date=relative
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "status"]
+    added = cyan bold
+    changed = yellow bold
+    untracked = green bold
+
+[commit]
+    verbose = true
+    gpgsign = true
+
+[core]
+    pager = delta
+    editor = nvim
+
+[credential "https://gist.github.com"]
+    helper = !/opt/homebrew/bin/gh auth git-credential
+
+[credential "https://github.com"]
+    helper = !/opt/homebrew/bin/gh auth git-credential
+
+[delta]
+    # https://dandavison.github.io/delta/side-by-side-view.html
+    # side-by-side = true
+    line-numbers-left-format = ""
+    line-numbers-right-format = "│ "
+    diff-so-fancy = true
+    hunk-header-decoration-style = ul brightblue
+    # https://dandavison.github.io/delta/grep.html
+    hyperlinks = true
+    hyperlinks-file-link-format = "vscode://file/{path}:{line}"
+
+[diff "exif"]
+  textconv = exiftool
+
+# https://dandavison.github.io/delta/color-moved-support.html
+[diff]
+    colorMoved = default
+
+# Needed for GitHub verified commits: https://stackoverflow.com/questions/72844616/how-do-i-sign-git-commits-using-my-existing-ssh-key
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
+
+[gpg]
+    format = ssh
+
+[includeIf "gitdir:~/Documents/mckinsey/git/"]
+    path = ~/Documents/mckinsey/git/.gitconfig
+
+[init]
+    defaultBranch = main
+
+# https://switowski.com/blog/configuring-git
+[push]
+    default = current
+
+# https://stackoverflow.com/questions/4611512/is-there-a-way-to-make-git-pull-automatically-update-submodules
+[submodule]
+    recurse = true
+
+[tag]
+    gpgsign = true
+
+[user]
+    name = Petr Ruzicka
+    email = petr.ruzicka@gmail.com
+    signingkey = ~/.ssh/id_ed25519.pub
+# keep-sorted end

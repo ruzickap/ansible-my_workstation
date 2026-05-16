@@ -1,0 +1,81 @@
+# keep-sorted start newline_separated=yes
+code_extensions:
+  # keep-sorted start
+  - TakumiI.markdowntable
+  - adamhartford.vscode-base64
+  - antfu.slidev
+  - bierner.markdown-mermaid
+  - bierner.markdown-preview-github-styles
+  - emanuelebartolesi.vscode-copilot-insights
+  - esbenp.prettier-vscode
+  - github.vscode-github-actions
+  - github.vscode-pull-request-github
+  - hashicorp.terraform
+  - hverlin.mise-vscode
+  - mechatroner.rainbow-csv
+  - redhat.vscode-yaml
+  - rvben.rumdl
+  - sst-dev.opencode
+  - streetsidesoftware.code-spell-checker
+  - tyriar.sort-lines
+  - vscode-icons-team.vscode-icons
+  - yzhang.markdown-all-in-one
+  # keep-sorted end
+
+code_opencode_agent_skills:
+  # keep-sorted start block=yes
+  - repo: anthropics/skills
+    skill: skill-creator
+  - repo: antonbabenko/terraform-skill
+    skill: terraform-skill
+  - repo: github/awesome-copilot
+    skill: git-commit
+  - repo: hashicorp/agent-skills
+    skill: terraform-style-guide
+  # keep-sorted end
+
+# Directory where there are all the data (usually $HOME)
+data_source_dir: "~"
+
+email: petr.ruzicka@gmail.com
+
+github_username: ruzickap
+
+# The directories which should be copy over to new system
+home_data_directories:
+  # keep-sorted start
+  - .bash_history
+  - .gnupg
+  - .sigstore
+  - .ssh
+  - .zsh_history
+  - Desktop
+  - Documents
+  - Downloads
+  - Movies
+  - Music
+  - Pictures
+  - bin
+  - git
+  # keep-sorted end
+
+krew_plugins:
+  # keep-sorted start
+  - cert-manager
+  - get-all
+  - ice
+  - ktop
+  - ns
+  - resource-capacity
+  - stern
+  - view-allocations
+  # keep-sorted end
+
+my_hostname: peru.xvx.cz
+
+postfix_form: petr.ruzicka@mylabs.dev
+
+postfix_relayhost: live.smtp.mailtrap.io:2525
+
+raspi_hostname: raspi.xvx.cz
+# keep-sorted end

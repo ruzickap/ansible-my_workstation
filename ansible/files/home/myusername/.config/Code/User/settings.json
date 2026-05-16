@@ -1,0 +1,81 @@
+{
+  // keep-sorted start block=yes
+  // https://stackoverflow.com/questions/49640469/how-do-you-determine-which-formatter-is-being-used-for-vs-code
+  "[json][markdown][yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  // Disable word wrap - https://stackoverflow.com/questions/76548914/how-can-i-toggle-line-wrap-word-wrap-in-vs-code-markdown-preview
+  "[markdown]": {
+    "editor.wordWrap": "off"
+  },
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true
+  },
+  // Disable the "Maximum Word Length Exceeded" notification from cSpell extension
+  "cSpell.enabledNotifications": {
+    "Maximum Word Length Exceeded": false
+  },
+  // disable auto-quote feature - https://stackoverflow.com/questions/48714304/visual-studio-code-disable-auto-quote
+  "editor.autoClosingQuotes": "never",
+  // prevent the auto-indentation on paste - https://josh-ops.com/posts/vscode-yaml-indenting/
+  "editor.autoIndent": "keep",
+  // https://stackoverflow.com/questions/48481432/what-does-editor-cursorblinking-do
+  "editor.cursorBlinking": "smooth",
+  "editor.dragAndDrop": false,
+  // set proper fon family - https://github.com/microsoft/vscode/issues/51543
+  "editor.fontFamily": "MesloLGM Nerd Font",
+  // Editor window font size - https://stackoverflow.com/questions/33701933/how-to-change-environments-font-size
+  "editor.fontSize": 14,
+  // disable tooltip hint message - https://stackoverflow.com/questions/41115285/how-can-i-disable-hover-tooltip-hints-in-vs-code
+  "editor.hover.enabled": "off",
+  "editor.rulers": [80],
+  // disable suggestion - https://prathapreddy-mudium.medium.com/how-to-disable-abc-suggestion-on-vs-code-7a0bbb3c3395
+  "editor.suggest.showWords": false,
+  "editor.tabSize": 2,
+  "explorer.confirmDelete": false,
+  // stop the notifications/prompt for recommendations - https://stackoverflow.com/questions/57664187/how-do-i-turn-off-the-extension-recommendations-notification
+  "extensions.ignoreRecommendations": true,
+  // https://github.com/microsoft/vscode/issues/189946
+  "files.hotExit": "off",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  // Automatically do `git fetch` - https://stackoverflow.com/questions/68959453/automatically-fetching-files-in-git
+  "git.autofetch": true,
+  // Deny commits directly to main - https://www.youtube.com/watch?v=Ck3FGbRyfjg
+  "git.branchProtection": ["main"],
+  // Always prompt to create a new branch when committing - https://www.youtube.com/watch?v=Ck3FGbRyfjg
+  "git.branchProtectionPrompt": "alwaysCommitToNewBranch",
+  // Disable confirmation before synchronizing git repositories - https://www.youtube.com/watch?v=kii_qIq0nSU
+  "git.confirmSync": false,
+  // ignores the warning when it looks like the branch might have been rebased when pulling - https://code.visualstudio.com/docs/reference/default-settings
+  "git.ignoreRebaseWarning": true,
+  "git.openRepositoryInParentFolders": "always",
+  // use commit+push as default - https://stackoverflow.com/questions/73320951/change-default-button-from-commit-to-commit-and-push-in-source-control-view
+  "git.postCommitCommand": "push",
+  // commit only staged files - https://stackoverflow.com/questions/76250716/in-vs-code-is-there-a-way-to-configure-source-control-so-that-i-must-stage-file
+  "git.suggestSmartCommit": false,
+  // Enable copilot in markdown - https://github.com/orgs/community/discussions/7146
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  "githubPullRequests.pushBranch": "always",
+  "mise.checkForNewMiseVersion": false,
+  "redhat.telemetry.enabled": true,
+  // https://stackoverflow.com/questions/67914899/how-can-i-disable-workspace-trust-in-vs-code-1-57
+  "security.workspace.trust.enabled": false,
+  // Allow keybindings to be sent to the shell in the integrated terminal
+  "terminal.integrated.sendKeybindingsToShell": true,
+  // Disable showing opening the release notes - https://stackoverflow.com/questions/45913900/visual-studio-code-keeps-opening-the-release-notes
+  "update.showReleaseNotes": false,
+  "window.closeWhenEmpty": true,
+  "workbench.activityBar.location": "top",
+  // disable preview file with single-click - https://stackoverflow.com/questions/40336583/how-to-disable-preview-file-with-single-click-in-vs-code
+  "workbench.editor.enablePreview": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "newUntitledFile"
+  // keep-sorted end
+}

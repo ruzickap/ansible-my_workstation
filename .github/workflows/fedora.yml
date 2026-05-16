@@ -1,0 +1,73 @@
+name: fedora
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches-ignore:
+  #     - main
+  #   paths:
+  #     - .github/workflows/fedora.yml
+  #     - ansible/files/**
+  #     - ansible/handlers/**
+  #     - ansible/main.yml
+  #     - ansible/tasks/Fedora.yml
+  #     - ansible/tasks/common.yml
+  #     - ansible/vars/Linux.yml
+  #     - ansible/vars/common.yml
+
+env:
+  ANSIBLE_HOST_KEY_CHECKING: False
+  ANSIBLE_REMOTE_PORT: 2222
+  FEDORA_VERSION: 38
+  MYUSER: pruzicka
+  PASSWORD: vagrant
+  RAM: 4096
+  VAGRANT_DEFAULT_PROVIDER: virtualbox
+
+permissions: read-all
+
+jobs:
+  fedora:
+    runs-on: macos-15
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install brew packages
+        run: |
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          rm -v /usr/local/bin/2to3* /usr/local/bin/idle3* /usr/local/bin/pydoc3* /usr/local/bin/python3* || true
+          brew install ansible gnu-sed sshpass vagrant virtualbox
+
+      - name: Start Fedora VirtualBox VM
+        run: |
+          vagrant init fedora/${{ env.FEDORA_VERSION }}-cloud-base
+          gsed -i "/Vagrant.configure(\"2\") do |config|/a \ \ config.vm.provider \"virtualbox\" do |vb|\n \ \ \ \ vb.memory = \"${RAM}\"\n \ end" Vagrantfile
+          vagrant up || ( vagrant destroy --force && vagrant up )
+
+      - name: Add main user to Fedora VirtualBox VM
+        run: |
+          cd ansible || exit
+          echo "${PASSWORD}" > vault-my_workstation.password
+          ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
+
+      - name: Ansible
+        run: |
+          cd ansible || exit
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
+
+      - name: Ansible - Idempotence tests
+        run: |
+          cd ansible || exit
+          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
+          # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
+          if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
+            echo -e '\nIdempotence test: pass'
+            exit 0
+          else
+            echo -e '\nIdempotence test: fail\n'
+            grep -B 2 '^changed:' /tmp/ansible.log
+            exit 1
+          fi

@@ -1,0 +1,133 @@
+# keep-sorted start newline_separated=yes
+# Items to add to the dock
+dock_add_items:
+  - /Applications/iTerm.app # codespell:ignore
+  - /Applications/Brave Browser Beta.app
+
+# The Dock icons size
+dock_icons_size: 36.0
+
+homebrew_casks:
+  # keep-sorted start
+  - alt-tab
+  - brave-browser@beta
+  - cursor
+  - darktable
+  - digikam
+  - font-meslo-lg-nerd-font # Needed for iTerm2 + oh-my-zsh theme
+  - grammarly-desktop
+  - home-assistant
+  - iterm2
+  - keepassxc
+  - keepingyouawake
+  - kopiaui
+  - mpv
+  - mysides # Application for managing OS X Finder sidebar favorites
+  - obs
+  - stats
+  - thaw
+  - utm
+  - visual-studio-code
+  # keep-sorted end
+
+homebrew_packages:
+  # keep-sorted start
+  - ab-av1
+  - actions-up
+  - ansible
+  - atuin
+  - awscli
+  - azure-cli
+  - bash
+  - bat
+  - carapace
+  - checkov # needs gcc, openblas
+  - cilium-cli
+  - cloudflared # needed for ssh with cloudflare tunnels
+  - colima
+  - dive
+  - docker-buildx
+  - dockutil
+  - dua-cli
+  - eks-node-viewer
+  - eksctl
+  - exiftool
+  - eza
+  - fd
+  - fnox
+  - fzf
+  - gawk
+  - gh
+  - git
+  - git-delta # A viewer for git and diff output
+  - gnu-sed
+  - gnu-tar
+  - gnupg
+  - grep
+  - hashicorp/tap/terraform
+  - helm
+  - htop
+  - imagemagick
+  - infat
+  - iproute2mac
+  - jq
+  - k9s
+  - keep-sorted
+  - kind
+  - kopia
+  - krew
+  - kubecolor
+  - kubernetes-cli
+  - midnight-commander
+  - mise
+  - mpg123 # needed for mc to display mp3 files
+  - neovim
+  - oh-my-posh
+  - opencode
+  - opentofu
+  - prek
+  - prettier
+  - rclone
+  - rhash
+  - rmtrash
+  - rsync
+  - shellcheck
+  - shfmt
+  - telnet
+  - tflint
+  - tfupdate
+  - tig
+  - trivy
+  - uutils-coreutils
+  - uutils-diffutils
+  - uutils-findutils
+  - watch
+  - wget
+  - yamllint
+  - yq
+  - yt-dlp
+  - zoxide
+  - zsh-completions
+  - zsh-syntax-highlighting
+  # keep-sorted end
+
+homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+
+homebrew_taps:
+  - aws/tap
+  - hashicorp/tap
+
+login_items_enabled:
+  # keep-sorted start
+  - AltTab
+  - KeePassXC
+  - Stats
+  - Thaw
+  # keep-sorted end
+
+login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
+
+run_applications:
+  - AltTab
+  - Stats
+# keep-sorted end

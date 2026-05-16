@@ -1,0 +1,47 @@
+---
+# GitHub Actions workflow for OSSF Scorecard security analysis
+# OSSF Scorecard evaluates open source projects for security best practices
+# and provides a score and recommendations for improvement
+name: scorecards
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: 30 1 * * 6
+
+permissions: read-all
+
+jobs:
+  scorecards:
+    # ossf/scorecard-action doesn't support arm64
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Required for uploading SARIF results to GitHub Security tab
+      security-events: write
+      # Required for OIDC token generation
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Disable credential persistence for security
+          persist-credentials: false
+
+      - name: Run OSSF Scorecard Analysis
+        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publish results to OpenSSF Scorecard API (optional)
+          publish_results: true
+
+      - name: Upload SARIF results to GitHub Security
+        uses: github/codeql-action/upload-sarif@9e0d7b8d25671d64c341c19c0152d693099fb5ba # v4.35.5
+        with:
+          sarif_file: results.sarif
+          # Set category to distinguish from other security scans
+          category: ossf-scorecard
