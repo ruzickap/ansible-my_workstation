@@ -107,7 +107,6 @@ sorted alphabetically within them.
 
 - **Checkov**: IaC scanner (skips `CKV_GHA_7`)
 - **DevSkim**: Pattern scanner (ignores DS162092, DS137138)
-- **KICS**: Fails on HIGH severity only
 - **Trivy**: HIGH/CRITICAL severity, ignores unfixed
 
 ## GitHub Actions
