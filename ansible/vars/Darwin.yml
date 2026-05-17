@@ -94,7 +94,6 @@ homebrew_packages:
   - shellcheck
   - shfmt
   - telnet
-  - tflint
   - tfupdate
   - tig
   - trivy

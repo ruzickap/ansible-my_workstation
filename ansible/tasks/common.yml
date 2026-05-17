@@ -710,11 +710,9 @@
 
 - name: Add agent skills
   ansible.builtin.command: >-
-    gh skill install {{ item.repo }}
-    {{ item.skill }}
-    --agent warp --scope user
+    gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --force
   args:
-    creates: ~/.agents/skills/{{ item.skill }}
+    creates: ~/.agents/skills/{{ item.name }}
   loop: "{{ code_opencode_agent_skills }}"
 
 ###################################################
