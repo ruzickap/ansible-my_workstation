@@ -27,6 +27,9 @@ code_opencode_agent_skills:
   - name: gh-address-comments
     repo: openai/skills
     skill: skills/.curated/gh-address-comments
+  - name: gh-fix-ci
+    repo: openai/skills
+    skill: skills/.curated/gh-fix-ci
   - name: git-commit
     repo: github/awesome-copilot
     skill: git-commit
