@@ -25,6 +25,7 @@ BASH_SHFMT_ARGUMENTS: --case-indent --indent 2 --space-redirects
 DISABLE_LINTERS:
   - MARKDOWN_MARKDOWNLINT # Using rumdl instead (faster Rust-based alternative)
   - MARKDOWN_MARKDOWN_LINK_CHECK # Using lychee instead for link checking (more configurable)
+  - REPOSITORY_OSV_SCANNER # No package sources in this repo
   - SPELL_CSPELL # Spell checking disabled - prone to false positives
   - TERRAFORM_TERRASCAN # Hard to configure - no clear documentation of the config file format
 
@@ -70,9 +71,6 @@ REPOSITORY_TRIVY_ARGUMENTS: --severity HIGH,CRITICAL --ignore-unfixed
 # Allow zizmor (GitHub Actions security scanner) to access GitHub token
 ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
   - GITHUB_TOKEN
-
-# osv-scanner returns error when no package sources found (expected for Ansible)
-REPOSITORY_OSV_SCANNER_DISABLE_ERRORS: true
 
 # Allow lychee (link checker) to access GitHub token for API rate limits
 SPELL_LYCHEE_UNSECURED_ENV_VARIABLES:
