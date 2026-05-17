@@ -81,9 +81,7 @@ idempotence or break.
 
 ## `keep-sorted` blocks
 
-<!-- keep-sorted:skip -->
 Keep-sorted `start` / `end` comment markers appear in YAML
-<!-- keep-sorted:skip -->
 lists, var blocks, and `ansible.cfg`. Insertions must stay
 alphabetically sorted within the markers; do not remove the markers.
 
