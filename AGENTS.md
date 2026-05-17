@@ -1,158 +1,118 @@
-# AI Agent Guidelines
+# Repo Guide for AI Agents
 
-## Overview
+Ansible repo that configures the maintainer's personal workstations
+(macOS + Fedora). YAML, Bash, Jinja2. Generic conventions live in
+`~/.config/opencode/AGENTS.md`; only repo-specific guidance is below.
 
-Ansible repository that configures personal workstations (macOS and
-Fedora Linux). Primary languages: YAML (Ansible), Bash, Jinja2.
+## Layout
 
-## Build / Lint / Test Commands
+- `ansible/main.yml` — single playbook entrypoint. Includes
+  `vars/<system>.yml` (`Darwin`/`Linux`) then runs
+  `tasks/<distribution>.yml` (`MacOSX.yml`/`Fedora.yml`) then
+  `tasks/common.yml`.
+- `ansible/tasks/` — three large monolithic task files
+  (`common.yml` ~790 lines, `Fedora.yml` ~1080, `MacOSX.yml` ~880).
+  No roles. Add new tasks inline in the matching OS file or
+  `common.yml`.
+- `ansible/vars/` — `common.yml` (shared), `Darwin.yml` (macOS),
+  `Linux.yml` (Fedora), `secrets.yml.vault` (vault-encrypted).
+- `ansible/files/{Users,home,etc}/` — files copied to target;
+  `Users/` is macOS, `home/` is Linux. Source path under
+  `myusername/` is templated at runtime.
+- `ansible/handlers/handlers.yml` — all handlers.
+- `ansible/ansible.cfg` — sets
+  `vault_password_file = vault-my_workstation.password`
+  (gitignored, must exist before running).
+- `scripts/`, `kickstart_file/` — Fedora ISO rebuild bits, not
+  part of the playbook run.
+
+## Running
+
+All `run_ansible_my_workstation*.sh` wrappers `cd ansible` first.
 
 ```bash
-# Install Ansible Galaxy dependencies
-ansible-galaxy install -r ansible/requirements.yml
+# Local macOS run (matches the maintainer's flow)
+./run_ansible_my_workstation-local-mac.sh   # edit MY_PASSWORD first
 
-# Run playbook locally (macOS)
-cd ansible || exit
-ansible-playbook --connection=local -i "127.0.0.1," main.yml
+# Plain local run (no vault password needed if file is present)
+./run_ansible_my_workstation-local.sh
 
-# Run playbook skipping certain tags (CI mode)
+# CI-equivalent run (no secrets, no interactive, no large data)
 ansible-playbook --skip-tags data,interactive,secrets,skip_test \
-  --connection=local -i "127.0.0.1," main.yml
+  --connection=local -i "127.0.0.1," ansible/main.yml
 
-# Run a single tagged subset of tasks
-ansible-playbook --tags mc --connection=local -i "127.0.0.1," main.yml
+# Idempotence check: re-run with the same skip-tags and expect
+# `changed=0.*failed=0` (CI greps for this exact pattern).
 
-# Lint Ansible files
-ansible-lint -c ansible/.ansible-lint.yml ansible/
-
-# Lint shell scripts
-shellcheck --exclude=SC2317 run_ansible_my_workstation*.sh
-shfmt --case-indent --indent 2 --space-redirects -d run_ansible_my_workstation*.sh
-
-# Lint Markdown
-rumdl .
-
-# Check links
-lychee --config lychee.toml .
-
-# Validate GitHub Actions workflows
-actionlint
-
-# Full CI linting (requires Docker)
-mega-linter-runner --flavor documentation
+# Single feature subset
+ansible-playbook --tags mc --connection=local -i "127.0.0.1," ansible/main.yml
 ```
 
-## Ansible Conventions
+Before any local run: create `ansible/vault-my_workstation.password`
+(plain text, one line). CI writes `"test_password"` into it.
 
-- **FQCN required**: Always use fully qualified collection names
-  (e.g., `ansible.builtin.copy`, `community.general.ini_file`),
-  never short names like `copy` or `file`
-- **Collections**: `ansible.builtin`, `ansible.posix`,
-  `community.general` (defined in `ansible/requirements.yml`)
-- **Task naming**: Every task must have a descriptive `name:` field
-- **File modes**: Use symbolic notation (`mode: u=rw,g=r,o=r`)
-  not octal (`mode: "0644"`)
-- **Become**: Use `become: true` in block-level when multiple tasks
-  need root, or per-task when only one does
-- **Tags**: Use tags for selective execution and test control:
-  - `secrets` - tasks using vault-encrypted variables
-  - `data` - tasks involving large data operations
-  - `interactive` - tasks requiring user input
-  - `skip_test` - tasks that should not run in CI
-  - `skip_idempotence_test` - tasks that are not idempotent
-  - Feature-specific tags: `mc`, `printer`, etc.
-- **Variables**: Define in `ansible/vars/common.yml` (shared),
-  `ansible/vars/Darwin.yml` (macOS), `ansible/vars/Linux.yml`
-  (Fedora)
-- **OS-specific tasks**: `ansible/tasks/MacOSX.yml` (macOS),
-  `ansible/tasks/Fedora.yml` (Fedora), `ansible/tasks/common.yml`
-  (shared)
-- **ansible-lint skips**: `package-latest`, `yaml[comments]`,
-  `yaml[document-start]`, `yaml[line-length]`
+## Tags (used to gate CI and selective runs)
 
-## Sorted Lists
+- `secrets` — uses vault-encrypted vars. Skipped in CI.
+- `data` — large data ops (backups, restores). Skipped in CI.
+- `interactive` — needs user input. Skipped in CI.
+- `skip_test` — never run in CI for any reason.
+- `skip_idempotence_test` — runs first CI pass but skipped on the
+  second idempotence pass (use for tasks that legitimately change
+  every run).
+- Feature tags (`mc`, `printer`, …) — for ad-hoc selective runs.
 
-This repo uses `# keep-sorted start` / `# keep-sorted end` comments
-to maintain alphabetical ordering in YAML lists, config blocks, and
-variable definitions. Always preserve these markers and keep items
-sorted alphabetically within them.
+Tag every new task that fits these buckets, or CI will fail
+idempotence or break.
 
-## Shell Scripts
+## Ansible conventions (enforced)
 
-- **Linting**: Must pass `shellcheck` (SC2317 excluded)
-- **Formatting**: `shfmt --case-indent --indent 2 --space-redirects`
-- **Variables**: Use uppercase with braces (`${MY_VARIABLE}`)
-- **Indentation**: 2 spaces, no tabs
+- **FQCN only**: `ansible.builtin.copy`, `community.general.ini_file`,
+  etc. Short names will fail `ansible-lint`.
+- Collections pinned in `ansible/requirements.yml`:
+  `ansible.posix`, `community.general`. Install with
+  `ansible-galaxy install -r ansible/requirements.yml`.
+- **File modes are symbolic**: `mode: u=rw,g=r,o=r`, never `"0644"`.
+- Every task needs a descriptive `name:`.
+- `ansible-lint` config at `ansible/.ansible-lint.yml` skips
+  `package-latest`, `yaml[comments]`, `yaml[document-start]`,
+  `yaml[line-length]` — do not rely on line-length wrapping in YAML.
+- Lint command: `ansible-lint -c ansible/.ansible-lint.yml ansible/`
 
-## Markdown Files
+## `keep-sorted` blocks
 
-- Must pass `rumdl` checks (`CHANGELOG.md` excluded)
-- Wrap lines at 80 characters
-- Use proper heading hierarchy (no skipped levels)
-- Include language identifiers in code fences
-- Shell code blocks must also pass `shellcheck` and `shfmt`
+<!-- keep-sorted:skip -->
+Keep-sorted `start` / `end` comment markers appear in YAML
+<!-- keep-sorted:skip -->
+lists, var blocks, and `ansible.cfg`. Insertions must stay
+alphabetically sorted within the markers; do not remove the markers.
 
-## JSON Files
+## CI specifics
 
-- Must pass `jsonlint --comments` validation
-- `.devcontainer/devcontainer.json` is excluded from linting
+- `.github/workflows/macos.yml` runs on every push (not main) that
+  touches `ansible/{files,handlers,main.yml,tasks/{MacOSX,common}.yml,vars/{Darwin,common}.yml}`
+  or the workflow itself. Runs the playbook twice (apply +
+  idempotence) and fails if the second run reports any changes.
+- `.github/workflows/fedora.yml` is `workflow_dispatch` only
+  (push trigger commented out) — uses Vagrant + VirtualBox on
+  `macos-15`.
+- Full local lint pass mirroring CI: `mega-linter-runner --flavor documentation`
+  (requires Docker).
 
-## Link Checking
+## Shell wrappers
 
-- `lychee` validates URLs (config in `lychee.toml`)
-- Accepts status codes 200 and 429
-- Excludes `CHANGELOG.md`, private IPs, template variables
+The `run_ansible_my_workstation*.sh` scripts use `set -eux` and
+`cd ansible || exit`. Keep them small; real logic belongs in
+playbooks. Lint with
+`shellcheck --exclude=SC2317` and
+`shfmt --case-indent --indent 2 --space-redirects`.
 
-## Security Scanning
+## Things not to do
 
-- **Checkov**: IaC scanner (skips `CKV_GHA_7`)
-- **DevSkim**: Pattern scanner (ignores DS162092, DS137138)
-- **Trivy**: HIGH/CRITICAL severity, ignores unfixed
-
-## GitHub Actions
-
-- Pin actions to full SHA commits, never tags
-- Use minimal permissions (`permissions: read-all`)
-- Validate changes with `actionlint`
-
-## Version Control
-
-### Commit Messages
-
-Conventional commit format: `<type>: <description>`
-
-- Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`,
-  `style`, `perf`, `ci`, `build`, `revert`
-- Subject: imperative mood, lowercase, no period, max 72 chars
-- Body: wrap at 72 chars, explain what and why
-- Reference issues: `Fixes`, `Closes`, `Resolves`
-
-```text
-feat: add automated dependency updates
-
-- Implement Dependabot configuration
-- Configure weekly security updates
-
-Resolves: #123
-```
-
-### Branching
-
-Follow conventional branch format: `<type>/<description>`
-
-- `feature/` or `feat/`, `bugfix/` or `fix/`, `hotfix/`,
-  `release/`, `chore/`
-- Lowercase, hyphens only, no consecutive/trailing hyphens
-
-### Pull Requests
-
-- Always create as **draft** initially
-- Title must follow conventional commit format
-- Include clear description and link related issues
-
-## General Style
-
-- **Indentation**: 2 spaces everywhere (YAML, shell, JSON)
-- **No tabs**: Spaces only in all files
-- **Formatting**: Consistent formatting across all file types
-- **Atomic commits**: One logical change per commit
+- Don't add roles or restructure into multiple plays — current
+  design is intentionally one play, three task files.
+- Don't commit `ansible/vault-my_workstation.password` (gitignored).
+- Don't use octal file modes or short module names — lint will
+  fail.
+- Don't add tasks that change on every run without
+  `skip_idempotence_test` — CI macos job will fail.
