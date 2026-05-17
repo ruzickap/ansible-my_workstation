@@ -735,6 +735,7 @@
     key: "{{ item.key }}"
     type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
     value: "{{ item.value }}"
+  tags: skip_idempotence_test
   loop:
     # keep-sorted start
     - key: Battery_battery_additional
