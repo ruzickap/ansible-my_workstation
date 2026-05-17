@@ -24,14 +24,27 @@ code_extensions:
 
 code_opencode_agent_skills:
   # keep-sorted start block=yes
-  - repo: anthropics/skills
-    skill: skill-creator
-  - repo: antonbabenko/terraform-skill
-    skill: terraform-skill
-  - repo: github/awesome-copilot
+  - name: gh-address-comments
+    repo: openai/skills
+    skill: skills/.curated/gh-address-comments
+  - name: git-commit
+    repo: github/awesome-copilot
     skill: git-commit
-  - repo: hashicorp/agent-skills
-    skill: terraform-style-guide
+  - name: pdf
+    repo: anthropics/skills
+    skill: pdf
+  - name: skill-creator
+    repo: anthropics/skills
+    skill: skill-creator
+  - name: terraform-skill
+    repo: antonbabenko/terraform-skill
+    skill: terraform-skill
+  - name: terraform-style-guide
+    repo: hashicorp/agent-skills
+    skill: terraform/code-generation/skills/terraform-style-guide
+  - name: terraform-test
+    repo: hashicorp/agent-skills
+    skill: terraform/code-generation/skills/terraform-test
   # keep-sorted end
 
 # Directory where there are all the data (usually $HOME)
