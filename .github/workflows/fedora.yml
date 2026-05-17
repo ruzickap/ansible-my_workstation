@@ -20,7 +20,6 @@ env:
   ANSIBLE_REMOTE_PORT: 2222
   FEDORA_VERSION: 38
   MYUSER: pruzicka
-  # kics-scan ignore-line
   PASSWORD: vagrant
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
@@ -33,6 +32,8 @@ jobs:
     timeout-minutes: 100
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install brew packages
         run: |
