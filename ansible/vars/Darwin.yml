@@ -44,6 +44,7 @@ homebrew_packages:
   - checkov # needs gcc, openblas
   - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
+  - codeburn
   - colima
   - dive
   - docker-buildx
