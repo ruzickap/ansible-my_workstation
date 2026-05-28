@@ -710,7 +710,7 @@
 
 - name: Add agent skills
   ansible.builtin.command: >-
-    gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --force
+    gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
   args:
     creates: ~/.agents/skills/{{ item.name }}
   loop: "{{ code_opencode_agent_skills }}"

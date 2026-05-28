@@ -24,6 +24,9 @@ code_extensions:
 
 code_opencode_agent_skills:
   # keep-sorted start block=yes
+  - name: conventional-branch
+    repo: conventional-branch/conventional-branch
+    skill: skills/conventional-branch
   - name: gh-address-comments
     repo: openai/skills
     skill: skills/.curated/gh-address-comments
