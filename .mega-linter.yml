@@ -76,6 +76,10 @@ REPOSITORY_TRIVY_ARGUMENTS: --severity HIGH,CRITICAL --ignore-unfixed
 SPELL_LYCHEE_UNSECURED_ENV_VARIABLES:
   - GITHUB_TOKEN
 
+# Allow tflint (Terraform linter) to access GitHub token for plugin downloads
+TERRAFORM_TFLINT_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
+
 # Prettier (TypeScript/JavaScript formatter) configuration
 TYPESCRIPT_PRETTIER_ARGUMENTS: --html-whitespace-sensitivity=ignore
 # keep-sorted end
