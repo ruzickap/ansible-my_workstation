@@ -316,6 +316,36 @@
     dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/org.videolan.vlc{% else %}~/.config/vlc{% endif %}/ml.xspf"
     mode: u=rw,g=r,o=r
 
+- name: Create directory for Ghostty
+  ansible.builtin.file:
+    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/com.mitchellh.ghostty{% else %}~/.config/ghostty{% endif %}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure Ghostty
+  ansible.builtin.copy:
+    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/com.mitchellh.ghostty{% else %}~/.config/ghostty{% endif %}/config.ghostty"
+    content: |
+      copy-on-select = clipboard
+      cursor-color = #FFFF00
+      font-size=13
+      font-thicken = true
+      keybind = shift+end=scroll_to_bottom
+      keybind = shift+home=scroll_to_top
+      keybind = shift+page_down=scroll_page_down
+      keybind = shift+page_up=scroll_page_up
+      macos-titlebar-style = tabs
+      macos-window-buttons = hidden
+      mouse-hide-while-typing = true
+      mouse-scroll-multiplier = precision:3,discrete:3
+      quit-after-last-window-closed = true
+      theme = iTerm2 Dark Background
+
+      # https://github.com/ghostty-org/ghostty/discussions/3836
+      cursor-style = block
+      shell-integration-features = no-cursor
+    mode: u=rw,g=r,o=r
+
 - name: Put darktable configs in place
   ansible.builtin.copy:
     src: files/home/myusername/.config/darktable
@@ -655,6 +685,12 @@
       {{ email }}
     mode: u=rw,g=r,o=r
 
+- name: Suppress "Last login" message in terminal with ~/.hushlogin
+  ansible.builtin.copy:
+    dest: ~/.hushlogin
+    content: ""
+    mode: u=rw,g=r,o=r
+
 - name: Create ~/.config/git
   ansible.builtin.file:
     path: ~/.config/git
@@ -699,6 +735,20 @@
       env_cache = true
       env_cache_ttl = "12h"
       trusted_config_paths = ["/"]
+    mode: u=rw,g=r,o=r
+
+- name: Create ~/.config/rumdl
+  ansible.builtin.file:
+    path: ~/.config/rumdl
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Configure rumdl
+  ansible.builtin.copy:
+    dest: ~/.config/rumdl/rumdl.toml
+    content: |
+      [global]
+      cache-dir = "/tmp/rumdl-cache"
     mode: u=rw,g=r,o=r
 
 - name: Configure terraform
