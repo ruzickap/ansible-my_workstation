@@ -479,13 +479,13 @@
       FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
       typeset -U fpath path PATH FPATH
       autoload -Uz compinit
-      # Rebuild and security-audit the completion dump at most once per day;
-      # otherwise load the cached dump with -C (skips the slow compaudit that
-      # plain `compinit` runs on every shell start).
-      if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-        compinit
-      else
+      # Load the cached dump with -C (skips the slow compaudit) only when a
+      # fresh dump (< 24h old) exists; otherwise rebuild and security-audit it
+      # with plain `compinit`. A missing dump is treated like an old one.
+      if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh-24) ]]; then
         compinit -C
+      else
+        compinit
       fi
 
       # https://unix.stackexchange.com/questions/470714/replicate-oh-my-zsh-directory-tab-completion-selection-with-arrow-keys
