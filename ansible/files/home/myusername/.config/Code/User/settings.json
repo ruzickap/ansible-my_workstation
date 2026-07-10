@@ -23,8 +23,6 @@
   // https://stackoverflow.com/questions/48481432/what-does-editor-cursorblinking-do
   "editor.cursorBlinking": "smooth",
   "editor.dragAndDrop": false,
-  // set proper fon family - https://github.com/microsoft/vscode/issues/51543
-  "editor.fontFamily": "MesloLGM Nerd Font",
   // Editor window font size - https://stackoverflow.com/questions/33701933/how-to-change-environments-font-size
   "editor.fontSize": 14,
   // disable tooltip hint message - https://stackoverflow.com/questions/41115285/how-can-i-disable-hover-tooltip-hints-in-vs-code
