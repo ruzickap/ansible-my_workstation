@@ -542,14 +542,11 @@
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
 
-      # oh-my-posh renders the prompt itself, so keep it EAGER (it has no
-      # instant-prompt feature). Everything else is deferred to after the
-      # first prompt is painted via zsh-defer.
+      # Keep oh-my-posh EAGER (no instant-prompt feature); defer everything
+      # else until after the first prompt is painted via zsh-defer.
       #
-      # NOTE: use `zsh-defer -c '<command string>'` (not
-      # `zsh-defer eval "$(tool ...)"`). With the latter the `$(...)` command
-      # substitution still runs EAGERLY at parse time and only the cheap eval
-      # is deferred. The -c form defers the slow subprocess fork as well.
+      # Use `zsh-defer -c '...'`: it defers the slow `$(...)` subprocess too,
+      # whereas `zsh-defer eval "$(tool ...)"` runs it eagerly at parse time.
       eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
       zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
       zsh-defer -c 'eval "$(mise activate zsh)"'
