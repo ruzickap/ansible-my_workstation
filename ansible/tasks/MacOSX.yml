@@ -56,6 +56,12 @@
   community.general.homebrew_tap:
     name: "{{ homebrew_taps | join(',') }}"
 
+# Newer Homebrew refuses formulae/casks from untrusted third-party taps
+# (HOMEBREW_REQUIRE_TAP_TRUST); trust ours so their packages can install.
+- name: Trust Homebrew taps
+  ansible.builtin.command: brew trust --tap {{ homebrew_taps | join(' ') }}
+  changed_when: false
+
 - name: Install Homebrew packages
   community.general.homebrew:
     name: "{{ homebrew_packages }}"
@@ -393,6 +399,17 @@
 # ZSH + oh-my-posh + fzf
 ################################################
 
+# Not in Homebrew, so clone it. Used in ~/.zshrc to defer slow tool inits
+# (mise, zoxide, atuin, carapace) until after the first prompt is drawn.
+- name: Clone zsh-defer (romkatv) for deferred shell startup
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/zsh-defer
+    dest: ~/.config/zsh/zsh-defer
+    depth: 1
+    version: master
+  tags:
+    - skip_idempotence_test
+
 - name: Create directory for oh-my-posh
   ansible.builtin.file:
     path: ~/.config/oh-my-posh
@@ -465,8 +482,15 @@
 
       # zsh-completions
       FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
+      typeset -U fpath path PATH FPATH
       autoload -Uz compinit
-      compinit
+      # Use fast `-C` (skips compaudit) only when a fresh dump (<24h) exists;
+      # otherwise rebuild + audit with plain `compinit` (missing == old).
+      if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh-24) ]]; then
+        compinit -C
+      else
+        compinit
+      fi
 
       # https://unix.stackexchange.com/questions/470714/replicate-oh-my-zsh-directory-tab-completion-selection-with-arrow-keys
       # https://unix.stackexchange.com/questions/267551/how-can-i-configure-zsh-completion-to-launch-a-menu-for-command-options
@@ -490,7 +514,7 @@
       alias history="history -i 0"
       alias ll="eza -l --git --git-repos --icons=auto"
       alias ls="eza --icons=auto"
-      alias mc='SHELL=/bin/bash source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
+      alias mc='SHELL=/bin/bash TERM=xterm-256color source "${HOMEBREW_PREFIX}/opt/mc/libexec/mc/mc-wrapper.sh" --nomouse'
       alias md5sum_dir="rhash --md5 --recursive --percents --output=md5sum.md5 ." # DevSkim: ignore DS126858
       compdef kubecolor=kubectl
       alias k="kubecolor"
@@ -505,7 +529,9 @@
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
-      source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+      # Load zsh-defer so heavy tool inits (queued below) run AFTER the first
+      # prompt is drawn, keeping new tabs instant.
+      source "${HOME}/.config/zsh/zsh-defer/zsh-defer.plugin.zsh"
 
       # ignore # on command line - https://unix.stackexchange.com/questions/557486/allowing-comments-in-interactive-zsh-commands
       setopt INTERACTIVE_COMMENTS
@@ -519,66 +545,22 @@
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
 
-      source <(carapace _carapace)
-
-      eval "$(atuin init zsh --disable-up-arrow)"
-      eval "$(mise activate zsh)"
+      # Keep oh-my-posh EAGER (no instant-prompt); defer the rest. Use
+      # `zsh-defer -c '...'` so the slow `$(...)` subprocess is deferred too.
       eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
-      eval "$(zoxide init zsh)"
+      zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
+      zsh-defer -c 'eval "$(mise activate zsh)"'
+      zsh-defer -c 'eval "$(zoxide init zsh)"'
+      # carapace generates a large completion script; defer it off the
+      # critical path as well.
+      zsh-defer -c 'source <(carapace _carapace)'
+      # zsh-syntax-highlighting MUST be sourced last so it wraps every ZLE
+      # widget defined above, hence it is the final deferred item.
+      zsh-defer source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 ################################################
 # Application configuration
 ################################################
-
-- name: Check if iTerm2 config file is present (~/Library/Preferences/com.googlecode.iterm2.plist)
-  ansible.builtin.stat:
-    path: ~/Library/Preferences/com.googlecode.iterm2.plist
-  register: com_googlecode_iterm2_plist
-
-- name: Configure iTerm2
-  when: not com_googlecode_iterm2_plist.stat.exists
-  block:
-    - name: Configure iTerm2
-      community.general.osx_defaults:
-        domain: com.googlecode.iterm2
-        key: "{{ item.key }}"
-        type: string
-        value: "{{ item.value }}"
-      loop:
-        # keep-sorted start
-        - key: AddNewTabAtEndOfTabs
-          value: 0
-        - key: DoubleClickPerformsSmartSelection
-          value: 1
-        - key: FocusFollowsMouse
-          value: 1
-        - key: QuitWhenAllWindowsClosed
-          value: 1
-        - key: SUEnableAutomaticChecks
-          value: 0
-        - key: SmartPlacement
-          value: 1
-        - key: TabViewType
-          type: int
-          value: 1
-        # keep-sorted end
-
-    - name: Configure iTerm2 using PlistBuddy
-      ansible.builtin.shell: |
-        open --background -a iTerm  # codespell:ignore
-        osascript -e 'quit app "iTerm"'  # codespell:ignore
-        sleep 10
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Custom Directory"       "Recycle"'                ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Columns"                120'                      ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Normal Font"            "MesloLGSNFM-Regular 13"' ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Rows"                   33'                       ~/Library/Preferences/com.googlecode.iterm2.plist
-        /usr/libexec/PlistBuddy -c 'Set :"New Bookmarks":0:"Scrollback Lines"       100000'                   ~/Library/Preferences/com.googlecode.iterm2.plist
-      changed_when: false
-
-  rescue:
-    - name: Print when errors
-      ansible.builtin.fail:
-        msg: iTerm2 configuration failed !!!
 
 - name: Create directory for OBS
   ansible.builtin.file:
@@ -863,6 +845,7 @@
   ansible.builtin.command: open -a "{{ item }}"
   changed_when: false
   loop: "{{ run_applications }}"
+  tags: interactive
 
 - name: Interactive - press ENTER to continue
   ansible.builtin.pause:

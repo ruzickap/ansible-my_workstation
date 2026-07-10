@@ -1,7 +1,7 @@
 # keep-sorted start newline_separated=yes
 # Items to add to the dock
 dock_add_items:
-  - /Applications/iTerm.app # codespell:ignore
+  - /Applications/Ghostty.app
   - /Applications/Brave Browser Beta.app
 
 # The Dock icons size
@@ -14,10 +14,10 @@ homebrew_casks:
   - cursor
   - darktable
   - digikam
-  - font-meslo-lg-nerd-font # Needed for iTerm2 + oh-my-zsh theme
+  - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
+  - ghostty
   - grammarly-desktop
   - home-assistant
-  - iterm2
   - keepassxc
   - keepingyouawake
   - kopiaui

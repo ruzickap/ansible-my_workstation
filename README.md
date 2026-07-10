@@ -43,7 +43,6 @@ Configure my laptop with Ansible.
   * Recording -> Store my recordings at: `~/Desktop`
 * Slack
 * VS Code - [Move Search to panel](https://stackoverflow.com/questions/50058584/vs-code-toggle-search-icon-in-activity-bar-move-from-panel-or-back)
-* iTerm2 -> Make iTerm2 Default Term
 * Messages -> Edit -> Spelling and Grammar -> "uncheck all"
 * OneDrive
 
@@ -148,7 +147,6 @@ manually in Catalina:
 * Google Chrome (Login to Google services)
 * IINA - prioritize external subtitles: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
 * IINA - set as default video player
-* iTerm2 - make iTerm2 default term
 * Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
   `~/Documents/backups/backup` binary (recompile it if needed)
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
