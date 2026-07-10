@@ -113,6 +113,7 @@ homebrew_packages:
 homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
 
 homebrew_taps:
+  - aws/tap
   - hashicorp/tap
 
 login_items_enabled:
