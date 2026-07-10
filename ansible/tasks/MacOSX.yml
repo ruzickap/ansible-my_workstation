@@ -393,9 +393,8 @@
 # ZSH + oh-my-posh + fzf
 ################################################
 
-# Not available in Homebrew, so clone it. Used in ~/.zshrc to defer slow tool
-# initialisations (mise, zoxide, atuin, carapace) until after the first prompt
-# is drawn, which keeps new terminal tabs feeling instant.
+# Not in Homebrew, so clone it. Used in ~/.zshrc to defer slow tool inits
+# (mise, zoxide, atuin, carapace) until after the first prompt is drawn.
 - name: Clone zsh-defer (romkatv) for deferred shell startup
   ansible.builtin.git:
     repo: https://github.com/romkatv/zsh-defer
@@ -479,9 +478,8 @@
       FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
       typeset -U fpath path PATH FPATH
       autoload -Uz compinit
-      # Load the cached dump with -C (skips the slow compaudit) only when a
-      # fresh dump (< 24h old) exists; otherwise rebuild and security-audit it
-      # with plain `compinit`. A missing dump is treated like an old one.
+      # Use fast `-C` (skips compaudit) only when a fresh dump (<24h) exists;
+      # otherwise rebuild + audit with plain `compinit` (missing == old).
       if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh-24) ]]; then
         compinit -C
       else
@@ -525,9 +523,8 @@
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
 
-      # Load zsh-defer so heavy tool initialisations can run AFTER the first
-      # prompt is drawn (keeps new tabs feeling instant). Deferred items are
-      # queued further down and executed on the first idle moment.
+      # Load zsh-defer so heavy tool inits (queued below) run AFTER the first
+      # prompt is drawn, keeping new tabs instant.
       source "${HOME}/.config/zsh/zsh-defer/zsh-defer.plugin.zsh"
 
       # ignore # on command line - https://unix.stackexchange.com/questions/557486/allowing-comments-in-interactive-zsh-commands
@@ -542,11 +539,8 @@
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
 
-      # Keep oh-my-posh EAGER (no instant-prompt feature); defer everything
-      # else until after the first prompt is painted via zsh-defer.
-      #
-      # Use `zsh-defer -c '...'`: it defers the slow `$(...)` subprocess too,
-      # whereas `zsh-defer eval "$(tool ...)"` runs it eagerly at parse time.
+      # Keep oh-my-posh EAGER (no instant-prompt); defer the rest. Use
+      # `zsh-defer -c '...'` so the slow `$(...)` subprocess is deferred too.
       eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
       zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
       zsh-defer -c 'eval "$(mise activate zsh)"'
@@ -555,8 +549,7 @@
       # critical path as well.
       zsh-defer -c 'source <(carapace _carapace)'
       # zsh-syntax-highlighting MUST be sourced last so it wraps every ZLE
-      # widget defined above (including the deferred ones), hence it is the
-      # final deferred item.
+      # widget defined above, hence it is the final deferred item.
       zsh-defer source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 ################################################
