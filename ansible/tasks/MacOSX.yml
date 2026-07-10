@@ -845,6 +845,7 @@
   ansible.builtin.command: open -a "{{ item }}"
   changed_when: false
   loop: "{{ run_applications }}"
+  tags: interactive
 
 - name: Interactive - press ENTER to continue
   ansible.builtin.pause:
