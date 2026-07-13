@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: commit-check/commit-check-action@0e0ac2f48ed0d43062a4ab46bf74127e27aab58f # v2.10.0
+      - uses: commit-check/commit-check-action@bbb6580f01838e475563514f115ec7ef41c9ddc7 # v2.11.1
         env:
           CCHK_SUBJECT_CAPITALIZED: false
           CCHK_SUBJECT_MAX_LENGTH: 72
