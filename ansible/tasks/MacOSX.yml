@@ -410,6 +410,20 @@
   tags:
     - skip_idempotence_test
 
+- name: Create directory for zsh-patina inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/zsh-patina
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy zsh-patina config.toml
+  ansible.builtin.copy:
+    content: |
+      [highlighting]
+      theme = "tokyonight"
+    dest: ~/.config/zsh-patina/config.toml
+    mode: u=rw,g=r,o=r
+
 - name: Create directory for oh-my-posh
   ansible.builtin.file:
     path: ~/.config/oh-my-posh
@@ -540,10 +554,13 @@
       export KOPIA_CHECK_FOR_UPDATES=false
 
       # Configure DOCKER_HOST for app
-      export DOCKER_HOST=unix://$HOME/.colima/docker.sock
+      export DOCKER_HOST=unix://${HOME}/.colima/docker.sock
 
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
+
+      # Configure RUMDL_CACHE_DIR for rumdl
+      export RUMDL_CACHE_DIR="${HOME}/.cache/rumdl-cache"
 
       # Keep oh-my-posh EAGER (no instant-prompt); defer the rest. Use
       # `zsh-defer -c '...'` so the slow `$(...)` subprocess is deferred too.
@@ -551,6 +568,7 @@
       zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
       zsh-defer -c 'eval "$(mise activate zsh)"'
       zsh-defer -c 'eval "$(zoxide init zsh)"'
+      zsh-defer -c 'eval "$(${HOMEBREW_PREFIX}/bin/zsh-patina activate)"'
       # carapace generates a large completion script; defer it off the
       # critical path as well.
       zsh-defer -c 'source <(carapace _carapace)'
