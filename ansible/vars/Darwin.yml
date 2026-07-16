@@ -40,8 +40,9 @@ homebrew_packages:
   - azure-cli
   - bash
   - bat
+  - betterleaks # pre-commit hook
   - carapace
-  - checkov # needs gcc, openblas
+  - checkov # needs gcc, openblas; pre-commit hook (terraform_checkov)
   - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
   - codeburn
@@ -65,7 +66,7 @@ homebrew_packages:
   - gnu-tar
   - gnupg
   - grep
-  - hashicorp/tap/terraform
+  - hashicorp/tap/terraform # pre-commit hook (terraform_fmt, terraform_validate)
   - helm
   - htop
   - imagemagick
@@ -73,7 +74,7 @@ homebrew_packages:
   - iproute2mac
   - jq
   - k9s
-  - keep-sorted
+  - keep-sorted # pre-commit hook
   - kind
   - kopia
   - krew
@@ -86,24 +87,24 @@ homebrew_packages:
   - oh-my-posh
   - opencode
   - opentofu
-  - prek
-  - prettier
+  - prek # runs the pre-commit config
+  - prettier # pre-commit hook
   - rclone
   - rhash
   - rmtrash
   - rsync
-  - shellcheck
-  - shfmt
+  - shellcheck # pre-commit hook
+  - shfmt # pre-commit hook
   - telnet
-  - tfupdate
+  - tfupdate # pre-commit hook
   - tig
-  - trivy
+  - trivy # pre-commit hook (terraform_trivy)
   - uutils-coreutils
   - uutils-diffutils
   - uutils-findutils
   - watch
   - wget
-  - yamllint
+  - yamllint # pre-commit hook
   - yq
   - yt-dlp
   - zoxide

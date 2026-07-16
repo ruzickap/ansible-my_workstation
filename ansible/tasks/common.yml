@@ -318,18 +318,22 @@
 
 - name: Create directory for Ghostty
   ansible.builtin.file:
-    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/com.mitchellh.ghostty{% else %}~/.config/ghostty{% endif %}"
+    path: ~/.config/ghostty
     state: directory
     mode: u=rwx,g=rx,o=rx
 
 - name: Configure Ghostty
   ansible.builtin.copy:
-    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library/Application Support/com.mitchellh.ghostty{% else %}~/.config/ghostty{% endif %}/config.ghostty"
+    dest: ~/.config/ghostty/config.ghostty
     content: |
+      auto-update = off
       copy-on-select = clipboard
       cursor-color = #FFFF00
-      font-size=13
+      font-feature = -calt, -liga, -dlig
+      font-size = 14
       font-thicken = true
+      keybind = cmd+shift+left=move_tab:-1
+      keybind = cmd+shift+right=move_tab:1
       keybind = shift+end=scroll_to_bottom
       keybind = shift+home=scroll_to_top
       keybind = shift+page_down=scroll_page_down
@@ -339,7 +343,11 @@
       mouse-hide-while-typing = true
       mouse-scroll-multiplier = precision:3,discrete:3
       quit-after-last-window-closed = true
+      split-divider-color = green
       theme = iTerm2 Dark Background
+      unfocused-split-opacity = 0.8
+      window-height = 50
+      window-width = 183
 
       # https://github.com/ghostty-org/ghostty/discussions/3836
       cursor-style = block
