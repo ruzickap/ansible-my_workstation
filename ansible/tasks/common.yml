@@ -330,7 +330,7 @@
       copy-on-select = clipboard
       cursor-color = #FFFF00
       font-feature = -calt, -liga, -dlig
-      font-size=14
+      font-size = 14
       font-thicken = true
       keybind = cmd+shift+left=move_tab:-1
       keybind = cmd+shift+right=move_tab:1
