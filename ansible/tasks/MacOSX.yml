@@ -572,85 +572,10 @@
       # carapace generates a large completion script; defer it off the
       # critical path as well.
       zsh-defer -c 'source <(carapace _carapace)'
-      # zsh-syntax-highlighting MUST be sourced last so it wraps every ZLE
-      # widget defined above, hence it is the final deferred item.
-      zsh-defer source "${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 ################################################
 # Application configuration
 ################################################
-
-- name: Create directory for OBS
-  ansible.builtin.file:
-    path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Configure OBS
-  community.general.ini_file:
-    path: ~/Library/Application Support/obs-studio/global.ini
-    no_extra_spaces: true
-    section: "{{ item.section }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    mode: u=rw,g=r,o=r
-  loop:
-    # keep-sorted start
-    - section: BasicWindow
-      option: RecordWhenStreaming
-      value: "true"
-    - section: BasicWindow
-      option: SysTrayMinimizeToTray
-      value: "true"
-    - section: General
-      option: EnableAutoUpdates
-      value: "false"
-    - section: General
-      option: FirstRun
-      value: "true"
-    - section: General
-      option: LastVersion
-      value: 503316482
-    - section: General
-      option: WarnBeforeStartingStream
-      value: "true"
-    # keep-sorted end
-
-- name: Configure OBS default profile
-  community.general.ini_file:
-    path: ~/Library/Application Support/obs-studio/basic/profiles/Untitled/basic.ini
-    no_extra_spaces: true
-    section: "{{ item.section }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    mode: u=rw,g=r,o=r
-  loop:
-    # keep-sorted start
-    - section: AdvOut
-      option: Encoder
-      value: com.apple.videotoolbox.videoencoder.ave.avc
-    - section: AdvOut
-      option: RecFilePath
-      value: "{{ ansible_facts['user_dir'] }}/Desktop"
-    - section: AdvOut
-      option: RecFormat
-      value: mp4
-    - section: AdvOut
-      option: Track1Bitrate
-      value: 128
-    - section: Audio
-      option: ChannelSetup
-      value: Mono
-    - section: Audio
-      option: SampleRate
-      value: 44100
-    - section: Output
-      option: Mode
-      value: Advanced
-    - section: SimpleOutput
-      option: FileNameWithoutSpace
-      value: "true"
-    # keep-sorted end
 
 - name: Configure Kopia
   ansible.builtin.copy:
@@ -685,37 +610,6 @@
       /node_modules
       # keep-sorted end
     mode: u=rw,g=r,o=r
-
-- name: Configure AltTab
-  community.general.osx_defaults:
-    domain: com.lwouis.alt-tab-macos
-    key: "{{ item.key }}"
-    type: string
-    value: "{{ item.value }}"
-  loop:
-    # keep-sorted start
-    - key: fadeOutAnimation
-      value: "true"
-    - key: hideSpaceNumberLabels
-      value: "true"
-    - key: hideStatusIcons
-      value: "true"
-    - key: hideWindowlessApps
-      value: "true"
-    - key: holdShortcut
-      value: "\u2318"
-    - key: iconSize
-      value: 20
-    - key: menubarIcon
-      value: 3
-    - key: previewFocusedWindow
-      value: "true"
-    - key: screensToShow
-      value: 1
-    - key: updatePolicy
-      value: 0
-    # keep-sorted end
-  tags: skip_idempotence_test
 
 # https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
 - name: Get latest release of Stats
