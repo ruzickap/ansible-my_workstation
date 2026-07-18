@@ -9,21 +9,17 @@ dock_icons_size: 36.0
 
 homebrew_casks:
   # keep-sorted start
-  - alt-tab
   - brave-browser@beta
   - cursor
   - darktable
   - digikam
   - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
   - ghostty
-  - grammarly-desktop
   - home-assistant
   - keepassxc
-  - keepingyouawake
   - kopiaui
   - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
-  - obs
   - stats
   - thaw
   - utm
@@ -100,7 +96,6 @@ homebrew_packages:
   - tig
   - trivy # pre-commit hook (terraform_trivy)
   - uutils-coreutils
-  - uutils-diffutils
   - uutils-findutils
   - watch
   - wget
@@ -109,7 +104,7 @@ homebrew_packages:
   - yt-dlp
   - zoxide
   - zsh-completions
-  - zsh-syntax-highlighting
+  - zsh-patina
   # keep-sorted end
 
 homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
@@ -120,7 +115,6 @@ homebrew_taps:
 
 login_items_enabled:
   # keep-sorted start
-  - AltTab
   - KeePassXC
   - Stats
   - Thaw
@@ -129,6 +123,5 @@ login_items_enabled:
 login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
 
 run_applications:
-  - AltTab
   - Stats
 # keep-sorted end
