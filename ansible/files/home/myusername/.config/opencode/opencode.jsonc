@@ -1,0 +1,105 @@
+{
+  // keep-sorted start block=yes
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "variant": "high",
+    },
+  },
+  "autoupdate": false,
+  "compaction": { "auto": false },
+  "instructions": ["AGENTS.md"],
+  "mcp": {
+    // keep-sorted start block=yes
+    "atlassian-mcp-server": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+    },
+    "aws-knowledge-mcp-server": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://knowledge-mcp.global.api.aws",
+    },
+    "aws-mcp": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://aws-mcp.us-east-1.api.aws/mcp",
+    },
+    "azure-knowledge": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://learn.microsoft.com/api/mcp",
+    },
+    "cloudflare-dns-analytics": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://dns-analytics.mcp.cloudflare.com/sse",
+    },
+    "context7.com": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+    },
+    "draw.io": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.draw.io/mcp",
+    },
+    "exa.ai": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp",
+    },
+    "grep.app": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+    },
+    "kiwi.com": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.kiwi.com",
+    },
+    "wiz-integration": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.app.wiz.io",
+      "tools": ["*"],
+      "headers": {
+        // Fill in real credentials locally; do not commit secrets.
+        "Wiz-Client-Id": "",
+        "Wiz-Client-Secret": "",
+        "Wiz-DataCenter": "us8",
+        "X-Wiz-MCP-Mode": "gateway",
+      },
+    },
+    "wiz.io": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://mcp.app.wiz.io",
+      "headers": {
+        "X-Wiz-MCP-Mode": "gateway",
+      },
+    },
+    // keep-sorted end
+  },
+  "model": "github-copilot/claude-opus-4.8",
+  "permission": {
+    "bash": "allow",
+    "edit": "allow",
+    "write": "allow",
+    "webfetch": "allow",
+    "external_directory": {
+      "/tmp/**": "allow",
+      "/var/folders/**": "allow",
+    },
+  },
+  "plugin": [
+    "opencode-ascii",
+    "opencode-claude-auth@latest",
+    "@mohak34/opencode-notifier@latest",
+    //"oh-my-opencode@latest"
+    //"opencode-copilot-budget"
+    //"superpowers@git+https://github.com/obra/superpowers.git"
+  ],
+  "share": "disabled",
+  // keep-sorted end
+}

@@ -750,6 +750,13 @@
     src: files/home/myusername/.config/opencode
     dest: ~/.config/
 
+- name: Link opencode AGENTS.md to the shared gh-repo-defaults
+  ansible.builtin.file:
+    src: "{{ ansible_facts['user_dir'] }}/git/my-git-projects/gh-repo-defaults/my-defaults/AGENTS.md"
+    dest: ~/.config/opencode/AGENTS.md
+    state: link
+    force: true
+
 ################################################
 # Interactive (can not be "automated")
 ################################################
