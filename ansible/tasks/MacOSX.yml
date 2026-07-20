@@ -750,6 +750,11 @@
     src: files/home/myusername/.config/opencode
     dest: ~/.config/
 
+- name: Remove obsolete opencode.json (migrated to opencode.jsonc)
+  ansible.builtin.file:
+    path: ~/.config/opencode/opencode.json
+    state: absent
+
 - name: Link opencode AGENTS.md to the shared gh-repo-defaults
   ansible.builtin.file:
     src: "{{ ansible_facts['user_dir'] }}/git/my-git-projects/gh-repo-defaults/my-defaults/AGENTS.md"
