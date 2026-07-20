@@ -1,5 +1,6 @@
 # keep-sorted start
 api\.githubcopilot\.com
+aws-mcp\.us-east-1\.api\.aws
 dns-analytics\.mcp\.cloudflare\.com
 file://
 learn\.microsoft\.com/api/mcp
@@ -7,6 +8,7 @@ macos-defaults\.com
 mcp\.app\.wiz\.io
 mcp\.atlassian\.com
 mcp\.context7\.com
+mcp\.draw\.io
 mcp\.exa\.ai
 mcp\.grep\.app
 mcp\.kiwi\.com
