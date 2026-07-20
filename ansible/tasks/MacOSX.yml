@@ -453,6 +453,7 @@
     dest: ~/.zshrc
     prepend_newline: true
     create: true
+    mode: u=rw,g=r,o=r
     block: |
       # set history size
       export HISTSIZE=50000
@@ -749,6 +750,19 @@
   ansible.builtin.copy:
     src: files/home/myusername/.config/opencode
     dest: ~/.config/
+    mode: u=rw,g=r,o=r
+
+- name: Remove obsolete opencode.json (migrated to opencode.jsonc)
+  ansible.builtin.file:
+    path: ~/.config/opencode/opencode.json
+    state: absent
+
+- name: Link opencode AGENTS.md to the shared gh-repo-defaults
+  ansible.builtin.file:
+    src: "{{ ansible_facts['user_dir'] }}/git/my-git-projects/gh-repo-defaults/my-defaults/AGENTS.md"
+    dest: ~/.config/opencode/AGENTS.md
+    state: link
+    force: true
 
 ################################################
 # Interactive (can not be "automated")
