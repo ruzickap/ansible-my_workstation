@@ -774,7 +774,7 @@
 
 - name: Download oh-my-posh blazed theme for Claude Code
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/refs/heads/main/themes/blazed.omp.json
+    url: https://raw.githubusercontent.com/josheche/blazed-omp/main/blazed.omp.json
     dest: ~/.claude/blazed.omp.json
     mode: u=rw,g=r,o=r
 
