@@ -10,6 +10,7 @@ dock_icons_size: 36.0
 homebrew_casks:
   # keep-sorted start
   - brave-browser@beta
+  - claude-code
   - cursor
   - darktable
   - digikam
