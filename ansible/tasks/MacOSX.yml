@@ -525,6 +525,7 @@
       bindkey '\e[F'    end-of-line # End
 
       alias cat="bat --style=plain --paging=never"
+      alias cl="claude --permission-mode acceptEdits"
       alias dos2unix="sed -i 's/\r$//'"
       alias history="history -i 0"
       alias ll="eza -l --git --git-repos --icons=auto"

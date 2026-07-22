@@ -766,6 +766,81 @@
       plugin_cache_dir = "${HOME}/.terraform.d/plugin-cache"
     mode: u=rw,g=r,o=r
 
+- name: Create ~/.claude directory
+  ansible.builtin.file:
+    path: ~/.claude
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Download oh-my-posh blazed theme for Claude Code
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/josheche/blazed-omp/main/blazed.omp.json
+    dest: ~/.claude/blazed.omp.json
+    mode: u=rw,g=r,o=r
+
+- name: Configure Claude Code
+  ansible.builtin.copy:
+    dest: ~/.claude/settings.json
+    content: |
+      {
+        "attribution": {
+          "commit": "",
+          "pr": ""
+        },
+        "permissions": {
+          "allow": [
+            "Bash(*)",
+            "Read(*)",
+            "Edit(*)",
+            "Write(*)",
+            "Glob(*)",
+            "Grep(*)"
+          ],
+          "ask": [
+            "Bash(rm -rf:*)",
+            "Bash(rm -fr:*)",
+            "Read(.env)",
+            "Read(.env.*)",
+            "Read(**/.env)",
+            "Read(**/.env.*)",
+            "Read(~/.ssh/**)",
+            "Read(~/.aws/**)",
+            "Read(**/*credential*)",
+            "Read(**/*secret*)",
+            "Read(**/*.pem)",
+            "Read(**/*.key)"
+          ]
+        },
+        "env": {
+          "IS_DEMO": "1"
+        },
+        "model": "opus[1m]",
+        "statusLine": {
+          "type": "command",
+          "command": "oh-my-posh claude --config ~/.claude/blazed.omp.json"
+        },
+        "enabledPlugins": {
+          "code-review@claude-plugins-official": true,
+          "context7@claude-plugins-official": true,
+          "skill-creator@claude-plugins-official": true,
+          "superpowers@claude-plugins-official": true
+        },
+        "skipDangerousModePermissionPrompt": true,
+        "spinnerTipsEnabled": false,
+        "alwaysThinkingEnabled": true,
+        "effortLevel": "high"
+      }
+    mode: u=rw,g=r,o=r
+
+- name: Configure ~/.claude.json
+  ansible.builtin.copy:
+    dest: ~/.claude.json
+    content: |
+      {
+        "hasTrustDialogAccepted": true
+      }
+    mode: u=rw,g=,o=
+
 - name: Add agent skills
   ansible.builtin.command: >-
     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
