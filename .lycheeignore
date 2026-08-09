@@ -1,5 +1,6 @@
 # keep-sorted start
 api\.githubcopilot\.com
+apple\.stackexchange\.com
 aws-mcp\.us-east-1\.api\.aws
 dns-analytics\.mcp\.cloudflare\.com
 file://
@@ -15,4 +16,5 @@ mcp\.kiwi\.com
 medium\.com
 mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
 stackoverflow\.com
+unix\.stackexchange\.com
 # keep-sorted end
