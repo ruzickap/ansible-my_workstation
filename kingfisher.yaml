@@ -1,0 +1,11 @@
+# Kingfisher secret scanner configuration
+# https://mongodb.github.io/kingfisher/usage/configuration/
+
+filters:
+  exclude:
+    # Git metadata files (refs that match token patterns)
+    - .git
+    # Ansible Vault encrypted files (SSH keys, config files)
+    - ansible/files
+    # Ansible Vault encrypted variables
+    - ansible/vars
