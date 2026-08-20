@@ -2,7 +2,6 @@
 code_extensions:
   # keep-sorted start
   - TakumiI.markdowntable
-  - adamhartford.vscode-base64
   - antfu.slidev
   - bierner.markdown-mermaid
   - bierner.markdown-preview-github-styles
