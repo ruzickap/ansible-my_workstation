@@ -1,8 +1,9 @@
 # keep-sorted start newline_separated=yes
 # Items to add to the dock
 dock_add_items:
-  - /Applications/Ghostty.app
   - /Applications/Brave Browser Beta.app
+  - /Applications/Ghostty.app
+  - /Applications/Google Chrome.app
 
 # The Dock icons size
 dock_icons_size: 36.0
@@ -25,6 +26,7 @@ homebrew_casks:
   - thaw
   - utm
   - visual-studio-code
+  - vorssaint
   # keep-sorted end
 
 homebrew_packages:

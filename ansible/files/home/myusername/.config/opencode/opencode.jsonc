@@ -49,14 +49,37 @@
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp",
     },
+    "exchange-mcp-server": {
+      "enabled": false,
+      "type": "remote",
+      "url": "https://m365-apim.azure-api.net/exch-mcp/mcp",
+    },
     "grep.app": {
       "type": "remote",
       "url": "https://mcp.grep.app",
     },
-    "kiwi.com": {
+    "playwright-brave": {
+      "enabled": false,
+      "type": "local",
+      // Extension mode against Brave Beta. --executable-path skips the Chrome
+      // profile scan; the relay pairs with the running Brave Beta extension.
+      "command": [
+        "npx",
+        "--yes",
+        "@playwright/mcp@latest",
+        "--extension",
+        "--executable-path",
+        "/Applications/Brave Browser Beta.app/Contents/MacOS/Brave Browser Beta",
+      ],
+      "env": {
+        // Fill in real token locally; do not commit secrets.
+        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "",
+      },
+    },
+    "sharepoint-mcp-server": {
       "enabled": false,
       "type": "remote",
-      "url": "https://mcp.kiwi.com",
+      "url": "https://wtw-integration.azure-api.net/sp-mcp/mcp",
     },
     "wiz-integration": {
       "enabled": false,
@@ -93,7 +116,12 @@
     },
   },
   "plugin": [
-    "opencode-ascii",
+    [
+      "opencode-ascii",
+      {
+        "emojis": false,
+      },
+    ],
     "opencode-claude-auth@latest",
     "@mohak34/opencode-notifier@latest",
     //"oh-my-opencode@latest"
