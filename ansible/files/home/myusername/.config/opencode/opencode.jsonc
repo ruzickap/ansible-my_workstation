@@ -65,6 +65,7 @@
       // profile scan; the relay pairs with the running Brave Beta extension.
       "command": [
         "npx",
+        "--yes",
         "@playwright/mcp@latest",
         "--extension",
         "--executable-path",

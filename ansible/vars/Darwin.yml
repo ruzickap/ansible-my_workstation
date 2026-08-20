@@ -17,6 +17,7 @@ homebrew_casks:
   - digikam
   - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
   - ghostty
+  - google-chrome
   - home-assistant
   - keepassxc
   - kopiaui
