@@ -74,6 +74,11 @@
     state: present
   loop: "{{ homebrew_services }}"
 
+- name: Install recommended Container kernel
+  ansible.builtin.command: container system kernel set --recommended
+  args:
+    creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
+
 - name: Install Homebrew casks
   community.general.homebrew_cask:
     name: "{{ homebrew_casks }}"
