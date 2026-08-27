@@ -59,7 +59,7 @@
 # Newer Homebrew refuses formulae/casks from untrusted third-party taps
 # (HOMEBREW_REQUIRE_TAP_TRUST); trust ours so their packages can install.
 - name: Trust Homebrew taps
-  ansible.builtin.command: brew trust --tap {{ homebrew_taps | join(' ') }}
+  ansible.builtin.command: brew trust {{ homebrew_taps | join(' ') }}
   changed_when: false
 
 - name: Install Homebrew packages
@@ -67,6 +67,19 @@
     name: "{{ homebrew_packages }}"
     update_homebrew: true
   tags: skip_idempotence_test
+
+- name: Enable Homebrew services
+  community.general.homebrew_services:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ homebrew_services }}"
+  tags: skip_idempotence_test
+
+- name: Install recommended Container kernel
+  ansible.builtin.command: container system kernel set --recommended
+  args:
+    creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
+  when: "'arm' in ansible_facts['architecture']"
 
 - name: Install Homebrew casks
   community.general.homebrew_cask:
@@ -555,14 +568,17 @@
       # Disable Kopia updates checks
       export KOPIA_CHECK_FOR_UPDATES=false
 
-      # Configure DOCKER_HOST for app
-      export DOCKER_HOST=unix://${HOME}/.colima/docker.sock
+      # Configure Docker CLI to use Socktainer
+      export DOCKER_HOST="unix://${HOMEBREW_PREFIX}/var/run/socktainer/.socktainer/container.sock"
 
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
 
       # Configure RUMDL_CACHE_DIR for rumdl
       export RUMDL_CACHE_DIR="${HOME}/.cache/rumdl-cache"
+
+      # Prevent Google Cloud CLI from creating local command logs
+      export CLOUDSDK_CORE_DISABLE_FILE_LOGGING=1
 
       # Keep oh-my-posh EAGER (no instant-prompt); defer the rest. Use
       # `zsh-defer -c '...'` so the slow `$(...)` subprocess is deferred too.
@@ -592,7 +608,6 @@
       .terraform
       /.Trash
       /.cache
-      /.colima
       /.gnupg/S.*
       /.krew
       /.lima
@@ -685,18 +700,6 @@
     - key: version
       value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
     # keep-sorted end
-
-- name: Create directory for Colima
-  ansible.builtin.file:
-    path: ~/.colima/_templates/
-    state: directory
-    mode: u=rwx,g=rx,o=rx
-
-- name: Configure Colima
-  ansible.builtin.copy:
-    src: files/Users/myusername/.colima/_templates/default.yaml
-    dest: ~/.colima/_templates/default.yaml
-    mode: u=rw,g=r,o=r
 
 - name: Configure Chrome
   community.general.osx_defaults:

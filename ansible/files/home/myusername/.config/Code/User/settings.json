@@ -74,6 +74,8 @@
   // disable preview file with single-click - https://stackoverflow.com/questions/40336583/how-to-disable-preview-file-with-single-click-in-vs-code
   "workbench.editor.enablePreview": false,
   "workbench.iconTheme": "material-icon-theme",
+  // Disable local history snapshots of saved files
+  "workbench.localHistory.enabled": false,
   "workbench.startupEditor": "newUntitledFile"
   // keep-sorted end
 }
