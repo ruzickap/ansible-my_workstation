@@ -45,7 +45,6 @@ homebrew_packages:
   - cilium-cli
   - cloudflared # needed for ssh with cloudflare tunnels
   - codeburn
-  - colima
   - container
   - dive
   - docker-buildx
@@ -75,7 +74,6 @@ homebrew_packages:
   - jq
   - k9s
   - keep-sorted # pre-commit hook
-  - kind
   - kopia
   - krew
   - kubecolor
@@ -95,6 +93,7 @@ homebrew_packages:
   - rsync
   - shellcheck # pre-commit hook
   - shfmt # pre-commit hook
+  - socktainer
   - telnet
   - tfupdate # pre-commit hook
   - tig
@@ -112,6 +111,12 @@ homebrew_packages:
   # keep-sorted end
 
 homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+
+homebrew_services:
+  # keep-sorted start
+  - container
+  - socktainer
+  # keep-sorted end
 
 homebrew_taps:
   - aws/tap
