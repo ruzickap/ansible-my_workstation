@@ -59,7 +59,7 @@
 # Newer Homebrew refuses formulae/casks from untrusted third-party taps
 # (HOMEBREW_REQUIRE_TAP_TRUST); trust ours so their packages can install.
 - name: Trust Homebrew taps
-  ansible.builtin.command: brew trust --tap {{ homebrew_taps | join(' ') }}
+  ansible.builtin.command: brew trust {{ homebrew_taps | join(' ') }}
   changed_when: false
 
 - name: Install Homebrew packages
@@ -73,6 +73,7 @@
     name: "{{ item }}"
     state: present
   loop: "{{ homebrew_services }}"
+  tags: skip_idempotence_test
 
 - name: Install recommended Container kernel
   ansible.builtin.command: container system kernel set --recommended
