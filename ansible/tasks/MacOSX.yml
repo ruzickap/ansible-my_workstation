@@ -79,6 +79,7 @@
   ansible.builtin.command: container system kernel set --recommended
   args:
     creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
+  when: ansible_facts["architecture"] | regex_search("arm")
 
 - name: Install Homebrew casks
   community.general.homebrew_cask:
@@ -568,7 +569,7 @@
       export KOPIA_CHECK_FOR_UPDATES=false
 
       # Configure Docker CLI to use Socktainer
-      export DOCKER_HOST=unix:///opt/homebrew/var/run/socktainer/.socktainer/container.sock
+      export DOCKER_HOST="unix://${HOMEBREW_PREFIX}/var/run/socktainer/.socktainer/container.sock"
 
       # Configure TF_PLUGIN_CACHE_DIR for Terraform / OpenTofu
       export TF_PLUGIN_CACHE_DIR="${HOME}/.terraform.d/plugin-cache"
