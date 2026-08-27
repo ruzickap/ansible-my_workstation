@@ -68,6 +68,11 @@
     update_homebrew: true
   tags: skip_idempotence_test
 
+- name: Enable Container Homebrew service
+  community.general.homebrew_services:
+    name: container
+    state: present
+
 - name: Install Homebrew casks
   community.general.homebrew_cask:
     name: "{{ homebrew_casks }}"
@@ -563,6 +568,9 @@
 
       # Configure RUMDL_CACHE_DIR for rumdl
       export RUMDL_CACHE_DIR="${HOME}/.cache/rumdl-cache"
+
+      # Prevent Google Cloud CLI from creating local command logs
+      export CLOUDSDK_CORE_DISABLE_FILE_LOGGING=1
 
       # Keep oh-my-posh EAGER (no instant-prompt); defer the rest. Use
       # `zsh-defer -c '...'` so the slow `$(...)` subprocess is deferred too.

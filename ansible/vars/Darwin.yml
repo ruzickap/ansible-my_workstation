@@ -46,6 +46,7 @@ homebrew_packages:
   - cloudflared # needed for ssh with cloudflare tunnels
   - codeburn
   - colima
+  - container
   - dive
   - docker-buildx
   - dockutil
