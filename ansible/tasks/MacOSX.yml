@@ -79,7 +79,7 @@
   ansible.builtin.command: container system kernel set --recommended
   args:
     creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
-  when: ansible_facts["architecture"] | regex_search("arm")
+  when: "'arm' in ansible_facts['architecture']"
 
 - name: Install Homebrew casks
   community.general.homebrew_cask:
