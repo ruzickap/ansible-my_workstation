@@ -5,79 +5,6 @@
 - name: Run tasks as root
   become: true
   block:
-    - name: Add hostname to /etc/hosts
-      ansible.builtin.lineinfile:
-        dest: /etc/hosts
-        regexp: "^127.0.1.1"
-        line: 127.0.1.1   {{ ansible_facts["fqdn"] }}   {{ ansible_facts["hostname"] }}
-        mode: u=rw,g=r,o=r
-      changed_when: false
-
-    - name: Configure aliases
-      ansible.builtin.lineinfile:
-        dest: /etc/aliases
-        regexp: ^root:\s+
-        line: "root:           {{ email }}"
-        mode: u=rw,g=r,o=r
-      notify: Newaliases
-
-    - name: Configure postfix
-      community.general.ini_file:
-        path: /etc/postfix/main.cf
-        section: null
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-        mode: u=rw,g=r,o=r
-      loop:
-        # keep-sorted start
-        - option: inet_protocols
-          value: ipv4
-        - option: relayhost
-          value: "{{ postfix_relayhost }}"
-        - option: sender_canonical_maps
-          value: "regexp:/etc/postfix/sender_canonical"
-        - option: smtp_sasl_auth_enable
-          value: "yes"
-        - option: smtp_sasl_mechanism_filter
-          value: login
-        - option: smtp_sasl_password_maps
-          value: hash:/etc/postfix/sasl_passwd
-        - option: smtp_sasl_security_options
-          value: noanonymous
-        - option: smtp_use_tls
-          value: "yes"
-        # keep-sorted end
-
-    - name: Add credentials /etc/postfix/sasl_passwd
-      ansible.builtin.blockinfile:
-        path: /etc/postfix/sasl_passwd
-        create: true
-        block: |
-          {{ postfix_relayhost }} {{ postfix_smtp_username }}:{{ postfix_smtp_password }}
-        mode: u=rw,g=,o=
-      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
-      no_log: true
-      tags:
-        - secrets
-
-    - name: Add from credentials /etc/postfix/sender_canonical
-      ansible.builtin.blockinfile:
-        path: /etc/postfix/sender_canonical
-        create: true
-        block: |
-          /.*/ {{ postfix_form }}
-        mode: u=rw,g=r,o=r
-
-    - name: Add printer and make it default
-      ansible.builtin.shell: lpadmin -p "{{ printer_name }}" -E -v {{ cups_printer_device_uri }} -P /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/Generic.ppd -o auth-info-required=negotiate && sleep 1
-      args:
-        creates: /etc/cups/ppd/{{ printer_name }}.ppd
-      notify: Set default printer
-      when: cups_printer_device_uri is defined
-      tags:
-        - printer
-        - skip_test
-
     - name: Create directory for mc inside ~/.config
       ansible.builtin.file:
         path: ~/.config/mc/
@@ -228,18 +155,6 @@
     dest: ~/.config/nvim
     depth: 1
     single_branch: true
-
-- name: Create VirtualBox config directory
-  ansible.builtin.file:
-    path: "{% if ansible_facts['system'] == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox"
-    state: directory
-    mode: u=rwx,g=,o=
-
-- name: Put VirtualBox configuration in place
-  ansible.builtin.template:
-    src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
-    dest: "{% if ansible_facts['system'] == 'Darwin' %}~/Library{% else %}~/.config{% endif %}/VirtualBox/VirtualBox.xml"
-    mode: u=rw,g=,o=
 
 - name: Create directory for mpv inside ~/.config
   ansible.builtin.file:
@@ -462,19 +377,6 @@
     creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
 
-- name: Configure .forward to {{ email }}
-  ansible.builtin.copy:
-    dest: ~/.forward
-    content: |
-      {{ email }}
-    mode: u=rw,g=r,o=r
-
-- name: Suppress "Last login" message in terminal with ~/.hushlogin
-  ansible.builtin.copy:
-    dest: ~/.hushlogin
-    content: ""
-    mode: u=rw,g=r,o=r
-
 - name: Create ~/.config/git
   ansible.builtin.file:
     path: ~/.config/git
@@ -513,7 +415,7 @@
     content: |
       [tools]
       "npm:markdown-spellcheck" = "latest"
-      "npm:markdown-table-formatter" = "latest"
+      "npm:mega-linter-runner" = "latest"
 
       [settings]
       env_cache = true
@@ -663,14 +565,6 @@
         path: ~/Documents/secrets
         state: directory
         mode: u=rwx,g=,o=
-
-    # Needed for shell (zsh/bash)
-    - name: Copy ~/Documents/secrets/secret_variables
-      ansible.builtin.copy:
-        src: "{{ data_source_dir }}/Documents/secrets/secret_variables"
-        dest: ~/Documents/secrets/secret_variables
-        mode: u=rw,g=,o=
-      tags: data
 
     - name: Copy KeePass data
       ansible.builtin.copy:
