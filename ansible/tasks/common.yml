@@ -354,55 +354,6 @@
       shell-integration-features = no-cursor
     mode: u=rw,g=r,o=r
 
-- name: Put darktable configs in place
-  ansible.builtin.copy:
-    src: files/home/myusername/.config/darktable
-    dest: ~/.config/
-    directory_mode: u=rwx,g=rx,o=rx
-    mode: u=rw,g=r,o=r
-
-- name: Configure darktable
-  community.general.ini_file:
-    path: ~/.config/darktable/darktablerc
-    no_extra_spaces: true
-    section: null
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    mode: u=rw,g=,o=
-  loop:
-    # keep-sorted start
-    - option: ask_before_delete
-      value: "FALSE"
-    - option: database/create_snapshot
-      value: never
-    - option: opencl
-      value: "TRUE"
-    - option: opencl_tune_headroom
-      value: "TRUE"
-    - option: plugins/darkroom/history/expanded
-      value: "TRUE"
-    - option: plugins/darkroom/modulegroups_preset
-      value: "modules: all"
-    - option: plugins/imageio/format/jpeg/quality
-      value: 97
-    - option: plugins/imageio/format/tiff/compresslevel
-      value: 9
-    - option: plugins/lighttable/export/high_quality_processing
-      value: "TRUE"
-    - option: plugins/lighttable/images_in_row
-      value: 6
-    - option: resourcelevel
-      value: large
-    - option: slideshow_delay
-      value: 3
-    - option: ui_last/import_ignore_nonraws
-      value: "TRUE"
-    - option: ui_last/theme
-      value: darktable-elegant-darker
-    - option: write_sidecar_files
-      value: after edit
-    # keep-sorted end
-
 - name: Install krew plugins
   ansible.builtin.command: kubectl krew install {{ item }}
   environment:
