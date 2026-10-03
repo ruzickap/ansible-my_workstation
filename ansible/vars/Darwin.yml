@@ -13,7 +13,6 @@ homebrew_casks:
   - brave-browser@beta
   - claude-code
   - cursor
-  - digikam
   - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
   - ghostty
   - home-assistant
