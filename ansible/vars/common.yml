@@ -1,7 +1,6 @@
 # keep-sorted start newline_separated=yes
 code_extensions:
   # keep-sorted start
-  - antfu.slidev
   - bierner.markdown-mermaid
   - emanuelebartolesi.vscode-copilot-insights
   - esbenp.prettier-vscode
@@ -9,7 +8,6 @@ code_extensions:
   - github.vscode-pull-request-github
   - hashicorp.terraform
   - hverlin.mise-vscode
-  - mechatroner.rainbow-csv
   - redhat.vscode-yaml
   - rvben.rumdl
   - streetsidesoftware.code-spell-checker

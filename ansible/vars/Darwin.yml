@@ -119,7 +119,6 @@ homebrew_services:
   # keep-sorted end
 
 homebrew_taps:
-  - aws/tap
   - hashicorp/tap
 
 login_items_enabled:

@@ -757,6 +757,10 @@
     content: |
       [global]
       cache-dir = "/tmp/rumdl-cache"
+
+      [MD060]
+      enabled = true
+      style = "aligned"
     mode: u=rw,g=r,o=r
 
 - name: Configure terraform

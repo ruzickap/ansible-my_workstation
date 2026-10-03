@@ -163,15 +163,6 @@
     - key: NewWindowTarget
       value: PfHm
 
-# https://www.makeuseof.com/tag/hidden-mac-settings-defaults-command/
-# https://macos-defaults.com/finder/quitmenuitem.html
-- name: Add the Quit Option to Finder
-  community.general.osx_defaults:
-    domain: com.apple.finder
-    key: QuitMenuItem
-    type: bool
-    value: "true"
-
 # https://www.defaults-write.com/disable-screenshots-shadow-mac/
 # https://macos-defaults.com/screenshots/disable-shadow.html
 - name: Disable screenshot shadows on a Mac
@@ -492,7 +483,6 @@
       export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
       # Stop Homebrew auto update
       export HOMEBREW_NO_AUTO_UPDATE=1
-      export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
 
       eval "$(/opt/homebrew/bin/brew shellenv)"
 

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "tokyonight"
+  },
+  "session": {
+    "thinking": "show"
+  },
+  "attention": {
+    "notifications": true
+  }
+}
