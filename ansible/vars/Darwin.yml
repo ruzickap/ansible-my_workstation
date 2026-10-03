@@ -18,7 +18,6 @@ homebrew_casks:
   - home-assistant
   - keepassxc
   - kopiaui
-  - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
   - stats
   - thaw
@@ -79,6 +78,7 @@ homebrew_packages:
   - midnight-commander
   - mise
   - mpg123 # needed for mc to display mp3 files
+  - mpv
   - neovim
   - oh-my-posh
   - opencode
