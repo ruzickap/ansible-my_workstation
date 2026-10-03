@@ -66,6 +66,7 @@
     name: "{{ item }}"
     state: present
   loop: "{{ homebrew_services }}"
+  tags: skip_idempotence_test
 
 - name: Install recommended Container kernel
   ansible.builtin.command: container system kernel set --recommended
