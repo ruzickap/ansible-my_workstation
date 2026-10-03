@@ -9,6 +9,14 @@
       ansible.builtin.hostname:
         name: "{{ my_hostname }}"
 
+    - name: Add hostname to /etc/hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        regexp: "^127.0.1.1"
+        line: 127.0.1.1   {{ ansible_facts["fqdn"] }}   {{ ansible_facts["hostname"] }}
+        mode: u=rw,g=r,o=r
+      changed_when: false
+
     - name: Set fact about primary disk device used by KDE Plasma
       ansible.builtin.shell: |
         set -o pipefail
@@ -27,6 +35,61 @@
     - name: Install packages
       ansible.builtin.dnf:
         name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
+
+    - name: Configure aliases
+      ansible.builtin.lineinfile:
+        dest: /etc/aliases
+        regexp: ^root:\s+
+        line: "root:           {{ email }}"
+        mode: u=rw,g=r,o=r
+      notify: Newaliases
+
+    - name: Configure postfix
+      community.general.ini_file:
+        path: /etc/postfix/main.cf
+        section: null
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: u=rw,g=r,o=r
+      loop:
+        # keep-sorted start
+        - option: inet_protocols
+          value: ipv4
+        - option: relayhost
+          value: "{{ postfix_relayhost }}"
+        - option: sender_canonical_maps
+          value: "regexp:/etc/postfix/sender_canonical"
+        - option: smtp_sasl_auth_enable
+          value: "yes"
+        - option: smtp_sasl_mechanism_filter
+          value: login
+        - option: smtp_sasl_password_maps
+          value: hash:/etc/postfix/sasl_passwd
+        - option: smtp_sasl_security_options
+          value: noanonymous
+        - option: smtp_use_tls
+          value: "yes"
+        # keep-sorted end
+
+    - name: Add credentials /etc/postfix/sasl_passwd
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sasl_passwd
+        create: true
+        block: |
+          {{ postfix_relayhost }} {{ postfix_smtp_username }}:{{ postfix_smtp_password }}
+        mode: u=rw,g=,o=
+      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
+      no_log: true
+      tags:
+        - secrets
+
+    - name: Add from credentials /etc/postfix/sender_canonical
+      ansible.builtin.blockinfile:
+        path: /etc/postfix/sender_canonical
+        create: true
+        block: |
+          /.*/ {{ postfix_form }}
+        mode: u=rw,g=r,o=r
 
     - name: Import RPM Fusion GPG signature
       ansible.builtin.rpm_key:
@@ -380,12 +443,6 @@
         mode: u=rw,g=r,o=r
       notify: Reload systemctl
 
-    - name: Add CloudFlare DNS update script for NetworkManager
-      ansible.builtin.template:
-        src: files/etc/NetworkManager/dispatcher.d/05-cloudflare_dns.j2
-        dest: /etc/NetworkManager/dispatcher.d/05-cloudflare_dns
-        mode: u=rwx,g=rx,o=rx
-
     - name: Configure plymouth
       community.general.ini_file:
         path: /etc/plymouth/plymouthd.conf
@@ -462,6 +519,31 @@
 ###############################
 # Run as {{ ansible_facts['user_id'] }}
 ###############################
+
+- name: Create VirtualBox config directory
+  ansible.builtin.file:
+    path: ~/.config/VirtualBox
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Put VirtualBox configuration in place
+  ansible.builtin.template:
+    src: files/home/myusername/.config/VirtualBox/VirtualBox.xml.j2
+    dest: ~/.config/VirtualBox/VirtualBox.xml
+    mode: u=rw,g=,o=
+
+- name: Configure .forward to {{ email }}
+  ansible.builtin.copy:
+    dest: ~/.forward
+    content: |
+      {{ email }}
+    mode: u=rw,g=r,o=r
+
+- name: Suppress "Last login" message in terminal with ~/.hushlogin
+  ansible.builtin.copy:
+    dest: ~/.hushlogin
+    content: ""
+    mode: u=rw,g=r,o=r
 
 - name: Create Documents, Movies, Music, Pictures directories
   ansible.builtin.file:

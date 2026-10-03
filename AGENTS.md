@@ -34,7 +34,7 @@ Run from inside `ansible/` (scripts `cd` there). A
 
 Tasks are gated by tags. CI skips
 `data,interactive,secrets,skip_test` (plus `skip_idempotence_test` on the
-second pass). Other notable tags: `mc`, `printer`, `secrets`, `data`.
+second pass). Other notable tags: `mc`, `secrets`, `data`.
 
 - `data` = large rsync of `~` and copying private files from local disk.
 - `secrets` = vault-backed credentials (postfix, KeePass, rclone, gh).
@@ -65,7 +65,7 @@ Workflows run on push to **non-`main`** branches and on PRs — nothing runs on
 ## Conventions specific to this repo
 
 - **`keep-sorted` blocks**: many lists are wrapped in
-  `# keep-sorted start` / `# keep-sorted end` (some with `newline_separated=yes`
+  `keep-sorted` start/end comment markers (some with `newline_separated=yes`
   or `block=yes`). When adding entries (packages, casks, extensions, ini
   options), insert them in sorted order within the block; CI enforces it.
 - **ansible-lint**: config `ansible/.ansible-lint.yml`. `package-latest` and

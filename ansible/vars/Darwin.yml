@@ -12,13 +12,11 @@ homebrew_casks:
   # keep-sorted start
   - brave-browser@beta
   - claude-code
-  - cursor
   - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
   - ghostty
   - home-assistant
   - keepassxc
   - kopiaui
-  - mysides # Application for managing OS X Finder sidebar favorites
   - stats
   - thaw
   - utm
@@ -31,7 +29,6 @@ homebrew_packages:
   # keep-sorted start
   - ab-av1
   - actions-up
-  - ansible
   - atuin
   - awscli
   - azure-cli
@@ -39,8 +36,7 @@ homebrew_packages:
   - bat
   - betterleaks # pre-commit hook
   - carapace
-  - checkov # needs gcc, openblas; pre-commit hook (terraform_checkov)
-  - cilium-cli
+  - checkov # pre-commit hook (terraform_checkov)
   - cloudflared # needed for ssh with cloudflare tunnels
   - codeburn
   - container
@@ -78,7 +74,6 @@ homebrew_packages:
   - kubernetes-cli
   - midnight-commander
   - mise
-  - mpg123 # needed for mc to display mp3 files
   - mpv
   - neovim
   - oh-my-posh
@@ -93,13 +88,10 @@ homebrew_packages:
   - shellcheck # pre-commit hook
   - shfmt # pre-commit hook
   - socktainer
-  - telnet
   - tfupdate # pre-commit hook
-  - tig
   - trivy # pre-commit hook (terraform_trivy)
   - uutils-coreutils
   - uutils-findutils
-  - watch
   - wget
   - yamllint # pre-commit hook
   - yq

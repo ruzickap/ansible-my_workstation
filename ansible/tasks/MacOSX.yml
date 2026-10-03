@@ -17,16 +17,10 @@
     generateduid: "{{ dscl_output.stdout }}"
     wifi_interface: "{{ networksetup.stdout }}"
 
-- name: Set secret facts
-  ansible.builtin.set_fact:
-    raspi_username: "{{ lookup('ini', 'username section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
-    raspi_password: "{{ lookup('ini', 'password section=' + raspi_hostname + ' file=' + data_source_dir + '/Documents/secrets/' + raspi_hostname + '-cifs-credentials') }}"
-  tags:
-    - secrets
-
 - name: Set Hostname + Disable sleeping
   become: true
   block:
+    # hibernatemode 0 = do not write /var/vm/sleepimage (saves a few GB of disk space)
     - name: Set hibernation mode to not back memory up to persistent storage
       ansible.builtin.command: pmset -a hibernatemode 0
       changed_when: false
@@ -48,7 +42,7 @@
 - name: Install Homebrew
   ansible.builtin.shell: |
     set -o pipefail
-    echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   args:
     creates: "{{ homebrew_prefix }}"
 
@@ -66,7 +60,6 @@
   community.general.homebrew:
     name: "{{ homebrew_packages }}"
     update_homebrew: true
-  tags: skip_idempotence_test
 
 - name: Enable Homebrew services
   community.general.homebrew_services:
@@ -86,7 +79,7 @@
     name: "{{ homebrew_casks }}"
 
 # https://www.mactrast.com/2017/03/show-status-bar-finder-macos-sierra/
-- name: Show status bar
+- name: Show status bar in Finder windows
   community.general.osx_defaults:
     domain: com.apple.finder
     key: ShowStatusBar
@@ -95,7 +88,7 @@
 
 # https://www.techjunkie.com/show-path-finder-title-bar/
 # https://macos-defaults.com/finder/showpathbar.html
-- name: Show path bar
+- name: Show path bar in Finder windows
   community.general.osx_defaults:
     domain: com.apple.finder
     key: ShowPathbar
@@ -246,13 +239,6 @@
     type: bool
     value: "false"
 
-- name: Do not show the keyboard layout in status bar
-  community.general.osx_defaults:
-    domain: com.apple.TextInputMenu
-    key: visible
-    type: bool
-    value: "false"
-
 - name: Use F1, F2, ... as standard function keys
   community.general.osx_defaults:
     domain: NSGlobalDomain
@@ -280,6 +266,7 @@
       ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
       changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
       register: networksetup
+      no_log: true
       loop: "{{ wpa_personal_wifi }}"
       loop_control:
         label: "{{ item.ssid }}"
@@ -301,15 +288,15 @@
     type: bool
     value: "false"
 
-# https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
-- name: Enable tap-to-click
-  community.general.osx_defaults:
-    domain: com.apple.AppleMultitouchTrackpad
-    key: Clicking
-    type: int
-    value: 1
+# # https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
+# - name: Enable tap-to-click
+#   community.general.osx_defaults:
+#     domain: com.apple.AppleMultitouchTrackpad
+#     key: Clicking
+#     type: int
+#     value: 1
 
-- name: Add pkgs_upgrade Launch Agent
+- name: Add Launch Agent to run pkgs_upgrade daily at midnight
   ansible.builtin.template:
     src: files/Users/myusername/Library/LaunchAgents/pkgs_upgrade.plist.j2
     dest: ~/Library/LaunchAgents/pkgs_upgrade.plist
@@ -331,51 +318,6 @@
   ansible.builtin.command: launchctl load ~/Library/LaunchAgents/backup.plist
   changed_when: launchctl.stderr | length == 0
   register: launchctl
-
-# - name: Configure Samba shares
-#   become: true
-#   block:
-#     - name: Configure SMB shares via automount
-#       ansible.builtin.lineinfile:
-#         path: /etc/auto_master
-#         regexp: "^/-                      auto_smb        -nosuid,noowner"
-#         line: "/-                      auto_smb        -nosuid,noowner"
-#         mode: u=rw,g=r,o=r
-
-#     - name: Set the file to read-only to prevent overwrite by macOS updates
-#       ansible.builtin.command: chflags schg /etc/auto_master
-#       changed_when: false
-
-#     - name: Create "/System/Volumes/Data/mnt/raspi_hostname" directory for network shares
-#       ansible.builtin.file:
-#         path: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-#         state: directory
-#         mode: u=rwx,g=rx,o=rx
-
-#     # https://gist.github.com/rudelm/7bcc905ab748ab9879ea
-#     - name: Configure SMB shares via automount
-#       ansible.builtin.copy:
-#         dest: /etc/auto_smb
-#         mode: u=rw,g=,o=
-#         content: |
-#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/movies   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/movies-rw
-#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/music    -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/music-rw
-#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/torrents -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/torrents
-#           /System/Volumes/Data/mnt/{{ raspi_hostname }}/backup   -fstype=smbfs,soft,noowners,nosuid,rw ://{{ raspi_username }}:{{ raspi_password }}@{{ raspi_hostname }}:/backup
-#       tags:
-#         - secrets
-
-#     - name: Create link from "/System/Volumes/Data/mnt/raspi_hostname" to ~/Documents/
-#       ansible.builtin.file:
-#         src: /System/Volumes/Data/mnt/{{ raspi_hostname }}
-#         dest: "{{ ansible_facts["user_dir"] }}/Documents/{{ raspi_hostname }}"
-#         state: link
-
-# - name: Configure Finder sidebar favourites
-#   ansible.builtin.shell: |
-#     mysides add {{ raspi_hostname }} file:///System/Volumes/Data/mnt/{{ raspi_hostname }}
-#     mysides add {{ ansible_facts["user_id"] }} file://{{ ansible_facts["user_dir"] }}
-#   changed_when: false
 
 - name: Remove all Dock items
   ansible.builtin.command: dockutil --remove all --no-restart
@@ -618,15 +560,10 @@
       # keep-sorted end
     mode: u=rw,g=r,o=r
 
-# https://frederic-hemberger.de/notes/getting-the-latest-release-on-github-with-ansible/
-- name: Get latest release of Stats
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/exelban/stats/releases/latest
-    return_content: true
-    headers:
-      Authorization: "Bearer {{ ansible_facts['env']['GITHUB_TOKEN'] }}"
-  register: stats_release_data
-  no_log: true
+- name: Get installed Stats version
+  ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
+  register: stats_version
+  changed_when: false
 
 - name: Configure Stats
   community.general.osx_defaults:
@@ -688,18 +625,8 @@
     - key: update-interval
       value: Never
     - key: version
-      value: "{{ stats_release_data.json.tag_name | regex_replace('^v?(.*)$', '\\1') }}"
+      value: "{{ stats_version.stdout }}"
     # keep-sorted end
-
-- name: Configure Chrome
-  community.general.osx_defaults:
-    domain: com.google.Chrome
-    key: "{{ item.key }}"
-    type: bool
-    value: "{{ item.value }}"
-  loop:
-    - key: AppleEnableSwipeNavigateWithScrolls
-      value: "FALSE"
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:

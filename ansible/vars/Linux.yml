@@ -91,7 +91,6 @@ dnf_packages:
   - mediainfo
   - moby-engine # Docker
   - mozilla-ublock-origin
-  - mpg123 # Needed for mc - to show MP3 details
   - mutt # Check dependencies
   - NetworkManager-wifi
   - NetworkManager-config-connectivity-fedora # captive-portal detect
@@ -126,8 +125,6 @@ dnf_packages:
   - syncthing
   - syslinux-nonlinux
   - tcpdump
-  - telnet
-  - tig
   - traceroute
   - udisks2 # Needed for KDE to mount devices + many dependencies
   - vim
