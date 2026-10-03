@@ -23,6 +23,7 @@ homebrew_casks:
   - thaw
   - utm
   - visual-studio-code
+  - vlc
   - vorssaint
   # keep-sorted end
 

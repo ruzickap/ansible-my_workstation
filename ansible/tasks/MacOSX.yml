@@ -717,6 +717,18 @@
   loop:
     # keep-sorted start
     - section: types
+      option: audio
+      value: '"VLC"'
+    - section: types
+      option: movie
+      value: '"VLC"'
+    - section: types
+      option: mp4-audio
+      value: '"VLC"'
+    - section: types
+      option: mp4-movie
+      value: '"VLC"'
+    - section: types
       option: plain-text
       value: '"Visual Studio Code"'
     - section: types
