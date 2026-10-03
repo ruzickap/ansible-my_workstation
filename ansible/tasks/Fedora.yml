@@ -17,6 +17,25 @@
         mode: u=rw,g=r,o=r
       changed_when: false
 
+    - name: Set fact about primary disk device used by KDE Plasma
+      ansible.builtin.shell: |
+        set -o pipefail
+        lsblk -o NAME,MAJ:MIN,TYPE | sed -n 's/^\([^ ]*\) *\([^:]*\):\([^ ]*\).*disk$/\1_(\2%3A\3)/p'
+      changed_when: false
+      register: primary_disk_device_number_kde_plasma
+
+    - name: Disable weak dependencies
+      community.general.ini_file:
+        path: /etc/dnf/dnf.conf
+        section: main
+        option: install_weak_deps
+        value: "false"
+        mode: u=rw,g=r,o=r
+
+    - name: Install packages
+      ansible.builtin.dnf:
+        name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
+
     - name: Configure aliases
       ansible.builtin.lineinfile:
         dest: /etc/aliases
@@ -71,25 +90,6 @@
         block: |
           /.*/ {{ postfix_form }}
         mode: u=rw,g=r,o=r
-
-    - name: Set fact about primary disk device used by KDE Plasma
-      ansible.builtin.shell: |
-        set -o pipefail
-        lsblk -o NAME,MAJ:MIN,TYPE | sed -n 's/^\([^ ]*\) *\([^:]*\):\([^ ]*\).*disk$/\1_(\2%3A\3)/p'
-      changed_when: false
-      register: primary_disk_device_number_kde_plasma
-
-    - name: Disable weak dependencies
-      community.general.ini_file:
-        path: /etc/dnf/dnf.conf
-        section: main
-        option: install_weak_deps
-        value: "false"
-        mode: u=rw,g=r,o=r
-
-    - name: Install packages
-      ansible.builtin.dnf:
-        name: "{{ dnf_packages + dnf_kde_packages + dnf_qt_packages + dnf_graphical_packages + dnf_gtk3_packages + dnf_gtk2_packages }}"
 
     - name: Import RPM Fusion GPG signature
       ansible.builtin.rpm_key:
