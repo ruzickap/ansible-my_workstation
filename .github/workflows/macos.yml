@@ -68,10 +68,12 @@ jobs:
         run: |
           brew info --json=v1 --installed | jq -r "map(select(.installed[].poured_from_bottle | not) | .name) | unique | .[]"
 
-      # https://gist.github.com/eguven/23d8c9fc78856bd20f65f8bcf03e691b
       - name: List brew packages and their sizes
         run: |
-          brew list --formula | xargs -P8 -I {} sh -c "brew info {} | ggrep -E '[0-9]* files, ' | grep -v 'KB' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'" | sort -h -r -k2 - | column -t
+          echo "*** Formulae"
+          du -sh "$(brew --cellar)"/* | sort -hr
+          echo "*** Casks"
+          du -sh "$(brew --caskroom)"/* | sort -hr
 
       - name: Brew packages dependency tree
         env:

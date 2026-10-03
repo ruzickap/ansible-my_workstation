@@ -1,133 +1,164 @@
 {
   // keep-sorted start block=yes
   "$schema": "https://opencode.ai/config.json",
-  "agent": {
-    "build": {
-      "variant": "high",
+  "formatter": {
+    "rumdl": {
+      "command": ["rumdl", "fmt", "$FILE"],
+      "extensions": [".md"],
     },
-  },
-  "autoupdate": false,
-  "compaction": { "auto": false },
-  "instructions": ["AGENTS.md"],
-  "mcp": {
-    // keep-sorted start block=yes
-    "atlassian-mcp-server": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.atlassian.com/v1/mcp",
-    },
-    "aws-knowledge-mcp-server": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://knowledge-mcp.global.api.aws",
-    },
-    "aws-mcp": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://aws-mcp.us-east-1.api.aws/mcp",
-    },
-    "azure-knowledge": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://learn.microsoft.com/api/mcp",
-    },
-    "cloudflare-dns-analytics": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://dns-analytics.mcp.cloudflare.com/sse",
-    },
-    "context7.com": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-    },
-    "draw.io": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.draw.io/mcp",
-    },
-    "exa.ai": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai/mcp",
-    },
-    "exchange-mcp-server": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://m365-apim.azure-api.net/exch-mcp/mcp",
-    },
-    "grep.app": {
-      "type": "remote",
-      "url": "https://mcp.grep.app",
-    },
-    "playwright-brave": {
-      "enabled": false,
-      "type": "local",
-      // Extension mode against Brave Beta. --executable-path skips the Chrome
-      // profile scan; the relay pairs with the running Brave Beta extension.
+    "shfmt": {
       "command": [
-        "npx",
-        "--yes",
-        "@playwright/mcp@latest",
-        "--extension",
-        "--executable-path",
-        "/Applications/Brave Browser Beta.app/Contents/MacOS/Brave Browser Beta",
+        "shfmt",
+        "--write",
+        "--case-indent",
+        "--indent",
+        "2",
+        "--space-redirects",
+        "$FILE",
       ],
-      "env": {
-        // Fill in real token locally; do not commit secrets.
-        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "",
-      },
     },
-    "sharepoint-mcp-server": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://wtw-integration.azure-api.net/sp-mcp/mcp",
-    },
-    "wiz-integration": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.app.wiz.io",
-      "tools": ["*"],
-      "headers": {
-        // Fill in real credentials locally; do not commit secrets.
-        "Wiz-Client-Id": "",
-        "Wiz-Client-Secret": "",
-        "Wiz-DataCenter": "us8",
-        "X-Wiz-MCP-Mode": "gateway",
-      },
-    },
-    "wiz.io": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.app.wiz.io",
-      "headers": {
-        "X-Wiz-MCP-Mode": "gateway",
-      },
-    },
-    // keep-sorted end
-  },
-  "model": "github-copilot/claude-opus-4.8",
-  "permission": {
-    "bash": "allow",
-    "edit": "allow",
-    "write": "allow",
-    "webfetch": "allow",
-    "external_directory": {
-      "/tmp/**": "allow",
-      "/var/folders/**": "allow",
+    "prettier-global": {
+      "command": ["prettier", "--write", "$FILE"],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs",
+        ".ts",
+        ".tsx",
+        ".mts",
+        ".cts",
+        ".html",
+        ".htm",
+        ".vue",
+        ".css",
+        ".scss",
+        ".less",
+        ".json",
+        ".jsonc",
+        ".yaml",
+        ".yml",
+        ".md",
+        ".mdx",
+        ".graphql",
+        ".gql",
+      ],
     },
   },
-  "plugin": [
-    [
-      "opencode-ascii",
-      {
-        "emojis": false,
+  "mcp": {
+    "servers": {
+      // keep-sorted start block=yes
+      "atlassian-mcp-server": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://mcp.atlassian.com/v1/mcp",
       },
-    ],
-    "opencode-claude-auth@latest",
-    "@mohak34/opencode-notifier@latest",
+      "aws-knowledge-mcp-server": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://knowledge-mcp.global.api.aws",
+      },
+      "aws-mcp": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://aws-mcp.us-east-1.api.aws/mcp",
+      },
+      "azure-knowledge": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://learn.microsoft.com/api/mcp",
+      },
+      "cloudflare-dns-analytics": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://dns-analytics.mcp.cloudflare.com/sse",
+      },
+      "context7.com": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+      },
+      "draw.io": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://mcp.draw.io/mcp",
+      },
+      // Disabled: web search is handled by the built-in "websearch" tool
+      // ("provider": "random"). Uncomment for free Exa search without an API key.
+      // "exa.ai": {
+      //   "type": "remote",
+      //   "url": "https://mcp.exa.ai/mcp",
+      // },
+      "grep.app": {
+        "type": "remote",
+        "url": "https://mcp.grep.app",
+      },
+      "ibkr": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://api.ibkr.com/v1/api/mcp-public",
+      },
+      "playwright-brave": {
+        "disabled": true,
+        "type": "local",
+        // Extension mode against Brave Beta. --executable-path skips the Chrome
+        // profile scan; the relay pairs with the running Brave Beta extension.
+        "command": [
+          "npx",
+          "@playwright/mcp@latest",
+          "--extension",
+          "--executable-path",
+          "/Applications/Brave Browser Beta.app/Contents/MacOS/Brave Browser Beta",
+        ],
+        "environment": {
+          "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "{env:PLAYWRIGHT_MCP_EXTENSION_TOKEN}",
+        },
+      },
+      "wiz-integration": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://mcp.app.wiz.io",
+        "headers": {
+          "Wiz-Client-Id": "{env:WIZ_MCP_CLIENT_ID}",
+          "Wiz-Client-Secret": "{env:WIZ_MCP_CLIENT_SECRET}",
+          "Wiz-DataCenter": "us8",
+        },
+      },
+      "wiz.io": {
+        "disabled": true,
+        "type": "remote",
+        "url": "https://mcp.app.wiz.io",
+      },
+      // keep-sorted end
+    },
+  },
+  "model": "github-copilot/claude-opus-5.5",
+  "permissions": [{ "action": "*", "resource": "*", "effect": "allow" }],
+  "plugins": [
+    {
+      "package": "@devtheops/opencode-plugin-otel@2.0.0",
+      "options": {
+        "enabled": true,
+        "endpoint": "https://otlp-gateway-prod-eu-west-2.grafana.net/otlp",
+        "protocol": "http/protobuf",
+        "metricPrefix": "claude_code.",
+        "otlpHeaders": "{env:OPENCODE_OTEL_HEADERS}",
+      },
+    },
+    //{
+    //  "package": "opencode-ascii@0.1.8",
+    //  "options": { "emojis": false },
+    //},
+    //"opencode-vibeguard@0.1.0",
+    //"@dietrichgebert/ponytail@4.10.0",
+    //"context-mode@1.0.169",
+    //"@rehydra/opencode",
     //"oh-my-opencode@latest"
     //"opencode-copilot-budget"
     //"superpowers@git+https://github.com/obra/superpowers.git"
   ],
-  "share": "disabled",
+  "update": "disable",
+  "websearch": {
+    "provider": "random",
+  },
   // keep-sorted end
 }

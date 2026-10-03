@@ -13,19 +13,17 @@ homebrew_casks:
   - brave-browser@beta
   - claude-code
   - cursor
-  - darktable
-  - digikam
   - font-meslo-lg-nerd-font # Nerd Font glyphs for the terminal prompt/icons and VS Code
   - ghostty
   - home-assistant
   - keepassxc
   - kopiaui
-  - mpv
   - mysides # Application for managing OS X Finder sidebar favorites
   - stats
   - thaw
   - utm
   - visual-studio-code
+  - vlc
   - vorssaint
   # keep-sorted end
 
@@ -81,6 +79,7 @@ homebrew_packages:
   - midnight-commander
   - mise
   - mpg123 # needed for mc to display mp3 files
+  - mpv
   - neovim
   - oh-my-posh
   - opencode
@@ -119,7 +118,6 @@ homebrew_services:
   # keep-sorted end
 
 homebrew_taps:
-  - aws/tap
   - hashicorp/tap
 
 login_items_enabled:

@@ -1,9 +1,8 @@
 # keep-sorted start
 api\.github\.com
-api\.githubcopilot\.com
+api\.ibkr\.com/v1/api/mcp-public
 apple\.stackexchange\.com
 aws-mcp\.us-east-1\.api\.aws
-azure-api\.net
 dns-analytics\.mcp\.cloudflare\.com
 file://
 learn\.microsoft\.com/api/mcp
@@ -16,6 +15,7 @@ mcp\.exa\.ai
 mcp\.grep\.app
 medium\.com
 mirrors\.rpmfusion\.org/.*/fedora/rpmfusion-.*-release-
+otlp-gateway-prod-eu-west-2\.grafana\.net/otlp
 stackoverflow\.com
 unix\.stackexchange\.com
 # keep-sorted end
