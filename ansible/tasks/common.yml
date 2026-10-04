@@ -537,14 +537,16 @@
       }
     mode: u=rw,g=,o=
 
-# - name: Add agent skills
-#   ansible.builtin.command: >-
-#     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
-#   environment:
-#     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
-#   args:
-#     creates: ~/.agents/skills/{{ item.name }}
-#   loop: "{{ code_opencode_agent_skills }}"
+# GH_TOKEN is read on the controller (exported by run_ansible_my_workstation-aws.sh)
+- name: Add agent skills
+  ansible.builtin.command: >-
+    gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
+  environment:
+    GH_TOKEN: "{{ lookup('ansible.builtin.env', 'GH_TOKEN') }}"
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
+  args:
+    creates: ~/.agents/skills/{{ item.name }}
+  loop: "{{ code_opencode_agent_skills }}"
 
 ###################################################
 # Secrets

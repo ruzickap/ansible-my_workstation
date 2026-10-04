@@ -67,7 +67,7 @@
 - name: Enable Container service
   ansible.builtin.command: "{{ homebrew_prefix }}/bin/brew services start container"
   args:
-    creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/sh.brew.container.plist"
+    creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/homebrew.mxcl.container.plist"
 
 # container-apiserver runs in the GUI (Aqua) launchd session, which is not
 # reachable over SSH - run the command inside that session via launchctl asuser

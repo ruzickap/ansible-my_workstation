@@ -18,7 +18,6 @@ macOS machine.
 - An admin macOS user named after your local `$USERNAME` / `$USER`, with your
   SSH key and a random password
 - Screen Sharing (VNC) enabled
-- Preinstalled Homebrew and its cask apps removed, giving a clean macOS
 
 ```mermaid
 flowchart LR

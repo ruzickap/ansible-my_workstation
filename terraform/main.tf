@@ -152,7 +152,7 @@ module "ec2_instance" {
   associate_public_ip_address = true
   key_name                    = aws_key_pair.this.key_name
 
-  # First boot: create the admin user, enable Screen Sharing, remove Homebrew
+  # First boot: create the admin user, enable Screen Sharing
   user_data_replace_on_change = false
   user_data                   = <<-EOT
     #!/bin/bash
@@ -171,13 +171,6 @@ module "ec2_instance" {
 
     # Login window is already running at first boot - restart it to list the new user
     killall loginwindow || true
-
-    # Remove preinstalled Homebrew (incl. cask apps) to get a clean macOS
-    sudo -u ec2-user /opt/homebrew/bin/brew list --cask | while read -r CASK; do
-      sudo -u ec2-user /opt/homebrew/bin/brew uninstall --cask --zap --force "$${CASK}"
-    done
-    sudo -u ec2-user NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
-    rm -rf /opt/homebrew
   EOT
 
   create_security_group = false
@@ -208,7 +201,7 @@ resource "terraform_data" "wait_for_mac" {
     host    = module.ec2_instance.public_ip
     user    = local.username
     agent   = true
-    timeout = "60m"
+    timeout = "30m"
   }
 
   provisioner "remote-exec" {

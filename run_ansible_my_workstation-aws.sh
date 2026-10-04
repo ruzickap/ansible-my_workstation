@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DESTINATION_IP="34.207.86.68"
-MY_USER="${USERNAME}"
+MY_USER="${USERNAME:-${USER}}"
 MY_PASSWORD="$(terraform -chdir=terraform output -raw user_password)"
 # GitHub token from the laptop's gh, used by "gh skill install" on the remote Mac
 GH_TOKEN="$(gh auth token)"
