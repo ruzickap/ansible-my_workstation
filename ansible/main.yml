@@ -8,6 +8,7 @@
   tasks:
     - name: Include OS specific vars
       ansible.builtin.include_vars: vars/{{ ansible_facts['system'] }}.yml
+      tags: always
 
     - name: Add ansible_user_id to sudoers to become root easily
       ansible.builtin.lineinfile:

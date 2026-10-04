@@ -149,6 +149,21 @@
 # Run as user
 ###############################
 
+- name: Create ~/bin directory
+  ansible.builtin.file:
+    path: ~/bin
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+  tags: mc
+
+# Used by mc (ext.d/video.sh) to show video details on F3 - not installed by Homebrew
+- name: Download mpv_identify.sh
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/mpv_identify.sh
+    dest: ~/bin/mpv_identify.sh
+    mode: u=rwx,g=rx,o=rx
+  tags: mc
+
 - name: Install NvChad
   ansible.builtin.git:
     repo: "https://github.com/NvChad/starter"
@@ -372,7 +387,7 @@
 - name: Install the Code extensions
   ansible.builtin.command: code --install-extension {{ item }}
   environment:
-    PATH: /usr/local/bin:{{ ansible_facts['env']['PATH'] }}
+    PATH: "{{ homebrew_prefix }}/bin:/usr/local/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
@@ -383,11 +398,10 @@
     state: directory
     mode: u=rwx,g=rx,o=rx
 
-- name: Place public ssh to autorized_key for root and {{ ansible_facts['user_id'] }}
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
-    create: true
-    block: |
+- name: Create git allowed_signers file
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
+    content: |
       petr.ruzicka@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh
     mode: u=rw,g=r,o=r
 
@@ -523,9 +537,13 @@
       }
     mode: u=rw,g=,o=
 
+# GH_TOKEN is read on the controller (exported by run_ansible_my_workstation-aws.sh)
 - name: Add agent skills
   ansible.builtin.command: >-
     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
+  environment:
+    GH_TOKEN: "{{ lookup('ansible.builtin.env', 'GH_TOKEN') }}"
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.agents/skills/{{ item.name }}
   loop: "{{ code_opencode_agent_skills }}"

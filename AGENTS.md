@@ -28,7 +28,17 @@ Run from inside `ansible/` (scripts `cd` there). A
 - macOS, full local run: `./run_ansible_my_workstation-local-mac.sh`
 - Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
 - Remote host: `./run_ansible_my_workstation.sh` (edit `DESTINATION_IP`)
-- `MY_PASSWORD` must be filled into the wrapper scripts before use.
+- AWS macOS test host: `./run_ansible_my_workstation-aws.sh` reads the
+  IP and password from `tofu -chdir=terraform output`
+  (`terraform/` provisions it; its local untracked state is the only
+  record of that host - don't delete it).
+- Use OpenTofu (`tofu`), never the `terraform` CLI, for `terraform/`
+  (init, plan, apply, output, destroy). The lock file pins
+  `registry.opentofu.org` providers; running `terraform init` adds
+  `registry.terraform.io` entries - don't commit those.
+- `MY_PASSWORD` must be filled into the other wrapper scripts before use.
+- Collections are pinned in `ansible/requirements.yml`
+  (`ansible-galaxy collection install -r requirements.yml`).
 
 ## Tags (important for partial runs)
 
@@ -57,7 +67,7 @@ Workflows run on push to **non-`main`** branches and on PRs — nothing runs on
   fails. New tasks must be idempotent or carry `changed_when: false` /
   `skip_idempotence_test`. `fedora.yml` push trigger is currently commented
   out (manual dispatch only).
-- `mega-linter.yml`: MegaLinter `documentation` flavor. Config in
+- `mega-linter.yml`: MegaLinter full image (all linters). Config in
   `.mega-linter.yml`. It extracts `bash`/`shell`/`sh` blocks from changed
   `*.md` and shellchecks them, so fenced shell in Markdown must be valid.
 - `commit-check.yml`: validates commit + branch names on PRs.

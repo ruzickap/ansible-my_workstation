@@ -32,10 +32,6 @@
     daemon_reload: true
   become: true
 
-- name: Run infat
-  ansible.builtin.command: infat --config ~/.config/infat/config.toml
-  changed_when: false
-
 - name: Set login picture
   ansible.builtin.shell: |
     dscl . delete /Users/{{ ansible_facts['user_id'] }} JPEGPhoto

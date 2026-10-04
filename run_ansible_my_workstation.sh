@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DESTINATION_IP="172.19.84.75"
-MY_USER="pruzicka"
+MY_USER="${USERNAME:-${USER}}"
 MY_PASSWORD=""
 
 cd ansible || exit

@@ -105,11 +105,13 @@ homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}
 
 homebrew_services:
   # keep-sorted start
-  - container
   - socktainer
   # keep-sorted end
 
 homebrew_taps:
+  # eks-node-viewer (not available in homebrew-core)
+  - aws/tap
+  # terraform (homebrew-core stopped updating it after the BUSL license change)
   - hashicorp/tap
 
 login_items_enabled:

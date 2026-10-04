@@ -1,0 +1,79 @@
+name: tofu-tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - .github/workflows/tofu-tests.yml
+      - terraform/**
+
+permissions: {}
+
+jobs:
+  tofu-tests:
+    permissions:
+      contents: read
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_wrapper: false
+
+      - name: 🎨 tofu fmt
+        run: tofu fmt -check -recursive -diff
+
+      - name: 🚀 tofu init
+        run: tofu init -backend=false -input=false
+
+      - name: ✅ tofu validate
+        run: tofu validate
+
+      - name: 🧪 tofu test
+        run: tofu test
+
+  tofu-floci-tests:
+    permissions:
+      contents: read
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_wrapper: false
+
+      - name: 🐳 Start Floci
+        env:
+          # renovate: datasource=docker depName=floci/floci
+          FLOCI_IMAGE: floci/floci:2.1.0@sha256:f5aa8c18302cedb4f2385f5c4e455b3efc77fee6bf7b6e5d1712b2817ba102db
+        run: |
+          docker run -d --name floci -p 4566:4566 \
+            -v /var/run/docker.sock:/var/run/docker.sock -u root \
+            "${FLOCI_IMAGE}"
+          timeout 60 bash -c 'until curl -sf http://localhost:4566/_localstack/health > /dev/null; do sleep 1; done'
+
+      - name: 🚀 tofu init
+        run: tofu init -backend=false -input=false
+
+      - name: 🧪 tofu test (Floci)
+        run: tofu test -test-directory=tests/integration
+
+      - name: 📜 Floci logs
+        if: failure()
+        run: docker logs floci
