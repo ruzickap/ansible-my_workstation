@@ -54,3 +54,9 @@ variable "tags" {
     ManagedBy = "terraform"
   }
 }
+
+variable "wait_for_instance" {
+  description = "Wait until SSH and VNC are reachable on the instance (disabled in tests)"
+  type        = bool
+  default     = true
+}

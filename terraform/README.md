@@ -117,6 +117,24 @@ AWS may refuse to release the Dedicated Host within 24 hours of allocation. If
 | `root_volume_size`    | Root EBS volume size in GiB   | `100`                   |
 | `ssh_public_key_path` | Path to the SSH public key    | `~/.ssh/id_ed25519.pub` |
 | `tags`                | Tags applied to all resources | `Project`, `ManagedBy`  |
+| `wait_for_instance`   | Wait until SSH/VNC are ready  | `true`                  |
+
+## Tests
+
+Offline unit tests (all providers mocked, no AWS access):
+
+```bash
+tofu test
+```
+
+Integration tests against the [Floci](https://github.com/floci-io/floci)
+local AWS emulator (Dedicated Host and macOS AMI are overridden):
+
+```bash
+docker run -d --rm -p 4566:4566 -u root \
+  -v /var/run/docker.sock:/var/run/docker.sock floci/floci:latest
+tofu test -test-directory=tests/integration
+```
 
 ## Outputs
 

@@ -197,6 +197,8 @@ module "ec2_instance" {
 
 # Block until SSH (as the new user) and VNC are reachable - EC2 Mac boot takes ~15-20 min
 resource "terraform_data" "wait_for_mac" {
+  count = var.wait_for_instance ? 1 : 0
+
   triggers_replace = [module.ec2_instance.id]
 
   connection {
@@ -209,4 +211,9 @@ resource "terraform_data" "wait_for_mac" {
   provisioner "remote-exec" {
     inline = ["for i in $(seq 120); do nc -z localhost 5900 && exit 0; sleep 5; done; exit 1"]
   }
+}
+
+moved {
+  from = terraform_data.wait_for_mac
+  to   = terraform_data.wait_for_mac[0]
 }

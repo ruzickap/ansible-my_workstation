@@ -60,13 +60,10 @@ override_resource {
   }
 }
 
-override_resource {
-  target = terraform_data.wait_for_mac
-}
-
 variables {
   ssh_public_key_path = "tests/fixtures/id_ed25519.pub"
   instance_type       = "t3.micro"
+  wait_for_instance   = false
 }
 
 run "apply" {
