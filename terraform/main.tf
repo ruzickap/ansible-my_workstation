@@ -33,6 +33,15 @@ locals {
   availability_zone = sort(data.aws_ec2_instance_type_offerings.mac.locations)[0]
   my_public_ip_cidr = "${chomp(data.http.my_public_ip.response_body)}/32"
   username          = data.external.username.result.username
+
+  ingress_rules = {
+    for rule, port in { ssh = 22, vnc = 5900 } : rule => {
+      cidr_ipv4             = local.my_public_ip_cidr
+      from_port             = port
+      to_port               = port
+      description           = "${upper(rule)} from my laptop"
+    }
+  }
 }
 
 # Username of the person running Terraform, used for the Owner tag and macOS user
@@ -93,14 +102,7 @@ module "security_group" {
   description = "EC2 Mac instance"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_rules = {
-    for rule, port in { ssh = 22, vnc = 5900 } : rule => {
-      cidr_ipv4             = local.my_public_ip_cidr
-      from_port             = port
-      to_port               = port
-      description           = "${upper(rule)} from my laptop"
-    }
-  }
+  ingress_rules = local.ingress_rules
 
   egress_rules = {
     all = {
