@@ -12,7 +12,7 @@ on:
 permissions: {}
 
 jobs:
-  terraform:
+  tofu-tests:
     permissions:
       contents: read
     runs-on: ubuntu-26.04-arm
