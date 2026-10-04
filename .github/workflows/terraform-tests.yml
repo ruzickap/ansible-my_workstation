@@ -1,4 +1,4 @@
-name: terraform
+name: terraform-tests
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches-ignore:
       - main
     paths:
-      - .github/workflows/terraform.yml
+      - .github/workflows/terraform-tests.yml
       - terraform/**
 
 permissions: {}
