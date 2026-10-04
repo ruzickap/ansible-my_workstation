@@ -70,7 +70,7 @@ data "http" "my_public_ip" {
   url = "https://checkip.amazonaws.com"
 }
 
-# Public subnet only, no NAT gateway, to keep costs at zero for networking
+# Public subnet only, no NAT gateway, to avoid NAT gateway costs
 # trivy:ignore:AVD-AWS-0178 Flow logs not needed for a short-lived test instance
 module "vpc" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=b3abd6df2ecf052451a361ed55b8f06f8742a795" # v6.7.3
@@ -205,15 +205,6 @@ resource "terraform_data" "wait_for_mac" {
   }
 
   provisioner "remote-exec" {
-    inline = ["until nc -z localhost 5900; do sleep 5; done"]
-  }
-}
-
-# Point the Ansible wrapper script at the new Mac
-resource "terraform_data" "ansible_destination_ip" {
-  triggers_replace = [module.ec2_instance.public_ip]
-
-  provisioner "local-exec" {
-    command = "sed -i 's/^DESTINATION_IP=.*/DESTINATION_IP=\"${module.ec2_instance.public_ip}\"/' '${path.module}/../run_ansible_my_workstation-aws.sh'"
+    inline = ["for i in $(seq 120); do nc -z localhost 5900 && exit 0; sleep 5; done; exit 1"]
   }
 }

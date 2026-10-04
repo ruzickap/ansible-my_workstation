@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DESTINATION_IP="34.207.86.68"
+DESTINATION_IP="$(tofu -chdir=terraform output -raw public_ip)"
 MY_USER="${USERNAME:-${USER}}"
 MY_PASSWORD="$(tofu -chdir=terraform output -raw user_password)"
 # GitHub token from the laptop's gh, used by "gh skill install" on the remote Mac

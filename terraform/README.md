@@ -1,12 +1,13 @@
 # EC2 Mac Test Instance
 
-Terraform configuration that creates a macOS EC2 instance (Apple silicon) in
+OpenTofu configuration that creates a macOS EC2 instance (Apple silicon) in
 AWS. Use it to test the Ansible playbook in this repository against a clean
 macOS machine.
 
 ## What It Creates
 
-- VPC with one public subnet and no NAT gateway, so networking costs nothing
+- VPC with one public subnet and no NAT gateway (the instance public IPv4 address
+  is still billed)
 - Security group that allows SSH (22) and VNC (5900) only from your current
   public IP
 - EC2 key pair from your local SSH public key
@@ -40,12 +41,12 @@ flowchart LR
   laptop -- "SSH / VNC" --> igw --> sg --> mac
   laptop -- "aws ssm start-session" --> ssm --> mac
   iam -.-> mac
-  mac -. "public IP" .-> script["../run_ansible_my_workstation-aws.sh<br/>DESTINATION_IP"]
+  script["../run_ansible_my_workstation-aws.sh<br/>tofu output public_ip"]
   script -- "Ansible over SSH" --> mac
 ```
 
-After the instance is created, Terraform writes its public IP to
-`DESTINATION_IP` in `../run_ansible_my_workstation-aws.sh`.
+`../run_ansible_my_workstation-aws.sh` reads the instance public IP and the
+user password from `tofu output`.
 
 ## Costs
 
@@ -59,9 +60,11 @@ other instance types are listed in [`variables.tf`](variables.tf).
 
 ## Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform) >= 1.10
+- [OpenTofu](https://opentofu.org/) ~> 1.12
 - AWS credentials with permissions for EC2, VPC and IAM
-- SSH public key, by default `~/.ssh/id_ed25519.pub`
+- SSH public key, by default `~/.ssh/id_ed25519.pub`, with the matching
+  private key loaded in your SSH agent (`ssh-add`) - `tofu apply` connects
+  through the agent to wait for the instance
 - [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
   for the AWS CLI (optional, only needed for SSM access)
 
