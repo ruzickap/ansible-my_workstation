@@ -16,7 +16,6 @@ variable "name" {
 # us-east-1 / us-east-2 / us-west-2; minimum allocation is 24 hours:
 #   mac2.metal         (M1)       0.650  ->  24h:  15.60
 #   mac2-m2.metal      (M2)       0.878  ->  24h:  21.07
-#   mac1.metal         (Intel)    1.083  ->  24h:  25.99
 #   mac-m4.metal       (M4)       1.230  ->  24h:  29.52
 #   mac2-m2pro.metal   (M2 Pro)   1.560  ->  24h:  37.44
 #   mac-m4pro.metal    (M4 Pro)   1.970  ->  24h:  47.28
@@ -27,6 +26,12 @@ variable "instance_type" {
   description = "Mac instance type. mac2.metal (Apple M1) is the cheapest EC2 Mac option"
   type        = string
   default     = "mac2.metal"
+
+  # The AMI lookup and user data assume Apple silicon
+  validation {
+    condition     = var.instance_type != "mac1.metal"
+    error_message = "Intel mac1.metal is not supported - use an Apple silicon instance type."
+  }
 }
 
 variable "root_volume_size" {
