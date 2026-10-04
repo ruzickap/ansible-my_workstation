@@ -29,16 +29,16 @@ jobs:
         with:
           tofu_wrapper: false
 
-      - name: tofu fmt
+      - name: 🎨 tofu fmt
         run: tofu fmt -check -recursive -diff
 
-      - name: tofu init
+      - name: 🚀 tofu init
         run: tofu init -backend=false -input=false
 
-      - name: tofu validate
+      - name: ✅ tofu validate
         run: tofu validate
 
-      - name: tofu test
+      - name: 🧪 tofu test
         run: tofu test
 
   terraform-floci:
@@ -58,7 +58,7 @@ jobs:
         with:
           tofu_wrapper: false
 
-      - name: Start Floci
+      - name: 🐳 Start Floci
         env:
           # renovate: datasource=docker depName=floci/floci
           FLOCI_IMAGE: floci/floci:2.1.0@sha256:f5aa8c18302cedb4f2385f5c4e455b3efc77fee6bf7b6e5d1712b2817ba102db
@@ -68,12 +68,12 @@ jobs:
             "${FLOCI_IMAGE}"
           timeout 60 bash -c 'until curl -sf http://localhost:4566/_localstack/health > /dev/null; do sleep 1; done'
 
-      - name: tofu init
+      - name: 🚀 tofu init
         run: tofu init -backend=false -input=false
 
-      - name: tofu test (Floci)
+      - name: 🧪 tofu test (Floci)
         run: tofu test -test-directory=tests/integration
 
-      - name: Floci logs
+      - name: 📜 Floci logs
         if: failure()
         run: docker logs floci
