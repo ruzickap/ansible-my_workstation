@@ -41,7 +41,7 @@ jobs:
       - name: 🧪 tofu test
         run: tofu test
 
-  terraform-floci:
+  tofu-floci-tests:
     permissions:
       contents: read
     runs-on: ubuntu-26.04-arm
