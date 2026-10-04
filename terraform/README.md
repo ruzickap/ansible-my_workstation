@@ -107,19 +107,19 @@ AWS may refuse to release the Dedicated Host within 24 hours of allocation. If
 
 ## Inputs
 
-| Name                  | Description                         | Default                 |
-| --------------------- | ----------------------------------- | ----------------------- |
-| `region`              | AWS region                          | `us-east-1`             |
-| `name`                | Name prefix for all resources       | `macos`                 |
-| `instance_type`       | EC2 Mac instance type               | `mac2.metal`            |
-| `root_volume_size`    | Root EBS volume size in GiB         | `100`                   |
-| `ssh_public_key_path` | Path to the SSH public key          | `~/.ssh/id_ed25519.pub` |
-| `tags`                | Tags applied to all resources       | `Project`, `ManagedBy`  |
+| Name                  | Description                   | Default                 |
+|-----------------------|-------------------------------|-------------------------|
+| `region`              | AWS region                    | `us-east-1`             |
+| `name`                | Name prefix for all resources | `macos`                 |
+| `instance_type`       | EC2 Mac instance type         | `mac2.metal`            |
+| `root_volume_size`    | Root EBS volume size in GiB   | `100`                   |
+| `ssh_public_key_path` | Path to the SSH public key    | `~/.ssh/id_ed25519.pub` |
+| `tags`                | Tags applied to all resources | `Project`, `ManagedBy`  |
 
 ## Outputs
 
 | Name                  | Description                                  |
-| --------------------- | -------------------------------------------- |
+|-----------------------|----------------------------------------------|
 | `instance_id`         | EC2 Mac instance ID                          |
 | `public_ip`           | Public IP address of the instance            |
 | `dedicated_host_id`   | Dedicated Host ID                            |
