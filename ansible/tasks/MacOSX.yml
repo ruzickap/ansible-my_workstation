@@ -203,7 +203,7 @@
     type: bool
     value: true
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # # https://macos-defaults.com/dock/tilesize.html
 # - name: Set the icon size of Dock items to "dock_icons_size" pixels
 #   community.general.osx_defaults:
@@ -212,7 +212,7 @@
 #     type: float
 #     value: "{{ dock_icons_size }}"
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # # https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
 # - name: Magnification icon size
 #   community.general.osx_defaults:
@@ -221,7 +221,7 @@
 #     type: int
 #     value: 70
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # # https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
 # - name: Disable screensaver when mouse is right top
 #   community.general.osx_defaults:
@@ -256,7 +256,7 @@
     type: bool
     value: "false"
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # - name: Use F1, F2, ... as standard function keys
 #   community.general.osx_defaults:
 #     domain: NSGlobalDomain
@@ -264,7 +264,7 @@
 #     type: bool
 #     value: "true"
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # - name: Always show scrollbars
 #   community.general.osx_defaults:
 #     key: AppleShowScrollBars
@@ -307,7 +307,7 @@
     type: bool
     value: "false"
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # Not sure if this is needed
 # # https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
 # - name: Enable tap-to-click
@@ -574,13 +574,13 @@
       # keep-sorted end
     mode: u=rw,g=r,o=r
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # - name: Get installed Stats version
 #   ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
 #   register: stats_version
 #   changed_when: false
 
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # - name: Configure Stats
 #   community.general.osx_defaults:
 #     domain: eu.exelban.Stats
@@ -690,7 +690,7 @@
 ################################################
 # Interactive (can not be "automated")
 ################################################
-## TODO: I'm not sure if this is working - please recheck
+## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # - name: Run Applications which needs some manual tasks (approvals)
 #   ansible.builtin.command: open -a "{{ item }}"
 #   changed_when: false
@@ -712,7 +712,7 @@
   ansible.builtin.pause:
     prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
   tags: interactive
-## TODO: Is it really needed?
+## TODO: Is it really needed? # DevSkim: ignore DS176209
 # MacOS will open several windows which needs to be confirmed otherwise it will fail
 # - name: Allow programs to be started after login
 #   ansible.builtin.command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
