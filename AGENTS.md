@@ -29,9 +29,13 @@ Run from inside `ansible/` (scripts `cd` there). A
 - Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
 - Remote host: `./run_ansible_my_workstation.sh` (edit `DESTINATION_IP`)
 - AWS macOS test host: `./run_ansible_my_workstation-aws.sh` reads the
-  password from `terraform -chdir=terraform output -raw user_password`
+  password from `tofu -chdir=terraform output -raw user_password`
   (`terraform/` provisions it; its local untracked state is the only
   record of that host - don't delete it).
+- Use OpenTofu (`tofu`), never the `terraform` CLI, for `terraform/`
+  (init, plan, apply, output, destroy). The lock file pins
+  `registry.opentofu.org` providers; running `terraform init` adds
+  `registry.terraform.io` entries - don't commit those.
 - `MY_PASSWORD` must be filled into the other wrapper scripts before use.
 - Collections are pinned in `ansible/requirements.yml`
   (`ansible-galaxy collection install -r requirements.yml`).

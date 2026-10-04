@@ -29,12 +29,12 @@ output "ssh_command" {
 }
 
 output "vnc_url" {
-  description = "Open with Screen Sharing (password: terraform output -raw user_password)"
+  description = "Open with Screen Sharing (password: tofu output -raw user_password)"
   value       = "vnc://${module.ec2_instance.public_ip}"
 }
 
 output "vnc_command" {
-  description = "Run on your macOS laptop to open Screen Sharing (password: terraform output -raw user_password)"
+  description = "Run on your macOS laptop to open Screen Sharing (password: tofu output -raw user_password)"
   value       = "open vnc://${local.username}@${module.ec2_instance.public_ip}"
 }
 

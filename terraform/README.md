@@ -68,8 +68,8 @@ other instance types are listed in [`variables.tf`](variables.tf).
 ## Usage
 
 ```bash
-terraform init
-terraform apply
+tofu init
+tofu apply
 ```
 
 macOS takes several minutes to boot after `apply` finishes.
@@ -78,14 +78,14 @@ macOS takes several minutes to boot after `apply` finishes.
 
 ```bash
 # SSH
-eval "$(terraform output -raw ssh_command)"
+eval "$(tofu output -raw ssh_command)"
 
 # Screen Sharing from a macOS laptop
-terraform output -raw user_password
-eval "$(terraform output -raw vnc_command)"
+tofu output -raw user_password
+eval "$(tofu output -raw vnc_command)"
 
 # SSM Session Manager
-eval "$(terraform output -raw ssm_session_command)"
+eval "$(tofu output -raw ssm_session_command)"
 ```
 
 ### Run the Ansible Playbook
@@ -98,7 +98,7 @@ cd ..
 ### Destroy
 
 ```bash
-terraform destroy
+tofu destroy
 ```
 
 AWS may refuse to release the Dedicated Host within 24 hours of allocation. If
