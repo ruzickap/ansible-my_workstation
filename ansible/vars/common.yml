@@ -74,10 +74,8 @@ krew_plugins:
   # keep-sorted start
   - cert-manager
   - get-all
-  - ice
   - ktop
   - ns
-  - resource-capacity
   - stern
   - view-allocations
   # keep-sorted end

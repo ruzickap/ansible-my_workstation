@@ -372,7 +372,7 @@
 - name: Install the Code extensions
   ansible.builtin.command: code --install-extension {{ item }}
   environment:
-    PATH: /usr/local/bin:{{ ansible_facts['env']['PATH'] }}
+    PATH: "{{ homebrew_prefix }}/bin:/usr/local/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.vscode/extensions/{{ item | lower }}*
   loop: "{{ code_extensions }}"
@@ -523,12 +523,14 @@
       }
     mode: u=rw,g=,o=
 
-- name: Add agent skills
-  ansible.builtin.command: >-
-    gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
-  args:
-    creates: ~/.agents/skills/{{ item.name }}
-  loop: "{{ code_opencode_agent_skills }}"
+# - name: Add agent skills
+#   ansible.builtin.command: >-
+#     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
+#   environment:
+#     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
+#   args:
+#     creates: ~/.agents/skills/{{ item.name }}
+#   loop: "{{ code_opencode_agent_skills }}"
 
 ###################################################
 # Secrets

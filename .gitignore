@@ -1,9 +1,16 @@
 # keep-sorted start newline_separated=yes
+*.tfstate
+
+*.tfstate.*
+
 # Lychee cache
 .lycheecache
 
 # pre-commit config file
 .pre-commit-config.yaml
+
+# Terraform
+.terraform/
 
 # Byte-compiled files
 __pycache__/

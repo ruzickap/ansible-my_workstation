@@ -82,12 +82,10 @@
         "type": "remote",
         "url": "https://mcp.draw.io/mcp",
       },
-      // Disabled: web search is handled by the built-in "websearch" tool
-      // ("provider": "random"). Uncomment for free Exa search without an API key.
-      // "exa.ai": {
-      //   "type": "remote",
-      //   "url": "https://mcp.exa.ai/mcp",
-      // },
+      "exa.ai": {
+        "type": "remote",
+        "url": "https://mcp.exa.ai/mcp",
+      },
       "grep.app": {
         "type": "remote",
         "url": "https://mcp.grep.app",

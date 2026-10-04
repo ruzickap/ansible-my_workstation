@@ -5,10 +5,11 @@
   register: dscl_output
   changed_when: false
 
+# EC2 Mac has Wi-Fi hardware, but it is "Off (forced)" and the interface does not exist
 - name: Get wi-fi interface
   ansible.builtin.shell: |
     set -o pipefail
-    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; print $2 }'
+    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; if (system("ifconfig " $2 " > /dev/null 2>&1") == 0) print $2 }'
   register: networksetup
   changed_when: false
 
@@ -53,7 +54,7 @@
 # Newer Homebrew refuses formulae/casks from untrusted third-party taps
 # (HOMEBREW_REQUIRE_TAP_TRUST); trust ours so their packages can install.
 - name: Trust Homebrew taps
-  ansible.builtin.command: brew trust {{ homebrew_taps | join(' ') }}
+  ansible.builtin.command: "{{ homebrew_prefix }}/bin/brew trust {{ homebrew_taps | join(' ') }}"
   changed_when: false
 
 - name: Install Homebrew packages
@@ -61,18 +62,30 @@
     name: "{{ homebrew_packages }}"
     update_homebrew: true
 
+# `container system start` is one-shot, so `brew services` reports it stopped
+# and the homebrew_services module fails re-bootstrapping it
+- name: Enable Container service
+  ansible.builtin.command: "{{ homebrew_prefix }}/bin/brew services start container"
+  args:
+    creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/sh.brew.container.plist"
+
+# container-apiserver runs in the GUI (Aqua) launchd session, which is not
+# reachable over SSH - run the command inside that session via launchctl asuser
+- name: Install recommended Container kernel
+  ansible.builtin.command: >-
+    launchctl asuser {{ ansible_facts['user_uid'] }}
+    sudo -u {{ ansible_facts['user_id'] }}
+    {{ homebrew_prefix }}/bin/container system kernel set --recommended
+  args:
+    creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
+  become: true
+  when: "'arm' in ansible_facts['architecture']"
+
 - name: Enable Homebrew services
   community.general.homebrew_services:
     name: "{{ item }}"
     state: present
   loop: "{{ homebrew_services }}"
-  tags: skip_idempotence_test
-
-- name: Install recommended Container kernel
-  ansible.builtin.command: container system kernel set --recommended
-  args:
-    creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
-  when: "'arm' in ansible_facts['architecture']"
 
 - name: Install Homebrew casks
   community.general.homebrew_cask:
@@ -95,13 +108,15 @@
     type: bool
     value: true
 
-# https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
-# https://macos-defaults.com/finder/fxpreferredviewstyle.html
-- name: Use list view in all Finder windows by default
-  community.general.osx_defaults:
-    domain: com.apple.finder
-    key: FXPreferredViewStyle
-    value: Nlsv
+#### This doesn't do anything - Finder still opens in the last used view style
+#### Maybe reboot?
+# # https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
+# # https://macos-defaults.com/finder/fxpreferredviewstyle.html
+# - name: Use list view in all Finder windows by default
+#   community.general.osx_defaults:
+#     domain: com.apple.finder
+#     key: FXPreferredViewStyle
+#     value: Nlsv
 
 # https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
 - name: Display full posix path in Finder title Bar
@@ -156,7 +171,6 @@
     - key: NewWindowTarget
       value: PfHm
 
-# https://www.defaults-write.com/disable-screenshots-shadow-mac/
 # https://macos-defaults.com/screenshots/disable-shadow.html
 - name: Disable screenshot shadows on a Mac
   community.general.osx_defaults:
@@ -181,14 +195,6 @@
     type: string
     value: left
 
-# https://macos-defaults.com/dock/tilesize.html
-- name: Set the icon size of Dock items to "dock_icons_size" pixels
-  community.general.osx_defaults:
-    domain: com.apple.dock
-    key: tilesize
-    type: float
-    value: "{{ dock_icons_size }}"
-
 # https://macos-defaults.com/dock/autohide.html
 - name: Automatically hide and show the Dock
   community.general.osx_defaults:
@@ -197,27 +203,38 @@
     type: bool
     value: true
 
-# https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
-- name: Magnification icon size
-  community.general.osx_defaults:
-    domain: com.apple.dock
-    key: largesize
-    type: int
-    value: 70
+## TODO: I'm not sure if this is working - please recheck
+# # https://macos-defaults.com/dock/tilesize.html
+# - name: Set the icon size of Dock items to "dock_icons_size" pixels
+#   community.general.osx_defaults:
+#     domain: com.apple.dock
+#     key: tilesize
+#     type: float
+#     value: "{{ dock_icons_size }}"
 
-# https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
-- name: Disable screensaver when mouse is right top
-  community.general.osx_defaults:
-    domain: com.apple.dock
-    key: "{{ item.key }}"
-    type: int
-    value: "{{ item.value }}"
-  loop:
-    # Disable screensaver when mouse is right top
-    - key: wvous-tr-corner
-      value: 6
-    - key: wvous-tr-modifier
-      value: 0
+## TODO: I'm not sure if this is working - please recheck
+# # https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
+# - name: Magnification icon size
+#   community.general.osx_defaults:
+#     domain: com.apple.dock
+#     key: largesize
+#     type: int
+#     value: 70
+
+## TODO: I'm not sure if this is working - please recheck
+# # https://blog.jiayu.co/2018/12/quickly-configuring-hot-corners-on-macos/
+# - name: Disable screensaver when mouse is right top
+#   community.general.osx_defaults:
+#     domain: com.apple.dock
+#     key: "{{ item.key }}"
+#     type: int
+#     value: "{{ item.value }}"
+#   loop:
+#     # Disable screensaver when mouse is right top
+#     - key: wvous-tr-corner
+#       value: 6
+#     - key: wvous-tr-modifier
+#       value: 0
 
 - name: Change keyboard repeat delays
   community.general.osx_defaults:
@@ -239,18 +256,20 @@
     type: bool
     value: "false"
 
-- name: Use F1, F2, ... as standard function keys
-  community.general.osx_defaults:
-    domain: NSGlobalDomain
-    key: com.apple.keyboard.fnState
-    type: bool
-    value: "true"
+## TODO: I'm not sure if this is working - please recheck
+# - name: Use F1, F2, ... as standard function keys
+#   community.general.osx_defaults:
+#     domain: NSGlobalDomain
+#     key: com.apple.keyboard.fnState
+#     type: bool
+#     value: "true"
 
-- name: Always show scrollbars
-  community.general.osx_defaults:
-    key: AppleShowScrollBars
-    type: string
-    value: Always
+## TODO: I'm not sure if this is working - please recheck
+# - name: Always show scrollbars
+#   community.general.osx_defaults:
+#     key: AppleShowScrollBars
+#     type: string
+#     value: Always
 
 - name: Configure wifi interface if exists
   when: wifi_interface|length > 0
@@ -288,6 +307,8 @@
     type: bool
     value: "false"
 
+## TODO: I'm not sure if this is working - please recheck
+# Not sure if this is needed
 # # https://osxdaily.com/2014/01/31/turn-on-mac-touch-to-click-command-line/ (Reboot is required)
 # - name: Enable tap-to-click
 #   community.general.osx_defaults:
@@ -320,11 +341,11 @@
   register: launchctl
 
 - name: Remove all Dock items
-  ansible.builtin.command: dockutil --remove all --no-restart
+  ansible.builtin.command: "{{ homebrew_prefix }}/bin/dockutil --remove all --no-restart"
   changed_when: false
 
 - name: Add Dock items
-  ansible.builtin.command: dockutil --add '{{ item }}' --no-restart
+  ansible.builtin.command: "{{ homebrew_prefix }}/bin/dockutil --add '{{ item }}' --no-restart"
   register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
@@ -409,20 +430,14 @@
       setopt HIST_IGNORE_ALL_DUPS
       # add timestamp for each entry
       setopt EXTENDED_HISTORY
-      # Do not share history between sessions (like bash)
-      setopt NO_SHARE_HISTORY
 
       # Allow mise caching (https://mise.jdx.dev/configuration/settings.html#env_cache)
       export MISE_ENV_CACHE=1
 
-      # Remove the quarantine flag when it installs a package
-      export HOMEBREW_CASK_OPTS="--no-quarantine"
       # Use bat for the brew cat command
       export HOMEBREW_BAT=1
       # Cleanup all cached files older than this many days
       export HOMEBREW_CLEANUP_MAX_AGE_DAYS=7
-      # Fail on the failure of installation from a bottle rather than falling back to building from source
-      export HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK=1
       # Stop Homebrew auto update
       export HOMEBREW_NO_AUTO_UPDATE=1
 
@@ -438,7 +453,6 @@
 
       # Enable binaries for node, krew and ~/bin
       export PATH="/usr/local/bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/.local/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
-      export GOPATH="${HOME}/go"
 
       # zsh-completions
       FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:${FPATH}
@@ -560,73 +574,75 @@
       # keep-sorted end
     mode: u=rw,g=r,o=r
 
-- name: Get installed Stats version
-  ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
-  register: stats_version
-  changed_when: false
+## TODO: I'm not sure if this is working - please recheck
+# - name: Get installed Stats version
+#   ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
+#   register: stats_version
+#   changed_when: false
 
-- name: Configure Stats
-  community.general.osx_defaults:
-    domain: eu.exelban.Stats
-    key: "{{ item.key }}"
-    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
-    value: "{{ item.value }}"
-  tags: skip_idempotence_test
-  loop:
-    # keep-sorted start
-    - key: Battery_battery_additional
-      value: innerPercentage
-    - key: Battery_notifications_low
-      value: 0.03
-    - key: CPU_line_chart_box
-      value: 0
-    - key: CPU_line_chart_color
-      value: utilization
-    - key: CPU_line_chart_frame
-      value: 1
-    - key: CPU_line_chart_label
-      value: 1
-    - key: CPU_widget
-      value: line_chart
-    - key: CombinedModules
-      type: bool
-      value: 0
-    - key: Disk_removable
-      value: 1
-    - key: Disk_speed_reverseOrder
-      value: 1
-    - key: Disk_speed_transparentIcons
-      value: 1
-    - key: Disk_speed_valueColor
-      value: 1
-    - key: Disk_widget
-      value: speed
-    - key: Network_speed_icon
-      value: chars
-    - key: Network_speed_reverseOrder
-      value: 1
-    - key: Network_speed_transparentIcons
-      value: 1
-    - key: Network_speed_valueColor
-      value: 1
-    - key: RAM_line_chart_box
-      value: 0
-    - key: RAM_line_chart_color
-      value: pressure
-    - key: RAM_line_chart_frame
-      value: 1
-    - key: RAM_line_chart_label
-      value: 1
-    - key: RAM_widget
-      value: line_chart
-    - key: setupProcess
-      type: bool
-      value: 1
-    - key: update-interval
-      value: Never
-    - key: version
-      value: "{{ stats_version.stdout }}"
-    # keep-sorted end
+## TODO: I'm not sure if this is working - please recheck
+# - name: Configure Stats
+#   community.general.osx_defaults:
+#     domain: eu.exelban.Stats
+#     key: "{{ item.key }}"
+#     type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+#     value: "{{ item.value }}"
+#   tags: skip_idempotence_test
+#   loop:
+#     # keep-sorted start
+#     - key: Battery_battery_additional
+#       value: innerPercentage
+#     - key: Battery_notifications_low
+#       value: 0.03
+#     - key: CPU_line_chart_box
+#       value: 0
+#     - key: CPU_line_chart_color
+#       value: utilization
+#     - key: CPU_line_chart_frame
+#       value: 1
+#     - key: CPU_line_chart_label
+#       value: 1
+#     - key: CPU_widget
+#       value: line_chart
+#     - key: CombinedModules
+#       type: bool
+#       value: 0
+#     - key: Disk_removable
+#       value: 1
+#     - key: Disk_speed_reverseOrder
+#       value: 1
+#     - key: Disk_speed_transparentIcons
+#       value: 1
+#     - key: Disk_speed_valueColor
+#       value: 1
+#     - key: Disk_widget
+#       value: speed
+#     - key: Network_speed_icon
+#       value: chars
+#     - key: Network_speed_reverseOrder
+#       value: 1
+#     - key: Network_speed_transparentIcons
+#       value: 1
+#     - key: Network_speed_valueColor
+#       value: 1
+#     - key: RAM_line_chart_box
+#       value: 0
+#     - key: RAM_line_chart_color
+#       value: pressure
+#     - key: RAM_line_chart_frame
+#       value: 1
+#     - key: RAM_line_chart_label
+#       value: 1
+#     - key: RAM_widget
+#       value: line_chart
+#     - key: setupProcess
+#       type: bool
+#       value: 1
+#     - key: update-interval
+#       value: Never
+#     - key: version
+#       value: "{{ stats_version.stdout }}"
+#     # keep-sorted end
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:
@@ -635,48 +651,37 @@
     mode: u=rwx,g=rx,o=rx
 
 - name: Create ~/.config/infat/config.toml file
-  community.general.ini_file:
-    path: ~/.config/infat/config.toml
-    section: "{{ item.section }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
+  ansible.builtin.copy:
+    dest: ~/.config/infat/config.toml
     mode: u=rw,g=r,o=r
-  loop:
-    # keep-sorted start
-    - section: types
-      option: audio
-      value: '"VLC"'
-    - section: types
-      option: movie
-      value: '"VLC"'
-    - section: types
-      option: mp4-audio
-      value: '"VLC"'
-    - section: types
-      option: mp4-movie
-      value: '"VLC"'
-    - section: types
-      option: plain-text
-      value: '"Visual Studio Code"'
-    - section: types
-      option: sourcecode
-      value: '"Visual Studio Code"'
-    - section: types
-      option: text
-      value: '"Visual Studio Code"'
-    # keep-sorted end
-  notify: Run infat
+    content: |
+      [extensions]
+      # keep-sorted start
+      aac = "VLC"
+      avi = "VLC"
+      m4a = "VLC"
+      m4v = "VLC"
+      mov = "VLC"
+      mp3 = "VLC"
+      wav = "VLC"
+      # keep-sorted end
+
+      [types]
+      # keep-sorted start
+      audio = "VLC"
+      movie = "VLC"
+      mp4-audio = "VLC"
+      mp4-movie = "VLC"
+      plain-text = "Visual Studio Code"
+      sourcecode = "Visual Studio Code"
+      text = "Visual Studio Code"
+      # keep-sorted end
 
 - name: Copy opencode configuration
   ansible.builtin.copy:
     src: files/home/myusername/.config/opencode
     dest: ~/.config/
     mode: u=rw,g=r,o=r
-
-- name: Remove obsolete opencode.json (migrated to opencode.jsonc)
-  ansible.builtin.file:
-    path: ~/.config/opencode/opencode.json
-    state: absent
 
 - name: Link opencode AGENTS.md to the shared gh-repo-defaults
   ansible.builtin.file:
@@ -688,20 +693,32 @@
 ################################################
 # Interactive (can not be "automated")
 ################################################
-- name: Run Applications which needs some manual tasks (approvals)
-  ansible.builtin.command: open -a "{{ item }}"
+## TODO: I'm not sure if this is working - please recheck
+# - name: Run Applications which needs some manual tasks (approvals)
+#   ansible.builtin.command: open -a "{{ item }}"
+#   changed_when: false
+#   loop: "{{ run_applications }}"
+#   tags: interactive
+
+# macOS 26.4+ asks the user to confirm every default app change for file types
+# Launch Services is not reachable over SSH - run inside the GUI session
+- name: Set default applications for file types
+  ansible.builtin.command: >-
+    launchctl asuser {{ ansible_facts['user_uid'] }}
+    sudo -u {{ ansible_facts['user_id'] }}
+    {{ homebrew_prefix }}/bin/infat --config {{ ansible_facts['user_dir'] }}/.config/infat/config.toml
+  become: true
   changed_when: false
-  loop: "{{ run_applications }}"
   tags: interactive
 
 - name: Interactive - press ENTER to continue
   ansible.builtin.pause:
     prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
   tags: interactive
-
+## TODO: Is it really needed?
 # MacOS will open several windows which needs to be confirmed otherwise it will fail
-- name: Allow programs to be started after login
-  ansible.builtin.command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
-  changed_when: false
-  loop: "{{ login_items_enabled }}"
-  tags: interactive
+# - name: Allow programs to be started after login
+#   ansible.builtin.command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
+#   changed_when: false
+#   loop: "{{ login_items_enabled }}"
+#   tags: interactive
