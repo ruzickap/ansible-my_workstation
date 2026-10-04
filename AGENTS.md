@@ -28,7 +28,13 @@ Run from inside `ansible/` (scripts `cd` there). A
 - macOS, full local run: `./run_ansible_my_workstation-local-mac.sh`
 - Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
 - Remote host: `./run_ansible_my_workstation.sh` (edit `DESTINATION_IP`)
-- `MY_PASSWORD` must be filled into the wrapper scripts before use.
+- AWS macOS test host: `./run_ansible_my_workstation-aws.sh` reads the
+  password from `terraform -chdir=terraform output -raw user_password`
+  (`terraform/` provisions it; its local untracked state is the only
+  record of that host - don't delete it).
+- `MY_PASSWORD` must be filled into the other wrapper scripts before use.
+- Collections are pinned in `ansible/requirements.yml`
+  (`ansible-galaxy collection install -r requirements.yml`).
 
 ## Tags (important for partial runs)
 
