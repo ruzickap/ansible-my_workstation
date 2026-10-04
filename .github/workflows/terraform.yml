@@ -9,11 +9,12 @@ on:
       - .github/workflows/terraform.yml
       - terraform/**
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   terraform:
+    permissions:
+      contents: read
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 15
     defaults:
@@ -41,6 +42,8 @@ jobs:
         run: tofu test
 
   terraform-floci:
+    permissions:
+      contents: read
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 30
     defaults:
