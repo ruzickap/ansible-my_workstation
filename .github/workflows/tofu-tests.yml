@@ -1,4 +1,4 @@
-name: terraform-tests
+name: tofu-tests
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches-ignore:
       - main
     paths:
-      - .github/workflows/terraform-tests.yml
+      - .github/workflows/tofu-tests.yml
       - terraform/**
 
 permissions: {}
