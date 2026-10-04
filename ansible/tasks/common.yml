@@ -398,11 +398,10 @@
     state: directory
     mode: u=rwx,g=rx,o=rx
 
-- name: Place public ssh to autorized_key for root and {{ ansible_facts['user_id'] }}
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
-    create: true
-    block: |
+- name: Create git allowed_signers file
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts['user_dir'] }}/.config/git/allowed_signers"
+    content: |
       petr.ruzicka@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh
     mode: u=rw,g=r,o=r
 
