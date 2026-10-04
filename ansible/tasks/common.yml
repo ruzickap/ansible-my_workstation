@@ -149,6 +149,21 @@
 # Run as user
 ###############################
 
+- name: Create ~/bin directory
+  ansible.builtin.file:
+    path: ~/bin
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+  tags: mc
+
+# Used by mc (ext.d/video.sh) to show video details on F3 - not installed by Homebrew
+- name: Download mpv_identify.sh
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/mpv_identify.sh
+    dest: ~/bin/mpv_identify.sh
+    mode: u=rwx,g=rx,o=rx
+  tags: mc
+
 - name: Install NvChad
   ansible.builtin.git:
     repo: "https://github.com/NvChad/starter"

@@ -655,19 +655,16 @@
     dest: ~/.config/infat/config.toml
     mode: u=rw,g=r,o=r
     content: |
-      [extensions]
-      # keep-sorted start
-      aac = "VLC"
-      avi = "VLC"
-      m4a = "VLC"
-      m4v = "VLC"
-      mov = "VLC"
-      mp3 = "VLC"
-      wav = "VLC"
-      # keep-sorted end
-
+      # Raw UTIs instead of [extensions] - infat resolves extensions to dyn.* UTIs (error -50)
       [types]
       # keep-sorted start
+      "com.apple.m4a-audio" = "VLC"
+      "com.apple.m4v-video" = "VLC"
+      "com.apple.quicktime-movie" = "VLC"
+      "com.microsoft.waveform-audio" = "VLC"
+      "public.aac-audio" = "VLC"
+      "public.avi" = "VLC"
+      "public.mp3" = "VLC"
       audio = "VLC"
       movie = "VLC"
       mp4-audio = "VLC"
