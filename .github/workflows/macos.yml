@@ -44,7 +44,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ansible || exit
-          echo "test_password" > vault-my_workstation.password
           ansible-playbook --skip-tags data,interactive,secrets,skip_test --connection=local -i "127.0.0.1," main.yml
 
       - name: Ansible - Idempotence tests

@@ -15,15 +15,12 @@ playbook, **not** an Ansible role. There is no application code to build.
   Files under `ansible/files/home/myusername/.config/` (incl. `opencode.json`,
   VS Code `settings.json`) are **deployed artifacts**, not repo config — do not
   treat them as settings for this repo.
-- `ansible/vars/secrets.yml.vault` — ansible-vault encrypted. Decrypts with
-  `ansible/vault-my_workstation.password` (gitignored; CI writes a dummy one).
 - Wrapper scripts at repo root run the playbook; `scripts/` and
   `kickstart_file/` are Fedora ISO bootstrap helpers.
 
 ## Running the playbook
 
-Run from inside `ansible/` (scripts `cd` there). A
-`vault-my_workstation.password` file must exist first.
+Run from inside `ansible/` (scripts `cd` there).
 
 - macOS, full local run: `./run_ansible_my_workstation-local-mac.sh`
 - Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
@@ -47,7 +44,7 @@ Tasks are gated by tags. CI skips
 second pass). Other notable tags: `mc`, `secrets`, `data`.
 
 - `data` = large rsync of `~` and copying private files from local disk.
-- `secrets` = vault-backed credentials (postfix, KeePass, rclone, gh).
+- `secrets` = tasks handling credentials (KeePass, rclone, gh).
 - `skip_test` / `skip_idempotence_test` = exclude from CI / idempotence check.
 
 Example focused run (macOS, Midnight Commander config only, no data):

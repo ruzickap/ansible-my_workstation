@@ -537,7 +537,7 @@
       }
     mode: u=rw,g=,o=
 
-# GH_TOKEN is read on the controller (exported by run_ansible_my_workstation-aws.sh)
+# GH_TOKEN is read on the controller (exported by run_ansible_my_workstation*.sh)
 - name: Add agent skills
   ansible.builtin.command: >-
     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
@@ -547,57 +547,13 @@
   args:
     creates: ~/.agents/skills/{{ item.name }}
   loop: "{{ code_opencode_agent_skills }}"
+  when: lookup('ansible.builtin.env', 'GH_TOKEN') | length > 0
 
-###################################################
-# Secrets
-###################################################
-
-- name: Secrets
-  no_log: true
-  tags: secrets
-  block:
-    - name: Copy rclone configuration
-      ansible.builtin.copy:
-        src: files/home/myusername/.config/rclone
-        dest: ~/.config/
-        mode: u=rw,g=,o=
-
-    - name: Copy gh configuration files
-      ansible.builtin.copy:
-        src: files/home/myusername/.config/gh
-        dest: ~/.config/
-        mode: u=rw,g=,o=
-
-    - name: Copy asciinema configuration
-      ansible.builtin.copy:
-        src: files/home/myusername/.config/asciinema
-        dest: ~/.config/
-        mode: u=rw,g=,o=
-
-    ###################################################
-    # Secrets copied from local disk
-    ###################################################
-
-    - name: Create ~/Documents/secrets directory
-      ansible.builtin.file:
-        path: ~/Documents/secrets
-        state: directory
-        mode: u=rwx,g=,o=
-
-    - name: Copy KeePass data
-      ansible.builtin.copy:
-        src: "{{ data_source_dir }}/Documents/secrets/{{ item }}"
-        dest: ~/Documents/secrets/{{ item }}
-        mode: u=rw,g=,o=
-      loop:
-        - keepass2.kdbx
-        - keepass.key
-      tags: data
-
-  rescue:
-    - name: Print when errors
-      ansible.builtin.fail:
-        msg: Secrets failed - check !!!
+- name: Copy gh configuration files
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/gh
+    dest: ~/.config/
+    mode: u=rw,g=,o=
 
 ###################################################
 # Data

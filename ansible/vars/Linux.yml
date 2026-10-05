@@ -23,7 +23,7 @@ fstab_entries:
   - name: "/mnt/winxp"
     src: "//192.168.124.71/test"
     fstype: "cifs"
-    opts: "username=ruzickap,password=test123,iocharset=utf8,uid={{ ansible_facts['user_id'] }},file_mode=0644,dir_mode=0755"
+    opts: "username=ruzickap,password=xxxxxxx,iocharset=utf8,uid={{ ansible_facts['user_id'] }},file_mode=0644,dir_mode=0755"
   - name: "/mnt/data"
     src: "LABEL=data"
     fstype: "xfs"

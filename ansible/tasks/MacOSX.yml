@@ -1,24 +1,4 @@
-- name: Get GeneratedUID for the current user
-  ansible.builtin.shell: |
-    set -o pipefail
-    dscl . -read {{ ansible_facts["user_dir"] }}/ GeneratedUID | awk '{ print $2 }'
-  register: dscl_output
-  changed_when: false
-
-# EC2 Mac has Wi-Fi hardware, but it is "Off (forced)" and the interface does not exist
-- name: Get wi-fi interface
-  ansible.builtin.shell: |
-    set -o pipefail
-    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; if (system("ifconfig " $2 " > /dev/null 2>&1") == 0) print $2 }'
-  register: networksetup
-  changed_when: false
-
-- name: Set facts
-  ansible.builtin.set_fact:
-    generateduid: "{{ dscl_output.stdout }}"
-    wifi_interface: "{{ networksetup.stdout }}"
-
-- name: Set Hostname + Disable sleeping
+- name: Configure sleep settings
   become: true
   block:
     # hibernatemode 0 = do not write /var/vm/sleepimage (saves a few GB of disk space)
@@ -38,7 +18,7 @@
   rescue:
     - name: Print when errors
       ansible.builtin.fail:
-        msg: Hostname and sleeping settings failed !!!
+        msg: Sleep settings failed !!!
 
 - name: Install Homebrew
   ansible.builtin.shell: |
@@ -69,17 +49,16 @@
   args:
     creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/*.container.plist"
 
-# container-apiserver runs in the GUI (Aqua) launchd session, which is not
-# reachable over SSH - run the command inside that session via launchctl asuser
+# container-apiserver runs in the GUI (Aqua) session, unreachable over SSH - use launchctl asuser.
+# `system start` waits for the apiserver and installs the recommended kernel (no-op if running)
 - name: Install recommended Container kernel
   ansible.builtin.command: >-
     launchctl asuser {{ ansible_facts['user_uid'] }}
     sudo -u {{ ansible_facts['user_id'] }}
-    {{ homebrew_prefix }}/bin/container system kernel set --recommended
+    {{ homebrew_prefix }}/bin/container system start --enable-kernel-install --timeout 120
   args:
     creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
   become: true
-  when: "'arm' in ansible_facts['architecture']"
 
 - name: Enable Homebrew services
   community.general.homebrew_services:
@@ -99,15 +78,13 @@
     type: bool
     value: true
 
-### This doesn't do anything - Finder still opens in the last used view style
-### Maybe reboot?
 # https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
 # https://macos-defaults.com/finder/fxpreferredviewstyle.html
-# - name: Use list view in all Finder windows by default
-#   community.general.osx_defaults:
-#     domain: com.apple.finder
-#     key: FXPreferredViewStyle
-#     value: Nlsv
+- name: Use list view in all Finder windows by default
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: FXPreferredViewStyle
+    value: Nlsv
 
 # https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
 - name: Display full posix path in Finder title Bar
@@ -194,8 +171,7 @@
     type: bool
     value: true
 
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# # https://macos-defaults.com/dock/tilesize.html
+# https://macos-defaults.com/dock/tilesize.html
 - name: Set the icon size of Dock items to "dock_icons_size" pixels
   community.general.osx_defaults:
     domain: com.apple.dock
@@ -255,34 +231,6 @@
 #     type: bool
 #     value: "true"
 
-- name: Configure wifi interface if exists
-  when: wifi_interface|length > 0
-  tags: secrets
-  block:
-    - name: Add Open wifi accounts
-      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      loop: "{{ open_wifi }}"
-
-    - name: Add WPA/WPA2 Personal wifi accounts
-      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      no_log: true
-      loop: "{{ wpa_personal_wifi }}"
-      loop_control:
-        label: "{{ item.ssid }}"
-
-    - name: Unlock keychain (needed for "security add-generic-password")
-      ansible.builtin.command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
-      changed_when: false
-
-  rescue:
-    - name: Print when errors
-      ansible.builtin.fail:
-        msg: Wifi configuration failed !!!
-
 # https://community.jamf.com/general-discussions-2/disable-reopen-windows-when-logging-back-in-mojave-and-higher-8325
 - name: Disable Reopen Windows When Logging Back
   community.general.osx_defaults:
@@ -330,7 +278,6 @@
 
 - name: Add Dock items
   ansible.builtin.command: "{{ homebrew_prefix }}/bin/dockutil --add '{{ item }}' --no-restart"
-  register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
 
@@ -387,8 +334,7 @@
     dest: ~/.config/oh-my-posh/cobalt2.omp.json
     mode: u=rw,g=r,o=r
 
-# Needed for bash scripts or ansible
-- name: Add path to binaries to ~/.bashrc
+- name: Configure mc settings in ~/.bashrc
   ansible.builtin.copy:
     dest: ~/.bashrc
     content: |
@@ -558,13 +504,11 @@
       # keep-sorted end
     mode: u=rw,g=r,o=r
 
-# TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 - name: Get installed Stats version
   ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
   register: stats_version
   changed_when: false
 
-# TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 - name: Configure Stats
   community.general.osx_defaults:
     domain: eu.exelban.Stats

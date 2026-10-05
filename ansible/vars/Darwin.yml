@@ -102,7 +102,7 @@ homebrew_packages:
   - zsh-patina
   # keep-sorted end
 
-homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+homebrew_prefix: /opt/homebrew
 
 homebrew_services:
   # keep-sorted start

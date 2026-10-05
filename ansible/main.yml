@@ -20,10 +20,6 @@
         mode: u=rw,g=r,o=
       become: true
 
-    - name: Include secrets.yml
-      ansible.builtin.include_vars: vars/secrets.yml.vault
-      tags: secrets
-
     - name: Include OS specific tasks list in play
       ansible.builtin.include_tasks: tasks/{{ ansible_facts['distribution'] }}.yml
 
