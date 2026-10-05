@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 MY_PASSWORD=""
-# GitHub token from the laptop's gh, used by "gh skill install" on the remote Mac
-GH_TOKEN="$(gh auth token)"
+# GitHub token for "gh skill install" - agent skills are skipped when it is empty
+# (e.g. on a fresh Mac where gh is not installed/authenticated yet)
+GH_TOKEN="$(gh auth token 2> /dev/null || true)"
 export GH_TOKEN
 
 set -eux
