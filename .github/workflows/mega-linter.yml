@@ -10,13 +10,15 @@ on:
     branches-ignore:
       - main
 
-permissions: read-all
+permissions: {}
 
 jobs:
   mega-linter:
     runs-on: ubuntu-latest
     if: ${{ (!startsWith(github.ref_name, 'chore/renovate/') && !startsWith(github.ref_name, 'release-please--')) || github.event_name == 'workflow_dispatch' }}
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,6 +30,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
+          separator: "\n"
           files: |
             **/*.md
 
@@ -43,7 +46,7 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install mq
           echo '#!/usr/bin/env bash' > bash_commands_from_md.sh
-          read -ra FILES <<< "${ALL_CHANGED_FILES}"
+          mapfile -t FILES <<< "${ALL_CHANGED_FILES}"
           mq 'select(.code.lang == "bash" || .code.lang == "shell" || .code.lang == "sh") | to_text()' "${FILES[@]}" >> bash_commands_from_md.sh
           chmod a+x bash_commands_from_md.sh
 
