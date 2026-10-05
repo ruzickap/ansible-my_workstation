@@ -39,11 +39,10 @@ Run from inside `ansible/` (scripts `cd` there).
 ## Tags (important for partial runs)
 
 Tasks are gated by tags. CI skips
-`data,interactive,secrets,skip_test` (plus `skip_idempotence_test` on the
+`data,skip_test` (plus `skip_idempotence_test` on the
 second pass). Other notable tags: `mc`, `secrets`, `data`.
 
 - `data` = large rsync of `~` and copying private files from local disk.
-- `secrets` = tasks handling credentials (KeePass, rclone, gh).
 - `skip_test` / `skip_idempotence_test` = exclude from CI / idempotence check.
 
 Example focused run (macOS, Midnight Commander config only, no data):

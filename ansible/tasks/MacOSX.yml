@@ -627,7 +627,6 @@
     {{ homebrew_prefix }}/bin/infat --config {{ ansible_facts['user_dir'] }}/.config/infat/config.toml
   become: true
   changed_when: false
-  tags: interactive
 
 # osascript "System Events" login items need an Automation (TCC) approval in the GUI and time out over SSH
 - name: Start programs after login using LaunchAgents
@@ -652,8 +651,3 @@
       </dict>
       </plist>
   loop: "{{ login_items_enabled }}"
-
-- name: Interactive - press ENTER to continue
-  ansible.builtin.pause:
-    prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
-  tags: interactive
