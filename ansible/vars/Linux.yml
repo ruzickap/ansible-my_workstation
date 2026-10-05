@@ -1,4 +1,4 @@
-convertinwifi_interface: "{{ ansible_facts | json_query('*.{ my_device: device, my_module: module} | [?my_module==`iwlwifi`].my_device') | list | join(',') }}"
+wifi_interface: "{{ ansible_facts | json_query('*.{ my_device: device, my_module: module} | [?my_module==`iwlwifi`].my_device') | list | join(',') }}"
 
 plymouth_theme: spinner
 

@@ -20,7 +20,7 @@ env:
   ANSIBLE_REMOTE_PORT: 2222
   FEDORA_VERSION: 38
   MYUSER: pruzicka
-  PASSWORD: xxxxxxx
+  PASSWORD: vagrant # gitleaks:allow (public Vagrant box default)
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
 

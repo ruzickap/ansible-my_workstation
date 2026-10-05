@@ -40,7 +40,7 @@ Run from inside `ansible/` (scripts `cd` there).
 
 Tasks are gated by tags. CI skips
 `data,skip_test` (plus `skip_idempotence_test` on the
-second pass). Other notable tags: `mc`, `secrets`, `data`.
+second pass). Other notable tags: `mc`, `data`.
 
 - `data` = large rsync of `~` and copying private files from local disk.
 - `skip_test` / `skip_idempotence_test` = exclude from CI / idempotence check.
