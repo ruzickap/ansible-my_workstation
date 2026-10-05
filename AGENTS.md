@@ -23,7 +23,6 @@ playbook, **not** an Ansible role. There is no application code to build.
 Run from inside `ansible/` (scripts `cd` there).
 
 - macOS, full local run: `./run_ansible_my_workstation-local-mac.sh`
-- Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
 - Remote host: `./run_ansible_my_workstation.sh` (edit `DESTINATION_IP`)
 - AWS macOS test host: `./run_ansible_my_workstation-aws.sh` reads the
   IP and password from `tofu -chdir=terraform output`
