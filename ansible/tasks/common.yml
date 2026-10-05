@@ -537,19 +537,17 @@
       }
     mode: u=rw,g=,o=
 
-# GH_TOKEN (run_ansible_my_workstation*.sh) or GITHUB_TOKEN (CI) is read on the controller
+# GITHUB_TOKEN is read on the controller (exported by run_ansible_my_workstation*.sh or CI)
 - name: Add agent skills
   ansible.builtin.command: >-
     gh skill install {{ item.repo }} {{ item.skill }} --agent warp --scope user --allow-hidden-dirs --force
   environment:
-    GH_TOKEN: "{{ gh_token }}"
+    GITHUB_TOKEN: "{{ lookup('ansible.builtin.env', 'GITHUB_TOKEN') }}"
     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.agents/skills/{{ item.name }}
   loop: "{{ code_opencode_agent_skills }}"
-  vars:
-    gh_token: "{{ lookup('ansible.builtin.env', 'GH_TOKEN') or lookup('ansible.builtin.env', 'GITHUB_TOKEN') }}"
-  when: gh_token | length > 0
+  when: lookup('ansible.builtin.env', 'GITHUB_TOKEN') | length > 0
 
 - name: Copy gh configuration files
   ansible.builtin.copy:

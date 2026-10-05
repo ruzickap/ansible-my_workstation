@@ -3,8 +3,8 @@
 MY_PASSWORD=""
 # GitHub token for "gh skill install" - agent skills are skipped when it is empty
 # (e.g. on a fresh Mac where gh is not installed/authenticated yet)
-GH_TOKEN="$(gh auth token 2> /dev/null || true)"
-export GH_TOKEN
+GITHUB_TOKEN="$(gh auth token 2> /dev/null || true)"
+export GITHUB_TOKEN
 
 set -eux
 cd ansible || exit
