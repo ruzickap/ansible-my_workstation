@@ -13,8 +13,8 @@ Configure my laptop with Ansible.
 * Install [Brew](https://brew.sh/)
 * Install Ansible: `brew install ansible`
 * Restore the data (`Documents`, `Music`, `Pictures`, `.ssh`, ...) from backup
-* Clone the repo, create `ansible/vault-my_workstation.password` file, add
-  `MY_PASSWORD` to `./run_ansible_my_workstation-local-mac.sh` and run it
+* Clone the repo, add `MY_PASSWORD` to
+  `./run_ansible_my_workstation-local-mac.sh` and run it
 
 ### Manual configurations
 

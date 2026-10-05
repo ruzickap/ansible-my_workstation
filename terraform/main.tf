@@ -154,7 +154,7 @@ module "ec2_instance" {
   associate_public_ip_address = true
   key_name                    = aws_key_pair.this.key_name
 
-  # First boot: create the admin user, enable Screen Sharing
+  # First boot: create the admin user, remove Homebrew, enable Screen Sharing
   user_data_replace_on_change = false
   user_data                   = <<-EOT
     #!/bin/bash
@@ -163,10 +163,24 @@ module "ec2_instance" {
     # Admin user with SSH key and password (for Screen Sharing / sudo)
     sysadminctl -addUser '${local.username}' -fullName '${local.username}' -password '${random_password.user.result}' -admin
     createhomedir -c -u '${local.username}'
-    install -d -m 700 -o '${local.username}' -g staff '/Users/${local.username}/.ssh'
+    mkdir -m 700 '/Users/${local.username}/.ssh'
     echo '${trimspace(file(pathexpand(var.ssh_public_key_path)))}' > '/Users/${local.username}/.ssh/authorized_keys'
-    chown '${local.username}:staff' '/Users/${local.username}/.ssh/authorized_keys'
-    chmod 600 '/Users/${local.username}/.ssh/authorized_keys'
+    chown -R '${local.username}:staff' '/Users/${local.username}/.ssh'
+
+    # Remove the Homebrew preinstalled in the AMI (owned by ec2-user)
+    sudo -u ec2-user NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)" -- --force || true
+    rm -rf /opt/homebrew
+
+    # Screen Sharing / Remote Login only admit members of these groups when they exist
+    dseditgroup -o edit -a '${local.username}' -t user com.apple.access_screensharing || true
+    dseditgroup -o edit -a '${local.username}' -t user com.apple.access_ssh || true
+
+    # Log the user in to the desktop at boot (brew services / container need a GUI session).
+    # /etc/kcpassword is the password XOR-ed with Apple's fixed key, padded to a multiple of 12
+    # (`sysadminctl -autologin set` fails on EC2 Mac with SACSetAutoLoginPassword error:22)
+    perl -e '@k = (125, 137, 82, 35, 210, 188, 221, 234, 163, 185, 31); $p = shift; $p .= "\0" x (12 - length($p) % 12); print map { chr(ord(substr($p, $_, 1)) ^ $k[$_ % 11]) } 0 .. length($p) - 1' '${random_password.user.result}' > /etc/kcpassword
+    chmod 600 /etc/kcpassword
+    defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser '${local.username}'
 
     launchctl enable system/com.apple.screensharing
     launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist

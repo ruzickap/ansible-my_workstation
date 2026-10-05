@@ -20,7 +20,7 @@ env:
   ANSIBLE_REMOTE_PORT: 2222
   FEDORA_VERSION: 38
   MYUSER: pruzicka
-  PASSWORD: vagrant
+  PASSWORD: vagrant # gitleaks:allow (public Vagrant box default)
   RAM: 4096
   VAGRANT_DEFAULT_PROVIDER: virtualbox
 
@@ -50,18 +50,18 @@ jobs:
       - name: Add main user to Fedora VirtualBox VM
         run: |
           cd ansible || exit
-          echo "${PASSWORD}" > vault-my_workstation.password
-          ansible --become --user vagrant --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
+          echo "${PASSWORD}" > /tmp/ansible-password
+          ansible --become --user vagrant --connection-password-file=/tmp/ansible-password --become-password-file=/tmp/ansible-password -m user -a "name=${MYUSER} password={{ \"${PASSWORD}\" | password_hash }} append=yes groups=wheel" -i "127.0.0.1," 127.0.0.1
 
       - name: Ansible
         run: |
           cd ansible || exit
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --connection-password-file=vault-my_workstation.password --become-password-file=vault-my_workstation.password main.yml -i "127.0.0.1,"
+          ansible-playbook --user="${MYUSER}" --skip-tags data,skip_test --connection-password-file=/tmp/ansible-password --become-password-file=/tmp/ansible-password main.yml -i "127.0.0.1,"
 
       - name: Ansible - Idempotence tests
         run: |
           cd ansible || exit
-          ansible-playbook --user="${MYUSER}" --skip-tags data,interactive,secrets,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
+          ansible-playbook --user="${MYUSER}" --skip-tags data,skip_test --extra-vars "ansible_password=${PASSWORD} ansible_become_password=${PASSWORD}" main.yml -i "127.0.0.1," | tee /tmp/ansible.log
           # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
           if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
             echo -e '\nIdempotence test: pass'

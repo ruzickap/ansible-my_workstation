@@ -44,15 +44,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ansible || exit
-          echo "test_password" > vault-my_workstation.password
-          ansible-playbook --skip-tags data,interactive,secrets,skip_test --connection=local -i "127.0.0.1," main.yml
+          ansible-playbook --skip-tags data,skip_test --connection=local -i "127.0.0.1," main.yml
 
       - name: Ansible - Idempotence tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ansible || exit
-          ansible-playbook --skip-tags data,interactive,secrets,skip_test,skip_idempotence_test --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
+          ansible-playbook --skip-tags data,skip_test,skip_idempotence_test --connection=local -i "127.0.0.1," main.yml | tee /tmp/ansible.log
           # https://stackoverflow.com/questions/59361798/github-actions-functions-on-the-console-output
           if [ "$(grep -c 'changed=0.*failed=0' /tmp/ansible.log)" = "1" ] ; then
             echo -e '\n✅ Idempotence test: pass'

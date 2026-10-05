@@ -1,24 +1,4 @@
-- name: Get GeneratedUID for the current user
-  ansible.builtin.shell: |
-    set -o pipefail
-    dscl . -read {{ ansible_facts["user_dir"] }}/ GeneratedUID | awk '{ print $2 }'
-  register: dscl_output
-  changed_when: false
-
-# EC2 Mac has Wi-Fi hardware, but it is "Off (forced)" and the interface does not exist
-- name: Get wi-fi interface
-  ansible.builtin.shell: |
-    set -o pipefail
-    networksetup -listallhardwareports | awk '$3=="Wi-Fi" { getline; if (system("ifconfig " $2 " > /dev/null 2>&1") == 0) print $2 }'
-  register: networksetup
-  changed_when: false
-
-- name: Set facts
-  ansible.builtin.set_fact:
-    generateduid: "{{ dscl_output.stdout }}"
-    wifi_interface: "{{ networksetup.stdout }}"
-
-- name: Set Hostname + Disable sleeping
+- name: Configure sleep settings
   become: true
   block:
     # hibernatemode 0 = do not write /var/vm/sleepimage (saves a few GB of disk space)
@@ -38,7 +18,7 @@
   rescue:
     - name: Print when errors
       ansible.builtin.fail:
-        msg: Hostname and sleeping settings failed !!!
+        msg: Sleep settings failed !!!
 
 - name: Install Homebrew
   ansible.builtin.shell: |
@@ -67,19 +47,18 @@
 - name: Enable Container service
   ansible.builtin.command: "{{ homebrew_prefix }}/bin/brew services start container"
   args:
-    creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/homebrew.mxcl.container.plist"
+    creates: "{{ ansible_facts['user_dir'] }}/Library/LaunchAgents/*.container.plist"
 
-# container-apiserver runs in the GUI (Aqua) launchd session, which is not
-# reachable over SSH - run the command inside that session via launchctl asuser
+# container-apiserver runs in the GUI (Aqua) session, unreachable over SSH - use launchctl asuser.
+# `system start` waits for the apiserver and installs the recommended kernel (no-op if running)
 - name: Install recommended Container kernel
   ansible.builtin.command: >-
     launchctl asuser {{ ansible_facts['user_uid'] }}
     sudo -u {{ ansible_facts['user_id'] }}
-    {{ homebrew_prefix }}/bin/container system kernel set --recommended
+    {{ homebrew_prefix }}/bin/container system start --enable-kernel-install --timeout 120
   args:
     creates: "{{ ansible_facts['user_dir'] }}/Library/Application Support/com.apple.container/kernels/default.kernel-arm64"
   become: true
-  when: "'arm' in ansible_facts['architecture']"
 
 - name: Enable Homebrew services
   community.general.homebrew_services:
@@ -99,24 +78,13 @@
     type: bool
     value: true
 
-# https://www.techjunkie.com/show-path-finder-title-bar/
-# https://macos-defaults.com/finder/showpathbar.html
-- name: Show path bar in Finder windows
+# https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
+# https://macos-defaults.com/finder/fxpreferredviewstyle.html
+- name: Use list view in all Finder windows by default
   community.general.osx_defaults:
     domain: com.apple.finder
-    key: ShowPathbar
-    type: bool
-    value: true
-
-#### This doesn't do anything - Finder still opens in the last used view style
-#### Maybe reboot?
-# # https://www.defaults-write.com/change-default-view-style-in-os-x-finder/
-# # https://macos-defaults.com/finder/fxpreferredviewstyle.html
-# - name: Use list view in all Finder windows by default
-#   community.general.osx_defaults:
-#     domain: com.apple.finder
-#     key: FXPreferredViewStyle
-#     value: Nlsv
+    key: FXPreferredViewStyle
+    value: Nlsv
 
 # https://www.defaults-write.com/display-full-posix-path-in-os-x-finder-title-bar/
 - name: Display full posix path in Finder title Bar
@@ -203,14 +171,13 @@
     type: bool
     value: true
 
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# # https://macos-defaults.com/dock/tilesize.html
-# - name: Set the icon size of Dock items to "dock_icons_size" pixels
-#   community.general.osx_defaults:
-#     domain: com.apple.dock
-#     key: tilesize
-#     type: float
-#     value: "{{ dock_icons_size }}"
+# https://macos-defaults.com/dock/tilesize.html
+- name: Set the icon size of Dock items to "dock_icons_size" pixels
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: tilesize
+    type: float
+    value: "{{ dock_icons_size }}"
 
 ## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
 # # https://www.defaults-write.com/enable-a-larger-dock-icon-size-than-default/
@@ -264,41 +231,6 @@
 #     type: bool
 #     value: "true"
 
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# - name: Always show scrollbars
-#   community.general.osx_defaults:
-#     key: AppleShowScrollBars
-#     type: string
-#     value: Always
-
-- name: Configure wifi interface if exists
-  when: wifi_interface|length > 0
-  tags: secrets
-  block:
-    - name: Add Open wifi accounts
-      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item }}" 1 Open
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      loop: "{{ open_wifi }}"
-
-    - name: Add WPA/WPA2 Personal wifi accounts
-      ansible.builtin.command: networksetup -addpreferredwirelessnetworkatindex {{ wifi_interface }} "{{ item.ssid }}" 1 WPA2 "{{ item.password }}"
-      changed_when: "'is already in the preferred networks list' not in networksetup.stdout"
-      register: networksetup
-      no_log: true
-      loop: "{{ wpa_personal_wifi }}"
-      loop_control:
-        label: "{{ item.ssid }}"
-
-    - name: Unlock keychain (needed for "security add-generic-password")
-      ansible.builtin.command: security -v unlock-keychain -p "{{ ansible_password }}" ~/Library/Keychains/login.keychain-db
-      changed_when: false
-
-  rescue:
-    - name: Print when errors
-      ansible.builtin.fail:
-        msg: Wifi configuration failed !!!
-
 # https://community.jamf.com/general-discussions-2/disable-reopen-windows-when-logging-back-in-mojave-and-higher-8325
 - name: Disable Reopen Windows When Logging Back
   community.general.osx_defaults:
@@ -346,7 +278,6 @@
 
 - name: Add Dock items
   ansible.builtin.command: "{{ homebrew_prefix }}/bin/dockutil --add '{{ item }}' --no-restart"
-  register: dock_add
   changed_when: false
   loop: "{{ dock_add_items }}"
 
@@ -403,8 +334,7 @@
     dest: ~/.config/oh-my-posh/cobalt2.omp.json
     mode: u=rw,g=r,o=r
 
-# Needed for bash scripts or ansible
-- name: Add path to binaries to ~/.bashrc
+- name: Configure mc settings in ~/.bashrc
   ansible.builtin.copy:
     dest: ~/.bashrc
     content: |
@@ -574,75 +504,73 @@
       # keep-sorted end
     mode: u=rw,g=r,o=r
 
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# - name: Get installed Stats version
-#   ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
-#   register: stats_version
-#   changed_when: false
+- name: Get installed Stats version
+  ansible.builtin.command: defaults read /Applications/Stats.app/Contents/Info.plist CFBundleShortVersionString
+  register: stats_version
+  changed_when: false
 
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# - name: Configure Stats
-#   community.general.osx_defaults:
-#     domain: eu.exelban.Stats
-#     key: "{{ item.key }}"
-#     type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
-#     value: "{{ item.value }}"
-#   tags: skip_idempotence_test
-#   loop:
-#     # keep-sorted start
-#     - key: Battery_battery_additional
-#       value: innerPercentage
-#     - key: Battery_notifications_low
-#       value: 0.03
-#     - key: CPU_line_chart_box
-#       value: 0
-#     - key: CPU_line_chart_color
-#       value: utilization
-#     - key: CPU_line_chart_frame
-#       value: 1
-#     - key: CPU_line_chart_label
-#       value: 1
-#     - key: CPU_widget
-#       value: line_chart
-#     - key: CombinedModules
-#       type: bool
-#       value: 0
-#     - key: Disk_removable
-#       value: 1
-#     - key: Disk_speed_reverseOrder
-#       value: 1
-#     - key: Disk_speed_transparentIcons
-#       value: 1
-#     - key: Disk_speed_valueColor
-#       value: 1
-#     - key: Disk_widget
-#       value: speed
-#     - key: Network_speed_icon
-#       value: chars
-#     - key: Network_speed_reverseOrder
-#       value: 1
-#     - key: Network_speed_transparentIcons
-#       value: 1
-#     - key: Network_speed_valueColor
-#       value: 1
-#     - key: RAM_line_chart_box
-#       value: 0
-#     - key: RAM_line_chart_color
-#       value: pressure
-#     - key: RAM_line_chart_frame
-#       value: 1
-#     - key: RAM_line_chart_label
-#       value: 1
-#     - key: RAM_widget
-#       value: line_chart
-#     - key: setupProcess
-#       type: bool
-#       value: 1
-#     - key: update-interval
-#       value: Never
-#     - key: version
-#       value: "{{ stats_version.stdout }}"
-#     # keep-sorted end
+- name: Configure Stats
+  community.general.osx_defaults:
+    domain: eu.exelban.Stats
+    key: "{{ item.key }}"
+    type: "{% if item.type is defined %}{{ item.type }}{% else %}string{% endif %}"
+    value: "{{ item.value }}"
+  tags: skip_idempotence_test
+  loop:
+    # keep-sorted start
+    - key: Battery_battery_additional
+      value: innerPercentage
+    - key: Battery_notifications_low
+      value: 0.03
+    - key: CPU_line_chart_box
+      value: 0
+    - key: CPU_line_chart_color
+      value: utilization
+    - key: CPU_line_chart_frame
+      value: 1
+    - key: CPU_line_chart_label
+      value: 1
+    - key: CPU_widget
+      value: line_chart
+    - key: CombinedModules
+      type: bool
+      value: 0
+    - key: Disk_removable
+      value: 1
+    - key: Disk_speed_reverseOrder
+      value: 1
+    - key: Disk_speed_transparentIcons
+      value: 1
+    - key: Disk_speed_valueColor
+      value: 1
+    - key: Disk_widget
+      value: speed
+    - key: Network_speed_icon
+      value: chars
+    - key: Network_speed_reverseOrder
+      value: 1
+    - key: Network_speed_transparentIcons
+      value: 1
+    - key: Network_speed_valueColor
+      value: 1
+    - key: RAM_line_chart_box
+      value: 0
+    - key: RAM_line_chart_color
+      value: pressure
+    - key: RAM_line_chart_frame
+      value: 1
+    - key: RAM_line_chart_label
+      value: 1
+    - key: RAM_widget
+      value: line_chart
+    - key: setupProcess
+      type: bool
+      value: 1
+    - key: update-interval
+      value: Never
+    - key: version
+      value: "{{ stats_version.stdout }}"
+    # keep-sorted end
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:
@@ -690,13 +618,6 @@
 ################################################
 # Interactive (can not be "automated")
 ################################################
-## TODO: I'm not sure if this is working - please recheck # DevSkim: ignore DS176209
-# - name: Run Applications which needs some manual tasks (approvals)
-#   ansible.builtin.command: open -a "{{ item }}"
-#   changed_when: false
-#   loop: "{{ run_applications }}"
-#   tags: interactive
-
 # macOS 26.4+ asks the user to confirm every default app change for file types
 # Launch Services is not reachable over SSH - run inside the GUI session
 - name: Set default applications for file types
@@ -706,16 +627,27 @@
     {{ homebrew_prefix }}/bin/infat --config {{ ansible_facts['user_dir'] }}/.config/infat/config.toml
   become: true
   changed_when: false
-  tags: interactive
 
-- name: Interactive - press ENTER to continue
-  ansible.builtin.pause:
-    prompt: "Manually Approve/Configure all applications/popups and continue by pressing ENTER"
-  tags: interactive
-## TODO: Is it really needed? # DevSkim: ignore DS176209
-# MacOS will open several windows which needs to be confirmed otherwise it will fail
-# - name: Allow programs to be started after login
-#   ansible.builtin.command: osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/{{ item }}.app", hidden:false}'
-#   changed_when: false
-#   loop: "{{ login_items_enabled }}"
-#   tags: interactive
+# osascript "System Events" login items need an Automation (TCC) approval in the GUI and time out over SSH
+- name: Start programs after login using LaunchAgents
+  ansible.builtin.copy:
+    dest: ~/Library/LaunchAgents/local.login-item.{{ item | lower }}.plist
+    mode: u=rw,g=r,o=r
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+        <key>Label</key>
+        <string>local.login-item.{{ item | lower }}</string>
+        <key>ProgramArguments</key>
+        <array>
+          <string>/usr/bin/open</string>
+          <string>-a</string>
+          <string>/Applications/{{ item }}.app</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+      </dict>
+      </plist>
+  loop: "{{ login_items_enabled }}"

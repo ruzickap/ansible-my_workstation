@@ -41,6 +41,7 @@ homebrew_packages:
   - codeburn
   - container
   - dive
+  - docker
   - docker-buildx
   - dockutil
   - dua-cli
@@ -101,7 +102,7 @@ homebrew_packages:
   - zsh-patina
   # keep-sorted end
 
-homebrew_prefix: "{% if (ansible_facts['architecture'] | regex_search('arm')) %}/opt/homebrew/{% else %}/usr/local/{% endif %}"
+homebrew_prefix: /opt/homebrew
 
 homebrew_services:
   # keep-sorted start
@@ -120,9 +121,4 @@ login_items_enabled:
   - Stats
   - Thaw
   # keep-sorted end
-
-login_picture_url: https://www.gravatar.com/avatar/{{ email | hash('md5') }}?s=500 # DevSkim: ignore DS126858
-
-run_applications:
-  - Stats
 # keep-sorted end

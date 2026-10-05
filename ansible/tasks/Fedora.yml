@@ -59,29 +59,9 @@
           value: "{{ postfix_relayhost }}"
         - option: sender_canonical_maps
           value: "regexp:/etc/postfix/sender_canonical"
-        - option: smtp_sasl_auth_enable
-          value: "yes"
-        - option: smtp_sasl_mechanism_filter
-          value: login
-        - option: smtp_sasl_password_maps
-          value: hash:/etc/postfix/sasl_passwd
-        - option: smtp_sasl_security_options
-          value: noanonymous
         - option: smtp_use_tls
           value: "yes"
         # keep-sorted end
-
-    - name: Add credentials /etc/postfix/sasl_passwd
-      ansible.builtin.blockinfile:
-        path: /etc/postfix/sasl_passwd
-        create: true
-        block: |
-          {{ postfix_relayhost }} {{ postfix_smtp_username }}:{{ postfix_smtp_password }}
-        mode: u=rw,g=,o=
-      notify: Generate sasl_passwd.db from /etc/postfix/sasl_passwd
-      no_log: true
-      tags:
-        - secrets
 
     - name: Add from credentials /etc/postfix/sender_canonical
       ansible.builtin.blockinfile:
@@ -148,35 +128,6 @@
         name: "{{ ansible_facts['user_id'] }}"
         comment: "Petr Ruzicka"
         groups: docker,libvirt,lp,printadmin,wireshark,wheel
-        password: "{{ fedora_username_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
-      no_log: true
-      notify: Change LUKS key
-      tags: secrets
-
-    - name: Put private SSH keys for ssh sever to /etc/ssh/
-      ansible.builtin.copy:
-        src: files/etc/ssh/{{ item }}
-        dest: /etc/ssh/{{ item }}
-        owner: root
-        group: ssh_keys
-        mode: u=rw,g=r,o=
-      loop:
-        - ssh_host_ecdsa_key
-        - ssh_host_ed25519_key
-        - ssh_host_rsa_key
-      tags: secrets
-
-    - name: Put public SSH keys for ssh sever to /etc/ssh/
-      ansible.builtin.copy:
-        src: files/etc/ssh/{{ item }}
-        dest: /etc/ssh/{{ item }}
-        owner: root
-        group: root
-        mode: u=rw,g=r,o=r
-      loop:
-        - ssh_host_ecdsa_key.pub
-        - ssh_host_ed25519_key.pub
-        - ssh_host_rsa_key.pub
 
     - name: Configure ssh client globally
       ansible.builtin.copy:
@@ -471,29 +422,6 @@
         - regexp: 'rhgb quiet"'
           replace: 'rhgb quiet systemd.unified_cgroup_hierarchy=0 rootflags=discard splash=quiet"'
       notify: Grub2 config
-
-    - name: Configure WiFi
-      when: wifi_interface|length > 0
-      tags: secrets
-      block:
-        - name: Add Open wifi accounts
-          ansible.builtin.command: nmcli connection add con-name "{{ item }}" type wifi ifname "{{ wifi_interface }}" ssid "{{ item }}" 802-11-wireless.mac-address-randomization always
-          args:
-            creates: /etc/sysconfig/network-scripts/ifcfg-{{ item | regex_replace(' ', '_') }}
-          loop: "{{ open_wifi }}"
-
-        - name: Add WPA/WPA2 Personal wifi accounts
-          ansible.builtin.command: nmcli connection add con-name "{{ item.ssid }}" type wifi ifname "{{ wifi_interface }}" ssid "{{ item.ssid }}" -- wifi-sec.key-mgmt wpa-psk 802-11-wireless-security.psk "{{ item.password }}"
-          args:
-            creates: /etc/sysconfig/network-scripts/ifcfg-{{ item.ssid | regex_replace(' ', '_') }}
-          loop: "{{ wpa_personal_wifi }}"
-          loop_control:
-            label: "{{ item.ssid }}"
-
-      rescue:
-        - name: Print when errors
-          ansible.builtin.fail:
-            msg: Wifi configuration failed !!!
 
     - name: Create bash completion file for rclone
       ansible.builtin.command: rclone genautocomplete bash
@@ -1294,13 +1222,6 @@
     dest: ~/.config/
     directory_mode: u=rwx,g=rx,o=rx
     mode: u=rw,g=r,o=r
-
-- name: Copy kdeconnect configuration
-  ansible.builtin.copy:
-    src: files/home/myusername/.config/kdeconnect
-    dest: ~/.config/
-    mode: u=rw,g=,o=
-  tags: secrets
 
 - name: Configure .bashrc for {{ ansible_facts['user_id'] }}
   ansible.builtin.blockinfile:

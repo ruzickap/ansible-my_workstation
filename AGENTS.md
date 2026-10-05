@@ -15,18 +15,14 @@ playbook, **not** an Ansible role. There is no application code to build.
   Files under `ansible/files/home/myusername/.config/` (incl. `opencode.json`,
   VS Code `settings.json`) are **deployed artifacts**, not repo config — do not
   treat them as settings for this repo.
-- `ansible/vars/secrets.yml.vault` — ansible-vault encrypted. Decrypts with
-  `ansible/vault-my_workstation.password` (gitignored; CI writes a dummy one).
 - Wrapper scripts at repo root run the playbook; `scripts/` and
   `kickstart_file/` are Fedora ISO bootstrap helpers.
 
 ## Running the playbook
 
-Run from inside `ansible/` (scripts `cd` there). A
-`vault-my_workstation.password` file must exist first.
+Run from inside `ansible/` (scripts `cd` there).
 
 - macOS, full local run: `./run_ansible_my_workstation-local-mac.sh`
-- Fedora/Linux local run: `./run_ansible_my_workstation-local.sh`
 - Remote host: `./run_ansible_my_workstation.sh` (edit `DESTINATION_IP`)
 - AWS macOS test host: `./run_ansible_my_workstation-aws.sh` reads the
   IP and password from `tofu -chdir=terraform output`
@@ -43,11 +39,10 @@ Run from inside `ansible/` (scripts `cd` there). A
 ## Tags (important for partial runs)
 
 Tasks are gated by tags. CI skips
-`data,interactive,secrets,skip_test` (plus `skip_idempotence_test` on the
-second pass). Other notable tags: `mc`, `secrets`, `data`.
+`data,skip_test` (plus `skip_idempotence_test` on the
+second pass). Other notable tags: `mc`, `data`.
 
 - `data` = large rsync of `~` and copying private files from local disk.
-- `secrets` = vault-backed credentials (postfix, KeePass, rclone, gh).
 - `skip_test` / `skip_idempotence_test` = exclude from CI / idempotence check.
 
 Example focused run (macOS, Midnight Commander config only, no data):
