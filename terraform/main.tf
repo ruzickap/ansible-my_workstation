@@ -82,7 +82,9 @@ data "http" "my_public_ip" {
 # Public subnet only, no NAT gateway, to avoid NAT gateway costs
 # trivy:ignore:AVD-AWS-0178 Flow logs not needed for a short-lived test instance
 module "vpc" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=b3abd6df2ecf052451a361ed55b8f06f8742a795" # v6.7.3
+  # checkov:skip=CKV_TF_1:Registry module pinned by version so Renovate can update it
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "6.7.3"
 
   name = var.name
   cidr = "10.0.0.0/24"
@@ -96,7 +98,9 @@ module "vpc" {
 
 # trivy:ignore:AVD-AWS-0104 Instance needs internet access (Homebrew, downloads)
 module "security_group" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-security-group.git?ref=58d8e895915f5573767081142d063b7caf7a2b47" # v6.0.0
+  # checkov:skip=CKV_TF_1:Registry module pinned by version so Renovate can update it
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "6.0.0"
 
   name        = var.name
   description = "EC2 Mac instance"
@@ -140,7 +144,9 @@ resource "aws_ec2_host" "mac" {
 module "ec2_instance" {
   # checkov:skip=CKV_AWS_88:Public IP is required for SSH/VNC; inbound is limited to my IP only
   # checkov:skip=CKV_AWS_3:No additional EBS volumes are created; the root volume is encrypted
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-ec2-instance.git?ref=294fb8928bc0f7e0d9ba5bea41a8236c9a7a95d9" # v6.4.1
+  # checkov:skip=CKV_TF_1:Registry module pinned by version so Renovate can update it
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "6.4.1"
 
   name = var.name
 
