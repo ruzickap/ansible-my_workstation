@@ -82,7 +82,7 @@ data "http" "my_public_ip" {
 # Public subnet only, no NAT gateway, to avoid NAT gateway costs
 # trivy:ignore:AVD-AWS-0178 Flow logs not needed for a short-lived test instance
 module "vpc" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=b3abd6df2ecf052451a361ed55b8f06f8742a795" # v6.7.3
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=v6.7.3" # v6.7.3
 
   name = var.name
   cidr = "10.0.0.0/24"
