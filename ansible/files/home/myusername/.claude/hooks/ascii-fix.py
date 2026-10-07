@@ -8,6 +8,7 @@ exits 0 so it never blocks Claude. Binary / non-UTF-8 files are left untouched.
 Categories: punctuation, arrows, math (enabled). emoji (disabled by default).
 """
 
+import difflib
 import json
 import re
 import sys
@@ -89,6 +90,34 @@ def build_table():
     return table
 
 
+def substitute_changed(before, after, substitute):
+    """Apply substitute() only to the parts of `after` that differ from `before`.
+
+    Lines are aligned ignoring line endings, then changed line blocks are
+    diffed per character so untouched text on an edited line is kept too.
+    """
+    old_lines = before.splitlines(keepends=True)
+    new_lines = after.splitlines(keepends=True)
+    matcher = difflib.SequenceMatcher(
+        None,
+        [line.rstrip("\r\n") for line in old_lines],
+        [line.rstrip("\r\n") for line in new_lines],
+        autojunk=False,
+    )
+    out = []
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        new_block = "".join(new_lines[j1:j2])
+        if tag == "equal":
+            out.append(new_block)
+            continue
+        old_block = "".join(old_lines[i1:i2])
+        chars = difflib.SequenceMatcher(None, old_block, new_block, autojunk=False)
+        for ctag, _, _, k1, k2 in chars.get_opcodes():
+            piece = new_block[k1:k2]
+            out.append(piece if ctag == "equal" else substitute(piece))
+    return "".join(out)
+
+
 def main():
     try:
         payload = json.load(sys.stdin)
@@ -114,11 +143,14 @@ def main():
     except (FileNotFoundError, IsADirectoryError, UnicodeDecodeError, OSError):
         return 0
 
-    # Only touch text Claude wrote: the whole file for Write, the new_string
-    # fragments for Edit/MultiEdit, so pre-existing unicode is preserved.
+    # Only touch text Claude wrote: the whole file for Write, the changed
+    # spans for Edit/MultiEdit, so pre-existing unicode is preserved.
     tool_input = payload.get("tool_input") or {}
+    before = (payload.get("tool_response") or {}).get("originalFile")
     if payload.get("tool_name") == "Write":
         fixed = substitute(original)
+    elif isinstance(before, str):
+        fixed = substitute_changed(before, original, substitute)
     else:
         edits = tool_input.get("edits") or [tool_input]
         fixed = original
