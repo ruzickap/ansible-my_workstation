@@ -474,31 +474,44 @@
     dest: ~/.claude/blazed.omp.json
     mode: u=rw,g=r,o=r
 
+- name: Copy Claude Code hooks
+  ansible.builtin.copy:
+    src: files/home/myusername/.claude/hooks
+    dest: ~/.claude/
+    mode: u=rwx,g=rx,o=rx
+
 - name: Configure Claude Code
   ansible.builtin.copy:
     dest: ~/.claude/settings.json
     content: |
       {
+        "$schema": "https://json.schemastore.org/claude-code-settings.json",
+        "env": {
+          "IS_DEMO": "1"
+        },
         "attribution": {
           "commit": "",
           "pr": ""
         },
         "permissions": {
+          "defaultMode": "bypassPermissions",
           "allow": [
             "Bash(*)",
+            "Bash(curl:*)",
             "Read(*)",
             "Edit(*)",
             "Write(*)",
             "Glob(*)",
-            "Grep(*)"
+            "Grep(*)",
+            "WebFetch",
+            "WebSearch"
           ],
           "ask": [
             "Bash(rm -rf:*)",
             "Bash(rm -fr:*)",
             "Read(.env)",
             "Read(.env.*)",
-            "Read(**/.env)",
-            "Read(**/.env.*)",
+            "Read(**/.env*)",
             "Read(~/.ssh/**)",
             "Read(~/.aws/**)",
             "Read(**/*credential*)",
@@ -507,10 +520,19 @@
             "Read(**/*.key)"
           ]
         },
-        "env": {
-          "IS_DEMO": "1"
+        "hooks": {
+          "PostToolUse": [
+            {
+              "matcher": "Write|Edit|MultiEdit",
+              "hooks": [
+                {
+                  "type": "command",
+                  "command": "python3 ~/.claude/hooks/ascii-fix.py"
+                }
+              ]
+            }
+          ]
         },
-        "model": "opus[1m]",
         "statusLine": {
           "type": "command",
           "command": "oh-my-posh claude --config ~/.claude/blazed.omp.json"
@@ -519,12 +541,29 @@
           "code-review@claude-plugins-official": true,
           "context7@claude-plugins-official": true,
           "skill-creator@claude-plugins-official": true,
-          "superpowers@claude-plugins-official": true
+          "superpowers@claude-plugins-official": true,
+          "github@claude-plugins-official": true,
+          "ponytail@ponytail": true
         },
-        "skipDangerousModePermissionPrompt": true,
+        "extraKnownMarketplaces": {
+          "claude-plugins-official": {
+            "source": {
+              "source": "github",
+              "repo": "anthropics/claude-plugins-official"
+            }
+          },
+          "ponytail": {
+            "source": {
+              "source": "github",
+              "repo": "DietrichGebert/ponytail"
+            }
+          }
+        },
+        "model": "claude-opus-5",
         "spinnerTipsEnabled": false,
         "alwaysThinkingEnabled": true,
-        "effortLevel": "high"
+        "effortLevel": "medium",
+        "skipDangerousModePermissionPrompt": true
       }
     mode: u=rw,g=r,o=r
 

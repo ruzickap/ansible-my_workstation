@@ -57,7 +57,6 @@ homebrew_packages:
   - git
   - git-delta # A viewer for git and diff output
   - gnu-sed
-  - gnu-tar
   - gnupg
   - grep
   - hashicorp/tap/terraform # pre-commit hook (terraform_fmt, terraform_validate)
