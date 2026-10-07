@@ -105,17 +105,32 @@ def main():
 
     pattern = re.compile("|".join(re.escape(k) for k in table))
 
+    def substitute(text):
+        return pattern.sub(lambda m: table[m.group(0)], text)
+
     try:
-        with open(file_path, "r", encoding="utf-8") as fh:
+        with open(file_path, "r", encoding="utf-8", newline="") as fh:
             original = fh.read()
     except (FileNotFoundError, IsADirectoryError, UnicodeDecodeError, OSError):
         return 0
 
-    fixed = pattern.sub(lambda m: table[m.group(0)], original)
+    # Only touch text Claude wrote: the whole file for Write, the new_string
+    # fragments for Edit/MultiEdit, so pre-existing unicode is preserved.
+    tool_input = payload.get("tool_input") or {}
+    if payload.get("tool_name") == "Write":
+        fixed = substitute(original)
+    else:
+        edits = tool_input.get("edits") or [tool_input]
+        fixed = original
+        for edit in edits:
+            new_string = edit.get("new_string") or ""
+            fixed_string = substitute(new_string)
+            if fixed_string != new_string:
+                fixed = fixed.replace(new_string, fixed_string)
 
     if fixed != original:
         try:
-            with open(file_path, "w", encoding="utf-8") as fh:
+            with open(file_path, "w", encoding="utf-8", newline="") as fh:
                 fh.write(fixed)
         except OSError:
             return 0
