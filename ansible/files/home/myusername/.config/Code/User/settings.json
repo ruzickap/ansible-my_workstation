@@ -30,6 +30,8 @@
   "editor.rulers": [80],
   // disable suggestion - https://prathapreddy-mudium.medium.com/how-to-disable-abc-suggestion-on-vs-code-7a0bbb3c3395
   "editor.suggest.showWords": false,
+  // disable suggestion on trigger characters - https://stackoverflow.com/questions/41115285/how-can-i-disable-hover-tooltip-hints-in-vs-code
+  "editor.suggestOnTriggerCharacters": false,
   "editor.tabSize": 2,
   "explorer.confirmDelete": false,
   // stop the notifications/prompt for recommendations - https://stackoverflow.com/questions/57664187/how-do-i-turn-off-the-extension-recommendations-notification
