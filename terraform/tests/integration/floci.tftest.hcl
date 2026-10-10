@@ -1,6 +1,6 @@
 # Integration tests against Floci (local AWS emulator), nothing reaches AWS.
-# Floci has no Dedicated Hosts, Mac instance type offerings or macOS AMIs,
-# so those are overridden; VPC, security group, key pair, IAM and the
+# Floci has no Mac instance type offerings or macOS AMIs, so those are
+# overridden; VPC, security group, key pair, IAM, Dedicated Host and the
 # EC2 instance are created for real in the emulator.
 # Run:
 #   docker run -d --rm -p 4566:4566 -v /var/run/docker.sock:/var/run/docker.sock -u root floci/floci:latest
@@ -50,13 +50,6 @@ override_data {
     result = {
       username = "testuser"
     }
-  }
-}
-
-override_resource {
-  target = aws_ec2_host.mac
-  values = {
-    id = "h-0123456789abcdef0"
   }
 }
 
