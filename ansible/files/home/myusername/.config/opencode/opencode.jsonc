@@ -106,6 +106,8 @@
           "--extension",
           "--executable-path",
           "/Applications/Brave Browser Beta.app/Contents/MacOS/Brave Browser Beta",
+          "--output-dir",
+          "{env:HOME}/.cache/playwright-mcp",
         ],
         "environment": {
           "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "{env:PLAYWRIGHT_MCP_EXTENSION_TOKEN}",

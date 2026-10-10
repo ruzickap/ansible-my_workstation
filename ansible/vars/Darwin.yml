@@ -92,7 +92,7 @@ homebrew_packages:
   - trivy # pre-commit hook (terraform_trivy)
   - uutils-coreutils
   - uutils-findutils
-  - wget
+  - wget2
   - yamllint # pre-commit hook
   - yq
   - yt-dlp

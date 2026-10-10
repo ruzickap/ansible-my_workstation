@@ -426,6 +426,7 @@
       alias tree="eza --tree --icons=auto"
       alias unix2dos="awk 'sub(\"$\",\"\r\")' "
       alias vim='nvim'
+      alias wget='wget2'
 
       export DELTA_PAGER="bat --style=plain"
       export EDITOR='nvim'
@@ -452,6 +453,21 @@
 
       # Configure RUMDL_CACHE_DIR for rumdl
       export RUMDL_CACHE_DIR="${HOME}/.cache/rumdl-cache"
+
+      # Configure RUFF_CACHE_DIR for ruff
+      export RUFF_CACHE_DIR="${HOME}/.cache/ruff-cache"
+
+      # Store Python bytecode (__pycache__) in one place
+      export PYTHONPYCACHEPREFIX="${HOME}/.cache/pycache"
+
+      # Configure MYPY_CACHE_DIR for mypy
+      export MYPY_CACHE_DIR="${HOME}/.cache/mypy-cache"
+
+      # Disable pytest cache (.pytest_cache)
+      export PYTEST_ADDOPTS="-p no:cacheprovider"
+
+      # Use ~/.ansible instead of per-project .ansible (ansible-lint)
+      export ANSIBLE_HOME="${HOME}/.ansible"
 
       # Prevent Google Cloud CLI from creating local command logs
       export CLOUDSDK_CORE_DISABLE_FILE_LOGGING=1
