@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.2.0...v2.3.0) (2026-10-10)
+
+
+### Features
+
+* add claude code ascii-fix hook and update settings ([#232](https://github.com/ruzickap/ansible-my_workstation/issues/232)) ([e00e655](https://github.com/ruzickap/ansible-my_workstation/commit/e00e6552797ff4a26f4b19e1c614129ea21be2de))
+* centralize tool caches and switch to wget2 ([#235](https://github.com/ruzickap/ansible-my_workstation/issues/235)) ([8bbef8f](https://github.com/ruzickap/ansible-my_workstation/commit/8bbef8f2ef26417d6dacedb1538d3e400986cb57))
+
 ## [2.2.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.1.0...v2.2.0) (2026-10-05)
 
 
