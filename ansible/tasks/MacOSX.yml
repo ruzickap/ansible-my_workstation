@@ -261,6 +261,41 @@
   register: launchctl
 
 # https://szymonkrajewski.pl/macos-backup-restic/
+# Full Disk Access can be granted only to a binary (not to backup.sh), so a small compiled wrapper starts backup.sh
+- name: Create ~/Documents/backups directory
+  ansible.builtin.file:
+    path: ~/Documents/backups
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Add backup wrapper source code ~/Documents/backups/backup.c
+  ansible.builtin.copy:
+    dest: ~/Documents/backups/backup.c
+    mode: u=rw,g=r,o=r
+    content: |
+      // https://github.com/restic/restic/issues/2051
+      #include <stdlib.h>
+
+      int main(void) {
+        int status = system("{{ ansible_facts['user_dir'] }}/Documents/backups/backup.sh");
+        int ret = WEXITSTATUS(status);
+        return ret;
+      }
+  register: backup_c
+
+- name: Check if backup wrapper binary ~/Documents/backups/backup exists
+  ansible.builtin.stat:
+    path: ~/Documents/backups/backup
+  register: backup_binary
+
+# Re-add the binary to "Full Disk Access" after every rebuild (see README.md)
+- name: Compile backup wrapper binary ~/Documents/backups/backup
+  ansible.builtin.command: gcc -Wall -o backup backup.c
+  args:
+    chdir: "{{ ansible_facts['user_dir'] }}/Documents/backups"
+  when: backup_c is changed or not backup_binary.stat.exists
+  changed_when: true
+
 - name: Add backup Launch Agent
   ansible.builtin.template:
     src: files/Users/myusername/Library/LaunchAgents/backup.plist.j2

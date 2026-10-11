@@ -18,19 +18,23 @@ Configure my laptop with Ansible.
 
 ### Manual configurations
 
-* Google Chrome + configure it (login, extensions, sync, ...)
+Things that cannot be configured by Ansible.
+
+#### Applications
+
+* Brave Beta - enable Brave Sync and configure the extensions:
   * uBlock Origin -> Filter lists -> CZ
   * Google Translate -> My preferred languages -> Czech
   * Refined GitHub -> Personal token
   * Notifier for Gmail ->
     * Play alert sound for new emails
     * Open FAQs page on updates
-  * KeePassXC -> General ->
+  * KeePassXC-Browser -> General ->
     * Automatically fill in single-credential entries
     * Allow filling HTTP Basic Auth credentials
     * Show a banner on the page when new credentials can be saved to the
       database
-  * KeePassXC -> Connected Databases
+  * KeePassXC-Browser -> Connected Databases -> connect the KeePassXC database
 * Zoom
   * General -> Add Zoom to macOS menu bar
   * Video ->
@@ -41,10 +45,11 @@ Configure my laptop with Ansible.
   * Share Screen -> Window size when screen sharing -> Maintain current size
   * Backgrounds & Effects -> Virtual Backgrounds
   * Recording -> Store my recordings at: `~/Desktop`
-* Slack
+* Slack - log in
 * VS Code - [Move Search to panel](https://stackoverflow.com/questions/50058584/vs-code-toggle-search-icon-in-activity-bar-move-from-panel-or-back)
-* Messages -> Edit -> Spelling and Grammar -> "uncheck all"
-* OneDrive
+* Messages -> Edit -> Spelling and Grammar -> uncheck all
+* OneDrive - remove the preinstalled application and prevent its
+  reinstallation (immutable empty file in its place):
 
   ```bash
   sudo rm -fr /Applications/OneDrive.app
@@ -52,32 +57,51 @@ Configure my laptop with Ansible.
   sudo chflags schg /Applications/OneDrive.app
   ```
 
-* MacOS
-  * Apple ID
-    * Disable synchronization of the Photos, iCloud Calendars, Reminders,
-      Safari, Stocks, ...
-  * Notifications
-    * Allow notifications when the screen is locked
-    * Slack -> Alerts
-  * Sound -> Play sound on startup
-  * Appearance -> Show scroll bars -> Always
-  * Accessibility -> Zoom -> Use scroll gesture with modifier keys to zoom
-  * Control Center
-    * Battery -> Show in Menu Bar
-    * Clock -> Show the day of the week
-    * Spotlight
-  * Privacy and Security
-    * Full Disk Access -> Add `~/Documents/backups/backup`
-    * App Management -> Add `~/bin/pkgs_upgrade`
-  * Screen Saver -> Shuffle All
-  * Passwords -> Password Options -> Clean Up Automatically
-  * Keyboard
-    * Press ... key to -> Show Emoji & Symbols
-    * Keyboard Shortcuts -> Input Sources -> (uncheck all) [needed for
-      Midnight Commander]
-  * Trackpad -> Scroll & Zoom
-    * Zoom in or out
-    * Smart zoom
+#### macOS System Settings
+
+* Apple ID -> iCloud -> disable synchronization of Photos, Calendars,
+  Reminders, Safari, Stocks, ...
+* Notifications
+  * Allow notifications when the screen is locked
+  * Slack -> Alerts
+* Sound -> Play sound on startup
+* Appearance -> Show scroll bars -> Always
+* Accessibility -> Zoom -> Use scroll gesture with modifier keys to zoom
+* Control Center
+  * Battery -> Show in Menu Bar
+  * Clock -> Show the day of the week
+  * Spotlight
+* Privacy & Security -> App Management -> Add `~/bin/pkgs_upgrade`
+* Screen Saver -> Shuffle All
+* Passwords -> Password Options -> Clean Up Automatically
+* Keyboard
+  * Press 🌐 key to -> Show Emoji & Symbols
+  * Keyboard Shortcuts -> Input Sources -> uncheck all (the shortcuts
+    conflict with Midnight Commander)
+* Trackpad -> Scroll & Zoom
+  * Zoom in or out
+  * Smart zoom
+
+#### Backup
+
+The nightly backup (`~/Documents/backups/backup.sh`) is started by the
+`local.backup` Launch Agent through the `~/Documents/backups/backup` wrapper
+binary (both installed by Ansible).
+
+* Configure the rclone remotes `gdrive-petr_ruzicka_gmail_com` and
+  `onedrive-petr_ruzicka_gmail_com` (`rclone config`) or restore
+  `~/.config/rclone/rclone.conf` from backup
+* Full Disk Access for the backup wrapper `~/Documents/backups/backup`
+  (repeat every time Ansible rebuilds it from `backup.c`):
+  1. Open System Settings -> Privacy & Security -> Full Disk Access
+  2. If `backup` is listed, remove it with `-`
+  3. Add it again with `+`: `/Users/Petr_Ruzicka/Documents/backups/backup`
+     (press `⌘⇧G` to type the path)
+* Test the backup - runs the full backup now and emails the report:
+
+  ```bash
+  launchctl kickstart -k "gui/$(id -u)/local.backup"
+  ```
 
 ## Fedora
 
