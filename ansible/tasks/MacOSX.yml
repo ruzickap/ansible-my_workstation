@@ -519,6 +519,8 @@
       eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/cobalt2.omp.json)"
       zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
       zsh-defer -c 'eval "$(mise activate zsh)"'
+      # Load fnox.toml secrets when entering a directory, unload on leaving
+      zsh-defer -c 'eval "$(fnox activate zsh)"'
       zsh-defer -c 'eval "$(zoxide init zsh)"'
       zsh-defer -c 'eval "$(${HOMEBREW_PREFIX}/bin/zsh-patina activate)"'
       # carapace generates a large completion script; defer it off the
