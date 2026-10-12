@@ -15,6 +15,11 @@
       ansible.builtin.command: pmset -b displaysleep 5
       changed_when: false
 
+    # Wake the Mac at midnight for the backup (local.backup Launch Agent)
+    - name: Wake up the Mac every day at midnight
+      ansible.builtin.command: pmset repeat wakeorpoweron MTWRFSU 00:00:00
+      changed_when: false
+
   rescue:
     - name: Print when errors
       ansible.builtin.fail:
@@ -249,7 +254,8 @@
 #     type: int
 #     value: 1
 
-- name: Add Launch Agent to run pkgs_upgrade daily at midnight
+# launchd runs a missed calendar job at the next wake (no wake is scheduled for 05:00)
+- name: Add Launch Agent to run pkgs_upgrade daily at 05:00 (or at the next wake)
   ansible.builtin.template:
     src: files/Users/myusername/Library/LaunchAgents/pkgs_upgrade.plist.j2
     dest: ~/Library/LaunchAgents/pkgs_upgrade.plist
