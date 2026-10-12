@@ -285,24 +285,17 @@
         return WEXITSTATUS(status);
       }
 
-- name: Check if backup wrapper source code ~/Documents/backups/backup.c exists
-  ansible.builtin.stat:
-    path: ~/Documents/backups/backup.c
-  register: backup_c
-
-- name: Check if backup wrapper binary ~/Documents/backups/backup exists
-  ansible.builtin.stat:
-    path: ~/Documents/backups/backup
-  register: backup_binary
-
 # Re-add the binary to "Full Disk Access" after every rebuild (see README.md)
-# Rebuild also when the binary is older than its source (previous build failed)
+# Rebuild when the binary is missing or older than backup.c (previous build failed)
 - name: Compile backup wrapper binary ~/Documents/backups/backup
-  ansible.builtin.command: gcc -Wall -o backup backup.c
+  ansible.builtin.shell: |
+    if [ backup.c -nt backup ]; then
+      gcc -Wall -o backup backup.c && echo compiled
+    fi
   args:
     chdir: "{{ ansible_facts['user_dir'] }}/Documents/backups"
-  when: not backup_binary.stat.exists or backup_binary.stat.mtime < backup_c.stat.mtime
-  changed_when: true
+  register: backup_compile
+  changed_when: "'compiled' in backup_compile.stdout"
 
 - name: Add backup Launch Agent
   ansible.builtin.template:
