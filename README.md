@@ -86,7 +86,9 @@ Things that cannot be configured by Ansible.
 
 The nightly backup (`~/Documents/backups/backup.sh`) is started by the
 `local.backup` Launch Agent through the `~/Documents/backups/backup` wrapper
-binary (both installed by Ansible).
+binary (both installed by Ansible). The Mac wakes up at midnight
+(`pmset repeat`) and `local.backup` starts the backup.
+`local.pkgs_upgrade` runs at 05:00 (or at the next wake if the Mac sleeps).
 
 * Configure the rclone remotes `gdrive-petr_ruzicka_gmail_com` and
   `onedrive-petr_ruzicka_gmail_com` (`rclone config`) or restore
