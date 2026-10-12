@@ -604,6 +604,9 @@
     dest: ~/
     rsync_opts:
       - "--quiet"
+      # Backup wrapper is generated and compiled by Ansible (tasks/MacOSX.yml)
+      - "--exclude=/Documents/backups/backup"
+      - "--exclude=/Documents/backups/backup.c"
   loop: "{{ home_data_directories }}"
   tags:
     - data
