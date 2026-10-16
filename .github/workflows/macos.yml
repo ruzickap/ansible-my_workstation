@@ -61,7 +61,7 @@ jobs:
           set -euxo pipefail
           curl -LsSf https://astral.sh/uv/install.sh | sh
           # ansible-core does not support Python 3.15 yet
-          "${UV_INSTALL_DIR}/uv" tool install --managed-python --python 3.14 --with ansible ansible-core
+          "${UV_INSTALL_DIR}/uv" tool install --managed-python --python '>=3.12,<3.15' --with ansible ansible-core
           echo "${UV_TOOL_BIN_DIR}" >> "${GITHUB_PATH}"
           echo "ANSIBLE_PYTHON_INTERPRETER=${UV_TOOL_DIR}/ansible-core/bin/python" >> "${GITHUB_ENV}"
 
