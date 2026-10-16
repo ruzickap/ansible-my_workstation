@@ -22,15 +22,31 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 100
     steps:
-      # Make the runner look like a new Mac: the playbook installs Homebrew and
-      # everything else itself. Xcode Command Line Tools are kept (git, clang).
+      # Make the runner look like a new Mac with only Homebrew installed - the
+      # playbook installs everything else. Xcode Command Line Tools are kept.
       - name: Remove preinstalled software
         run: |
           set -euxo pipefail
-          # shellcheck disable=SC2046
-          brew uninstall --cask --force $(brew list --cask)
-          NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)" -- --force
-          sudo rm -rf /opt/homebrew
+          read -ra CASKS <<< "$(brew list --cask | xargs)"
+          if [[ ${#CASKS[@]} -gt 0 ]]; then
+            brew uninstall --cask --zap --force "${CASKS[@]}"
+          fi
+          # --ignore-dependencies: some formulae (azure-cli) are not listed by
+          # "brew list" and would block the removal of their dependencies
+          read -ra FORMULAE <<< "$(brew list --formula | xargs)"
+          if [[ ${#FORMULAE[@]} -gt 0 ]]; then
+            brew uninstall --force --ignore-dependencies "${FORMULAE[@]}"
+          fi
+          for TAP in $(brew tap); do
+            brew untap --force "${TAP}"
+          done
+          # Leftovers not known to "brew list" (cleanup prunes their symlinks)
+          BREW_CELLAR="$(brew --cellar)"
+          BREW_CASKROOM="$(brew --caskroom)"
+          rm -rf "${BREW_CELLAR:?}"/* "${BREW_CASKROOM:?}"/*
+          brew cleanup --prune=all -s
+          rm -rf "$(brew --cache)"
+          brew list
           sudo find /usr/local -mindepth 1 -maxdepth 1 -exec rm -rf {} +
           sudo xcode-select --switch /Library/Developer/CommandLineTools
           find /Applications -mindepth 1 -maxdepth 1 ! -name Safari.app ! -name Utilities -print -exec sudo rm -rf {} +
