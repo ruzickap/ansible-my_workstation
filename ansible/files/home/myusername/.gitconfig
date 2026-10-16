@@ -64,6 +64,10 @@
 [diff]
     colorMoved = default
 
+# Remove remote-tracking refs for branches deleted on the remote
+[fetch]
+    prune = true
+
 # Needed for GitHub verified commits: https://stackoverflow.com/questions/72844616/how-do-i-sign-git-commits-using-my-existing-ssh-key
 [gpg "ssh"]
     allowedSignersFile = ~/.config/git/allowed_signers
