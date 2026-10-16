@@ -759,6 +759,19 @@
   become: true
   changed_when: false
 
+# The profile disabling Apple Intelligence must be approved in System Settings
+# (waits up to 10 minutes); needs the GUI session, so run via launchctl asuser
+- name: Turn off Apple Intelligence and delete its models (approve the profile in System Settings)
+  ansible.builtin.command: >-
+    launchctl asuser {{ ansible_facts['user_uid'] }}
+    sudo -u {{ ansible_facts['user_id'] }}
+    {{ homebrew_prefix }}/bin/removemacai off --yes
+  become: true
+  register: removemacai_off
+  changed_when: "'No models remain' not in removemacai_off.stdout"
+  when: ansible_facts['distribution_major_version'] | int >= 27
+  tags: skip_test
+
 # osascript "System Events" login items need an Automation (TCC) approval in the GUI and time out over SSH
 - name: Start programs after login using LaunchAgents
   ansible.builtin.copy:
