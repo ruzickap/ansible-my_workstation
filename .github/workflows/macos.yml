@@ -22,18 +22,48 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 100
     steps:
+      # Remove all Homebrew packages, casks and taps (keep Homebrew itself)
       - name: Uninstall Homebrew packages
         run: |
           set -euxo pipefail
-          # shellcheck disable=SC2046
-          brew remove --force $(brew list --formula)
-          # shellcheck disable=SC2046
-          brew remove --cask --force $(brew list)
+          read -ra CASKS <<< "$(brew list --cask | xargs)"
+          if [[ ${#CASKS[@]} -gt 0 ]]; then
+            brew uninstall --cask --zap --force "${CASKS[@]}"
+          fi
+          # --ignore-dependencies: some formulae (azure-cli) are not listed by
+          # "brew list" and would block the removal of their dependencies
+          read -ra FORMULAE <<< "$(brew list --formula | xargs)"
+          if [[ ${#FORMULAE[@]} -gt 0 ]]; then
+            brew uninstall --force --ignore-dependencies "${FORMULAE[@]}"
+          fi
+          for TAP in $(brew tap); do
+            brew untap --force "${TAP}"
+          done
+          # Leftovers not known to "brew list" (cleanup prunes their symlinks)
+          BREW_CELLAR="$(brew --cellar)"
+          BREW_CASKROOM="$(brew --caskroom)"
+          rm -rf "${BREW_CELLAR:?}"/* "${BREW_CASKROOM:?}"/*
+          brew cleanup --prune=all -s
+          rm -rf "$(brew --cache)"
+          brew list
           rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python* || true
 
+      # Ansible is installed outside of Homebrew (uv + its own Python) so it
+      # doesn't interfere with the packages installed by the playbook
       - name: Install Ansible
+        env:
+          UV_INSTALL_DIR: ${{ runner.temp }}/uv/bin
+          UV_NO_MODIFY_PATH: 1
+          UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/uv/python
+          UV_TOOL_BIN_DIR: ${{ runner.temp }}/uv/bin
+          UV_TOOL_DIR: ${{ runner.temp }}/uv/tools
         run: |
-          brew install ansible
+          set -euxo pipefail
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          # ansible-core does not support Python 3.15 yet
+          "${UV_INSTALL_DIR}/uv" tool install --managed-python --python '>=3.12,<3.15' --with ansible ansible-core
+          echo "${UV_TOOL_BIN_DIR}" >> "${GITHUB_PATH}"
+          echo "ANSIBLE_PYTHON_INTERPRETER=${UV_TOOL_DIR}/ansible-core/bin/python" >> "${GITHUB_ENV}"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

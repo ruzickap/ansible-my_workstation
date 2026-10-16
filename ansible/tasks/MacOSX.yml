@@ -662,6 +662,77 @@
       text = "Visual Studio Code"
       # keep-sorted end
 
+- name: Create directory for topgrade inside ~/.config
+  ansible.builtin.file:
+    path: ~/.config/topgrade
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+# TOML arrays are written on a single line (to_json) - ini_file is line based
+- name: Configure topgrade
+  community.general.ini_file:
+    path: ~/.config/topgrade/topgrade.toml
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start block=yes
+    - section: brew
+      option: autoremove
+      value: "true"
+    - section: brew
+      option: greedy_cask
+      value: "true"
+    - section: git
+      option: fallback_to_fetch_default
+      value: "true"
+    - section: git
+      option: pull_predefined
+      value: "false"
+    - section: git
+      option: repos
+      value: "{{ topgrade_git_repos | to_json }}"
+    - section: misc
+      option: ask_retry
+      value: "false"
+    - section: misc
+      option: assume_yes
+      value: "true"
+    - section: misc
+      option: cleanup
+      value: "true"
+    - section: misc
+      option: only
+      value: "{{ topgrade_only_steps | to_json }}"
+    - section: mise
+      option: bump
+      value: "false"
+    - section: vscode
+      option: cleanup_obsolete_extensions
+      value: "true"
+    # keep-sorted end
+  vars:
+    topgrade_git_repos:
+      # keep-sorted start
+      - ~/Documents/mckinsey/git/*/
+      - ~/git/*/
+      # keep-sorted end
+    topgrade_only_steps:
+      # keep-sorted start
+      - brew_cask
+      - brew_formula
+      - claude_code_plugins
+      - git_repos
+      - github_cli_extensions
+      - helm
+      - krew
+      - mise
+      - pi
+      - vim
+      - vscode
+      # keep-sorted end
+
 - name: Copy opencode configuration
   ansible.builtin.copy:
     src: files/home/myusername/.config/opencode
@@ -687,6 +758,19 @@
     {{ homebrew_prefix }}/bin/infat --config {{ ansible_facts['user_dir'] }}/.config/infat/config.toml
   become: true
   changed_when: false
+
+# The profile disabling Apple Intelligence must be approved in System Settings
+# (waits up to 10 minutes); needs the GUI session, so run via launchctl asuser
+- name: Turn off Apple Intelligence and delete its models (approve the profile in System Settings)
+  ansible.builtin.command: >-
+    launchctl asuser {{ ansible_facts['user_uid'] }}
+    sudo -u {{ ansible_facts['user_id'] }}
+    {{ homebrew_prefix }}/bin/removemacai off --yes
+  become: true
+  register: removemacai_off
+  changed_when: "'No models remain' not in removemacai_off.stdout"
+  when: ansible_facts['distribution_major_version'] | int >= 27
+  tags: skip_test
 
 # osascript "System Events" login items need an Automation (TCC) approval in the GUI and time out over SSH
 - name: Start programs after login using LaunchAgents
