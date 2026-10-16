@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.2.0...v2.3.0) (2026-10-16)
+
+
+### Features
+
+* add claude code ascii-fix hook and update settings ([#232](https://github.com/ruzickap/ansible-my_workstation/issues/232)) ([e00e655](https://github.com/ruzickap/ansible-my_workstation/commit/e00e6552797ff4a26f4b19e1c614129ea21be2de))
+* add topgrade and turn off apple intelligence ([#240](https://github.com/ruzickap/ansible-my_workstation/issues/240)) ([0cfd6ec](https://github.com/ruzickap/ansible-my_workstation/commit/0cfd6eccfbc4b314c210300bd8e8ce6a423d949f))
+* build backup wrapper binary with ansible ([#236](https://github.com/ruzickap/ansible-my_workstation/issues/236)) ([a4774bc](https://github.com/ruzickap/ansible-my_workstation/commit/a4774bc285890e6c9d714588251e79fbb8221791))
+* centralize tool caches and switch to wget2 ([#235](https://github.com/ruzickap/ansible-my_workstation/issues/235)) ([8bbef8f](https://github.com/ruzickap/ansible-my_workstation/commit/8bbef8f2ef26417d6dacedb1538d3e400986cb57))
+* enable fetch.prune in gitconfig ([#241](https://github.com/ruzickap/ansible-my_workstation/issues/241)) ([dc37269](https://github.com/ruzickap/ansible-my_workstation/commit/dc372691ed8bcb1fb06d879c34d6b735c4885d92))
+* enable fnox shell activation in zsh ([#239](https://github.com/ruzickap/ansible-my_workstation/issues/239)) ([bb60026](https://github.com/ruzickap/ansible-my_workstation/commit/bb60026a566294e11f7a4dbfac84b5309bc1b1b2))
+* wake mac at midnight for backup and move pkgs_upgrade to 05:00 ([#237](https://github.com/ruzickap/ansible-my_workstation/issues/237)) ([454d57f](https://github.com/ruzickap/ansible-my_workstation/commit/454d57f3e3b7fcfb2d4350dc6df0fa4ac6c66dca))
+
 ## [2.2.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.1.0...v2.2.0) (2026-10-05)
 
 
