@@ -89,6 +89,7 @@ homebrew_packages:
   - shfmt # pre-commit hook
   - socktainer
   - tfupdate # pre-commit hook
+  - topgrade
   - trivy # pre-commit hook (terraform_trivy)
   - uutils-coreutils
   - uutils-findutils
