@@ -22,18 +22,38 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 100
     steps:
-      - name: Uninstall Homebrew packages
+      # Make the runner look like a new Mac: the playbook installs Homebrew and
+      # everything else itself. Xcode Command Line Tools are kept (git, clang).
+      - name: Remove preinstalled software
         run: |
           set -euxo pipefail
           # shellcheck disable=SC2046
-          brew remove --force azure-cli $(brew list --formula)
-          # shellcheck disable=SC2046
-          brew remove --cask --force $(brew list)
-          rm -v /usr/local/bin/2to3* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/python* || true
+          brew uninstall --cask --force $(brew list --cask)
+          NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)" -- --force
+          sudo rm -rf /opt/homebrew
+          sudo find /usr/local -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          sudo xcode-select --switch /Library/Developer/CommandLineTools
+          find /Applications -mindepth 1 -maxdepth 1 ! -name Safari.app ! -name Utilities -print -exec sudo rm -rf {} +
+          cd "${HOME}"
+          rm -rf .android .bash_profile .bashrc .bundle .cargo .cocoapods .composer .config .dotnet .fastlane .gem .gitconfig \
+            .gradle .local .m2 .npm .npmrc .nuget .nvm .profile .rustup .yarn .yarnrc .zprofile .zshrc \
+            hostedtoolcache Library/Android
 
+      # Ansible is installed outside of Homebrew (uv + its own Python) so it
+      # doesn't interfere with the packages installed by the playbook
       - name: Install Ansible
+        env:
+          UV_INSTALL_DIR: ${{ runner.temp }}/uv/bin
+          UV_NO_MODIFY_PATH: 1
+          UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/uv/python
+          UV_TOOL_BIN_DIR: ${{ runner.temp }}/uv/bin
+          UV_TOOL_DIR: ${{ runner.temp }}/uv/tools
         run: |
-          brew install ansible
+          set -euxo pipefail
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          "${UV_INSTALL_DIR}/uv" tool install --managed-python --with ansible ansible-core
+          echo "${UV_TOOL_BIN_DIR}" >> "${GITHUB_PATH}"
+          echo "ANSIBLE_PYTHON_INTERPRETER=${UV_TOOL_DIR}/ansible-core/bin/python" >> "${GITHUB_ENV}"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
