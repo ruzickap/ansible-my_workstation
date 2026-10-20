@@ -625,8 +625,6 @@
       # --------------------------------------------------
       /Pictures/*.db
       /Pictures/.dtrash/
-      /Pictures/Capture One Catalog.cocatalog/Cache/
-      /Pictures/LightCraft Library/thumbs/
       /Pictures/Photos Library.photoslibrary/
     mode: u=rw,g=r,o=r
 
