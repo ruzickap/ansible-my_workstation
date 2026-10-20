@@ -169,21 +169,20 @@
     path: ~/.config/nvim
   register: nvim_config_dir
 
-- name: Install LazyVim
+- name: Clone LazyVim starter
+  ansible.builtin.git:
+    repo: "https://github.com/LazyVim/starter"
+    dest: ~/.config/nvim
+    version: main
+    depth: 1
+    single_branch: true
   when: not nvim_config_dir.stat.exists
-  block:
-    - name: Clone LazyVim starter
-      ansible.builtin.git:
-        repo: "https://github.com/LazyVim/starter"
-        dest: ~/.config/nvim
-        version: main
-        depth: 1
-        single_branch: true
 
-    - name: Remove .git from LazyVim starter
-      ansible.builtin.file:
-        path: ~/.config/nvim/.git
-        state: absent
+- name: Remove .git from LazyVim starter
+  ansible.builtin.file:
+    path: ~/.config/nvim/.git
+    state: absent
+  when: not nvim_config_dir.stat.exists
 
 - name: Copy LazyVim configuration files
   ansible.builtin.copy:
