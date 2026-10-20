@@ -121,7 +121,6 @@ homebrew_taps:
 login_items_enabled:
   # keep-sorted start
   - KeePassXC
-  - MeetingTranscriber
   - Stats
   - Thaw
   # keep-sorted end
