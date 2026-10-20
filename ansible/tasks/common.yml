@@ -164,10 +164,21 @@
     mode: u=rwx,g=rx,o=rx
   tags: mc
 
-- name: Check if ~/.config/nvim exists
+- name: Check if LazyVim is installed
   ansible.builtin.stat:
-    path: ~/.config/nvim
-  register: nvim_config_dir
+    path: ~/.config/nvim/lua/config/lazy.lua
+  register: lazyvim_installed
+
+# Older runs installed NvChad into ~/.config/nvim
+- name: Back up existing non-LazyVim Neovim configuration
+  ansible.builtin.command:
+    argv:
+      - mv
+      - "{{ ansible_facts['env']['HOME'] }}/.config/nvim"
+      - "{{ ansible_facts['env']['HOME'] }}/.config/nvim.bak"
+    removes: ~/.config/nvim
+    creates: ~/.config/nvim.bak
+  when: not lazyvim_installed.stat.exists
 
 - name: Clone LazyVim starter
   ansible.builtin.git:
@@ -176,13 +187,13 @@
     version: main
     depth: 1
     single_branch: true
-  when: not nvim_config_dir.stat.exists
+  when: not lazyvim_installed.stat.exists
 
 - name: Remove .git from LazyVim starter
   ansible.builtin.file:
     path: ~/.config/nvim/.git
     state: absent
-  when: not nvim_config_dir.stat.exists
+  when: not lazyvim_installed.stat.exists
 
 - name: Copy LazyVim configuration files
   ansible.builtin.copy:
