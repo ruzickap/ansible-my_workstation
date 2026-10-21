@@ -535,33 +535,97 @@
   ansible.builtin.copy:
     dest: ~/.kopiaignore
     content: |
-      # keep-sorted start
-      *-libvirt.box
-      *-virtualbox.box
-      *.ISO
-      *.iso
-      .DS_Store
-      .terraform
-      /.Trash
-      /.cache
+      # ==================================================
+      # Kopia backup rules for HOME
+      # ==================================================
+      # Allowlist approach: everything in HOME is excluded unless re-included below.
+      # Anything provisioned by ~/git/ansible-my_workstation (dotfiles,
+      # ~/.claude, ~/.ansible.cfg, ...) is intentionally NOT backed
+      # up. ~/.config is backed up in full (minus caches) just in case.
+
+      # Exclude all immediate children of HOME
+      /*
+
+      # Include individual files
+      !/.bash_history
+      !/.claude.json
+      !/.gitconfig
+      !/.zsh_history
+
+      # Include keys / secrets (not recreatable)
+      !/.aws/
+      /.aws/*
+      !/.aws/config
+      !/.aws/credentials
+      !/.gnupg/
+      !/.sigstore/
+      !/.ssh/
+
+      # Include selected .local data (history databases)
+      !/.local/
+      /.local/*
+      !/.local/share/
+      /.local/share/*
+      !/.local/share/atuin/
+      !/.local/share/mc/
+      !/.local/share/opencode/
+
+      # Include user data directories
+      !/.agents/
+      !/.config/
+      !/bin/
+      !/Desktop/
+      !/Documents/
+      !/git/
+      !/Music/
+      !/Pictures/
+
+      # --------------------------------------------------
+      # Global exclusions (regenerable / build artifacts)
+      # --------------------------------------------------
+      **/.DS_Store
+      **/.jekyll-cache/
+      **/.mypy_cache/
+      **/.next/
+      **/.pytest_cache/
+      **/.ruff_cache/
+      **/.terraform/
+      **/.terragrunt-cache/
+      **/.venv/
+      **/__pycache__/
+      **/node_modules/
+
+      # --------------------------------------------------
+      # Keys / secrets: runtime sockets and caches
+      # --------------------------------------------------
       /.gnupg/S.*
-      /.krew
-      /.lima
-      /.local
-      /.vscode
-      /Applications
-      /Documents/chrome-extensions
-      /Downloads
-      /Library
-      /Movies
-      /Music/Music
+      /.sigstore/root/
+      /.ssh/agent/
+      /.ssh/controlsock/
+
+      # --------------------------------------------------
+      # .config: exclusions
+      # --------------------------------------------------
+      /.config/gcloud/
+
+      # --------------------------------------------------
+      # .local: regenerable parts of opencode + session database (large)
+      # --------------------------------------------------
+      /.local/share/opencode/bin/
+      /.local/share/opencode/log/
+      /.local/share/opencode/opencode.db*
+
+      # --------------------------------------------------
+      # Music
+      # --------------------------------------------------
+      /Music/Music/
+
+      # --------------------------------------------------
+      # Pictures
+      # --------------------------------------------------
       /Pictures/*.db
-      /Pictures/Photos Library.photoslibrary
-      /Public
-      /Virtual Machines*
-      /go
-      /node_modules
-      # keep-sorted end
+      /Pictures/.dtrash/
+      /Pictures/Photos Library.photoslibrary/
     mode: u=rw,g=r,o=r
 
 - name: Get installed Stats version
@@ -725,6 +789,7 @@
       - claude_code_plugins
       - git_repos
       - github_cli_extensions
+      - github_cli_skills
       - helm
       - krew
       - mise

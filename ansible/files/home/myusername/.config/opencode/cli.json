@@ -8,5 +8,8 @@
   },
   "attention": {
     "notifications": true
+  },
+  "tabs": {
+    "mode": "off"
   }
 }

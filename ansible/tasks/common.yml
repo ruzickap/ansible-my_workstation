@@ -164,12 +164,56 @@
     mode: u=rwx,g=rx,o=rx
   tags: mc
 
-- name: Install NvChad
+- name: Check if LazyVim is installed
+  ansible.builtin.stat:
+    path: ~/.config/nvim/lua/config/lazy.lua
+  register: lazyvim_installed
+
+- name: Clone LazyVim starter
   ansible.builtin.git:
-    repo: "https://github.com/NvChad/starter"
+    repo: "https://github.com/LazyVim/starter"
     dest: ~/.config/nvim
+    version: main
     depth: 1
     single_branch: true
+  when: not lazyvim_installed.stat.exists
+
+- name: Remove .git from LazyVim starter
+  ansible.builtin.file:
+    path: ~/.config/nvim/.git
+    state: absent
+  when: not lazyvim_installed.stat.exists
+
+- name: Copy LazyVim configuration files
+  ansible.builtin.copy:
+    src: files/home/myusername/.config/nvim
+    dest: ~/.config/
+    mode: u=rw,g=r,o=r
+    directory_mode: u=rwx,g=rx,o=rx
+
+- name: Read LazyVim lazyvim.json
+  ansible.builtin.slurp:
+    src: ~/.config/nvim/lazyvim.json
+  register: lazyvim_json
+  failed_when: false
+
+# Merge instead of overwrite to keep LazyVim's "news" state and other extras
+- name: Enable LazyVim extras in lazyvim.json
+  ansible.builtin.copy:
+    content: "{{ lazyvim_json_data | combine({'extras': lazyvim_extras}) | to_nice_json(indent=2) }}\n"
+    dest: ~/.config/nvim/lazyvim.json
+    mode: u=rw,g=r,o=r
+  vars:
+    # Without "version" LazyVim would migrate the file and break extras names
+    lazyvim_json_data: "{{ (lazyvim_json.content | b64decode | from_json) if lazyvim_json.content is defined else {'install_version': 8, 'version': 8} }}"
+    lazyvim_extras: "{{ (lazyvim_json_data.extras | default([]) + ['lazyvim.plugins.extras.ai.copilot']) | unique | sort }}"
+
+- name: Install LazyVim plugins
+  ansible.builtin.command: nvim --headless "+Lazy! sync" +qa
+  environment:
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
+  args:
+    creates: ~/.local/share/nvim/lazy/LazyVim
 
 - name: Create directory for mpv inside ~/.config
   ansible.builtin.file:
