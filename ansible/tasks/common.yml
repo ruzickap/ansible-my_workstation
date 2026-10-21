@@ -208,6 +208,15 @@
     lazyvim_json_data: "{{ (lazyvim_json.content | b64decode | from_json) if lazyvim_json.content is defined else {'install_version': 8, 'version': 8} }}"
     lazyvim_extras: "{{ (lazyvim_json_data.extras | default([]) + ['lazyvim.plugins.extras.ai.copilot']) | unique | sort }}"
 
+- name: Install LazyVim plugins
+  ansible.builtin.command: nvim --headless "+Lazy! sync" +qa
+  environment:
+    PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
+  args:
+    creates: ~/.local/share/nvim/lazy/LazyVim
+  # Neovim is installed only on macOS
+  when: ansible_facts['system'] == 'Darwin'
+
 - name: Create directory for mpv inside ~/.config
   ansible.builtin.file:
     path: ~/.config/mpv/
