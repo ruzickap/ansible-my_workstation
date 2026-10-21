@@ -169,17 +169,6 @@
     path: ~/.config/nvim/lua/config/lazy.lua
   register: lazyvim_installed
 
-# Older runs installed NvChad into ~/.config/nvim
-- name: Back up existing non-LazyVim Neovim configuration
-  ansible.builtin.command:
-    argv:
-      - mv
-      - "{{ ansible_facts['env']['HOME'] }}/.config/nvim"
-      - "{{ ansible_facts['env']['HOME'] }}/.config/nvim.bak"
-    removes: ~/.config/nvim
-    creates: ~/.config/nvim.bak
-  when: not lazyvim_installed.stat.exists
-
 - name: Clone LazyVim starter
   ansible.builtin.git:
     repo: "https://github.com/LazyVim/starter"
