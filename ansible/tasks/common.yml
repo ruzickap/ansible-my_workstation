@@ -214,8 +214,6 @@
     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.local/share/nvim/lazy/LazyVim
-  # Neovim is installed only on macOS
-  when: ansible_facts['system'] == 'Darwin'
 
 - name: Create directory for mpv inside ~/.config
   ansible.builtin.file:

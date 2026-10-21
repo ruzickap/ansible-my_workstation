@@ -92,6 +92,7 @@ dnf_packages:
   - moby-engine # Docker
   - mozilla-ublock-origin
   - mutt # Check dependencies
+  - neovim
   - NetworkManager-wifi
   - NetworkManager-config-connectivity-fedora # captive-portal detect
   - nmap
