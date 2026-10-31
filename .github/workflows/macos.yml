@@ -50,18 +50,20 @@ jobs:
 
       # Ansible is installed outside of Homebrew (uv + its own Python) so it
       # doesn't interfere with the packages installed by the playbook
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+
       - name: Install Ansible
         env:
-          UV_INSTALL_DIR: ${{ runner.temp }}/uv/bin
-          UV_NO_MODIFY_PATH: 1
           UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/uv/python
           UV_TOOL_BIN_DIR: ${{ runner.temp }}/uv/bin
           UV_TOOL_DIR: ${{ runner.temp }}/uv/tools
         run: |
           set -euxo pipefail
-          curl -LsSf https://astral.sh/uv/install.sh | sh
           # ansible-core does not support Python 3.15 yet
-          "${UV_INSTALL_DIR}/uv" tool install --managed-python --python '>=3.12,<3.15' --with ansible ansible-core
+          uv tool install --managed-python --python '>=3.12,<3.15' --with ansible ansible-core
           echo "${UV_TOOL_BIN_DIR}" >> "${GITHUB_PATH}"
           echo "ANSIBLE_PYTHON_INTERPRETER=${UV_TOOL_DIR}/ansible-core/bin/python" >> "${GITHUB_ENV}"
 
