@@ -415,14 +415,6 @@
 
       eval "$(/opt/homebrew/bin/brew shellenv)"
 
-      # Enable homebrew, find, sed, coreutils
-      MY_GENERATED_PATH=$(for BIN in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin ; do echo -n "${BIN}:"; done)
-      export PATH="${MY_GENERATED_PATH}${PATH}"
-
-      # Enable man pages
-      MY_GENERATED_MAN=$(for MAN in ${HOMEBREW_PREFIX}/opt/*/libexec/gnuman ; do echo -n "${MAN}:"; done)
-      export MANPATH="${MY_GENERATED_MAN}${MANPATH}"
-
       # Enable binaries for node, krew and ~/bin
       export PATH="/usr/local/bin:${HOME}/.krew/bin:${HOME}/bin:${HOME}/.local/bin:${HOME}/Documents/mckinsey/bin:${HOME}/go/bin:${PATH}"
 
@@ -695,6 +687,14 @@
     - key: version
       value: "{{ stats_version.stdout }}"
     # keep-sorted end
+
+# Exported by: Vorssaint --export-settings FILE
+- name: Copy Vorssaint settings
+  ansible.builtin.copy:
+    src: files/Users/myusername/vorssaint-settings.plist
+    dest: ~/.config/vorssaint/
+    mode: u=rw,g=r,o=r
+  notify: Import Vorssaint settings
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:

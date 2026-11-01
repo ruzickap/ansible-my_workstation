@@ -315,7 +315,7 @@
       macos-titlebar-style = tabs
       macos-window-buttons = hidden
       mouse-hide-while-typing = true
-      mouse-scroll-multiplier = precision:3,discrete:3
+      mouse-scroll-multiplier = precision:3
       quit-after-last-window-closed = true
       split-divider-color = green
       theme = iTerm2 Dark Background
@@ -324,7 +324,6 @@
       window-width = 183
 
       # https://github.com/ghostty-org/ghostty/discussions/3836
-      cursor-style = block
       shell-integration-features = no-cursor
     mode: u=rw,g=r,o=r
 
