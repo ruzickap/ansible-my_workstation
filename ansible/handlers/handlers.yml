@@ -4,20 +4,6 @@
   changed_when: false
   become: true
 
-# Import refuses to run while the app is open - quit it and relaunch afterwards
-- name: Import Vorssaint settings
-  ansible.builtin.shell: |
-    set -e
-    if pkill -x Vorssaint; then
-      sleep 2
-      RELAUNCH=true
-    fi
-    /Applications/Vorssaint.app/Contents/MacOS/Vorssaint --import-settings ~/.config/vorssaint/vorssaint-settings.plist
-    if [ "${RELAUNCH:-}" = "true" ]; then
-      open -a Vorssaint
-    fi
-  changed_when: false
-
 - name: Newaliases
   ansible.builtin.command: newaliases
   changed_when: false

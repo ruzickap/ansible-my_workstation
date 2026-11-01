@@ -688,13 +688,294 @@
       value: "{{ stats_version.stdout }}"
     # keep-sorted end
 
-# Exported by: Vorssaint --export-settings FILE
-- name: Copy Vorssaint settings
-  ansible.builtin.copy:
-    src: files/Users/myusername/vorssaint-settings.plist
-    dest: ~/.config/vorssaint/
-    mode: u=rw,g=r,o=r
-  notify: Import Vorssaint settings
+# Only values differing from factory defaults (compare `Vorssaint --export-settings`)
+- name: Configure Vorssaint
+  community.general.osx_defaults:
+    domain: com.vorssaint.utils
+    key: "{{ item.key }}"
+    type: "{{ item.type | default('string') }}"
+    value: "{{ item.value }}"
+  loop:
+    # keep-sorted start block=yes
+    - key: appUpdatesCheckFrequency
+      value: weekly
+    - key: autoCheckUpdates
+      type: bool
+      value: false
+    - key: autoQuitEnabled
+      type: bool
+      value: false
+    - key: batteryLimitPercent
+      type: int
+      value: 5
+    - key: clamshellPreferred
+      type: bool
+      value: true
+    - key: cleanerScheduleFrequency
+      value: weekly
+    - key: cleanerScreenshotAgeDays
+      type: int
+      value: 0
+    - key: clipboardHistoryEnabled
+      type: bool
+      value: true
+    - key: clipboardHistoryLimit
+      type: int
+      value: 20
+    - key: defaultDurationMinutes
+      type: int
+      value: 15
+    - key: dockClickMinimize
+      type: bool
+      value: true
+    - key: featureAvailable.autoQuit
+      type: bool
+      value: false
+    - key: featureAvailable.cameraPreview
+      type: bool
+      value: false
+    - key: featureAvailable.cleaningMode
+      type: bool
+      value: false
+    - key: featureAvailable.colorPicker
+      type: bool
+      value: false
+    - key: featureAvailable.commandBar
+      type: bool
+      value: false
+    - key: featureAvailable.dockPreview
+      type: bool
+      value: false
+    - key: featureAvailable.extraBrightness
+      type: bool
+      value: false
+    - key: featureAvailable.finderCutPaste
+      type: bool
+      value: false
+    - key: featureAvailable.finderRename
+      type: bool
+      value: false
+    - key: featureAvailable.homebrew
+      type: bool
+      value: false
+    - key: featureAvailable.keyboardDebounce
+      type: bool
+      value: false
+    - key: featureAvailable.mediaTools
+      type: bool
+      value: false
+    - key: featureAvailable.micMute
+      type: bool
+      value: false
+    - key: featureAvailable.middleClick
+      type: bool
+      value: false
+    - key: featureAvailable.mixer
+      type: bool
+      value: false
+    - key: featureAvailable.mouseAcceleration
+      type: bool
+      value: false
+    - key: featureAvailable.mouseButtonShortcuts
+      type: bool
+      value: false
+    - key: featureAvailable.mouseClickDebounce
+      type: bool
+      value: false
+    - key: featureAvailable.mouseNavigation
+      type: bool
+      value: false
+    - key: featureAvailable.notch
+      type: bool
+      value: false
+    - key: featureAvailable.notchAccessories
+      type: bool
+      value: false
+    - key: featureAvailable.notchAgents
+      type: bool
+      value: false
+    - key: featureAvailable.notchCalendar
+      type: bool
+      value: false
+    - key: featureAvailable.notchDownloads
+      type: bool
+      value: false
+    - key: featureAvailable.notchGestures
+      type: bool
+      value: false
+    - key: featureAvailable.notchLiveEqualizer
+      type: bool
+      value: false
+    - key: featureAvailable.notchLyrics
+      type: bool
+      value: false
+    - key: featureAvailable.notchNotifications
+      type: bool
+      value: false
+    - key: featureAvailable.notchQueue
+      type: bool
+      value: false
+    - key: featureAvailable.notchTimer
+      type: bool
+      value: false
+    - key: featureAvailable.notchWatch
+      type: bool
+      value: false
+    - key: featureAvailable.pastePlain
+      type: bool
+      value: false
+    - key: featureAvailable.quickLauncher
+      type: bool
+      value: false
+    - key: featureAvailable.quickToggles
+      type: bool
+      value: false
+    - key: featureAvailable.radialMenu
+      type: bool
+      value: false
+    - key: featureAvailable.scratchpad
+      type: bool
+      value: false
+    - key: featureAvailable.scrollInverter
+      type: bool
+      value: false
+    - key: featureAvailable.shelf
+      type: bool
+      value: false
+    - key: featureAvailable.smoothScroll
+      type: bool
+      value: false
+    - key: featureAvailable.soundOutputSwitcher
+      type: bool
+      value: false
+    - key: featureAvailable.superKey
+      type: bool
+      value: false
+    - key: featureAvailable.textSnippets
+      type: bool
+      value: false
+    - key: featureAvailable.uninstaller
+      type: bool
+      value: false
+    - key: hasOnboarded
+      type: bool
+      value: true
+    - key: keepAwakeActiveIcon
+      value: coffee
+    - key: keepAwakeIconTint
+      value: blue
+    - key: keepAwakeMouseJiggleIntervalMinutes
+      type: int
+      value: 1
+    - key: launchAtLoginWanted
+      type: bool
+      value: true
+    - key: menuBarBattery
+      type: bool
+      value: false
+    - key: menuBarCPU
+      type: bool
+      value: false
+    - key: menuBarGPU
+      type: bool
+      value: false
+    - key: menuBarMemory
+      type: bool
+      value: false
+    - key: menuBarNetwork
+      type: bool
+      value: false
+    - key: menuBarPower
+      type: bool
+      value: false
+    - key: monitorAlertBattery
+      type: bool
+      value: true
+    - key: monitorAlertBatteryPercent
+      type: int
+      value: 5
+    - key: monitorAlertCPU
+      type: bool
+      value: true
+    - key: monitorAlertCPUTemperature
+      type: bool
+      value: true
+    - key: monitorAlertDiskFreePercent
+      type: int
+      value: 5
+    - key: monitorAlertMemory
+      type: bool
+      value: true
+    - key: monitorShowMixer
+      type: bool
+      value: false
+    - key: musicBlockEnabled
+      type: bool
+      value: true
+    - key: notchAgentsEnabled
+      type: bool
+      value: true
+    - key: panelControlInputExpanded
+      type: bool
+      value: true
+    - key: panelControlWindowsExpanded
+      type: bool
+      value: true
+    - key: panelShowFanControl
+      type: bool
+      value: false
+    - key: panelShowToggles
+      type: bool
+      value: false
+    - key: previewSize
+      value: xlarge
+    - key: quickLauncherShortcutEnabled
+      type: bool
+      value: false
+    - key: recorderSystemAudio
+      type: bool
+      value: false
+    - key: screenshotDefaultAction
+      value: edit
+    - key: screenshotShortcutEnabled
+      type: bool
+      value: true
+    - key: screenshotShowLastRegion
+      type: bool
+      value: false
+    - key: showCountdownInMenuBar
+      type: bool
+      value: true
+    - key: switcherCurrentDisplayOnly
+      type: bool
+      value: true
+    - key: switcherInstantSelection
+      type: bool
+      value: true
+    - key: switcherMinimizedPlacement
+      value: end
+    - key: switcherPreviewSize
+      value: large
+    - key: switcherShowShortcutHints
+      type: bool
+      value: false
+    - key: switcherWindowlessApps
+      value: "off"
+    - key: urlCleanerEnabled
+      type: bool
+      value: true
+    - key: windowGestureEnabled
+      type: bool
+      value: true
+    - key: windowGestureModifiers
+      value: option+command
+    - key: windowGestureRaiseWindow
+      type: bool
+      value: true
+    - key: windowMaximizeEnabled
+      type: bool
+      value: true
+    # keep-sorted end
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:
