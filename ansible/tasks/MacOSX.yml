@@ -696,281 +696,362 @@
     value: "{{ item.value }}"
   loop:
     # keep-sorted start block=yes
-    - key: appUpdatesCheckFrequency
-      value: weekly
+    # Do not auto-check for Vorssaint updates (brew handles it)
     - key: autoCheckUpdates
       type: bool
       value: false
+    # Do not auto-quit apps that have no open windows
     - key: autoQuitEnabled
       type: bool
       value: false
+    # Battery percentage threshold used by battery features
     - key: batteryLimitPercent
       type: int
       value: 5
+    # Keep the Mac awake with the lid closed (clamshell mode)
     - key: clamshellPreferred
       type: bool
       value: true
+    # Run the cleaner weekly
     - key: cleanerScheduleFrequency
       value: weekly
+    # Cleaner does not remove old screenshots by age
     - key: cleanerScreenshotAgeDays
       type: int
       value: 0
+    # Keep a clipboard history
     - key: clipboardHistoryEnabled
       type: bool
       value: true
+    # Number of items kept in clipboard history
     - key: clipboardHistoryLimit
       type: int
       value: 20
+    # Default Keep Awake session length in minutes
     - key: defaultDurationMinutes
       type: int
       value: 15
+    # Clicking a Dock icon minimizes the active app
     - key: dockClickMinimize
       type: bool
       value: true
+    # Disable the auto quit feature
     - key: featureAvailable.autoQuit
       type: bool
       value: false
+    # Disable the camera preview feature
     - key: featureAvailable.cameraPreview
       type: bool
       value: false
+    # Disable the cleaning mode feature
     - key: featureAvailable.cleaningMode
       type: bool
       value: false
+    # Disable the color picker feature
     - key: featureAvailable.colorPicker
       type: bool
       value: false
+    # Disable the command bar feature
     - key: featureAvailable.commandBar
       type: bool
       value: false
+    # Disable the dock preview feature
     - key: featureAvailable.dockPreview
       type: bool
       value: false
+    # Disable the extra brightness feature
     - key: featureAvailable.extraBrightness
       type: bool
       value: false
+    # Disable the finder cut paste feature
     - key: featureAvailable.finderCutPaste
       type: bool
       value: false
+    # Disable the finder rename feature
     - key: featureAvailable.finderRename
       type: bool
       value: false
+    # Disable the homebrew feature
     - key: featureAvailable.homebrew
       type: bool
       value: false
+    # Disable the keyboard debounce feature
     - key: featureAvailable.keyboardDebounce
       type: bool
       value: false
+    # Disable the media tools feature
     - key: featureAvailable.mediaTools
       type: bool
       value: false
+    # Disable the mic mute feature
     - key: featureAvailable.micMute
       type: bool
       value: false
+    # Disable the middle click feature
     - key: featureAvailable.middleClick
       type: bool
       value: false
+    # Disable the mixer feature
     - key: featureAvailable.mixer
       type: bool
       value: false
+    # Disable the mouse acceleration feature
     - key: featureAvailable.mouseAcceleration
       type: bool
       value: false
+    # Disable the mouse button shortcuts feature
     - key: featureAvailable.mouseButtonShortcuts
       type: bool
       value: false
+    # Disable the mouse click debounce feature
     - key: featureAvailable.mouseClickDebounce
       type: bool
       value: false
+    # Disable the mouse navigation feature
     - key: featureAvailable.mouseNavigation
       type: bool
       value: false
+    # Disable the notch feature
     - key: featureAvailable.notch
       type: bool
       value: false
+    # Disable the notch accessories feature
     - key: featureAvailable.notchAccessories
       type: bool
       value: false
+    # Disable the notch agents feature
     - key: featureAvailable.notchAgents
       type: bool
       value: false
+    # Disable the notch calendar feature
     - key: featureAvailable.notchCalendar
       type: bool
       value: false
+    # Disable the notch downloads feature
     - key: featureAvailable.notchDownloads
       type: bool
       value: false
+    # Disable the notch gestures feature
     - key: featureAvailable.notchGestures
       type: bool
       value: false
+    # Disable the notch live equalizer feature
     - key: featureAvailable.notchLiveEqualizer
       type: bool
       value: false
+    # Disable the notch lyrics feature
     - key: featureAvailable.notchLyrics
       type: bool
       value: false
+    # Disable the notch notifications feature
     - key: featureAvailable.notchNotifications
       type: bool
       value: false
+    # Disable the notch queue feature
     - key: featureAvailable.notchQueue
       type: bool
       value: false
+    # Disable the notch timer feature
     - key: featureAvailable.notchTimer
       type: bool
       value: false
+    # Disable the notch watch feature
     - key: featureAvailable.notchWatch
       type: bool
       value: false
+    # Disable the paste plain feature
     - key: featureAvailable.pastePlain
       type: bool
       value: false
+    # Disable the quick launcher feature
     - key: featureAvailable.quickLauncher
       type: bool
       value: false
+    # Disable the quick toggles feature
     - key: featureAvailable.quickToggles
       type: bool
       value: false
+    # Disable the radial menu feature
     - key: featureAvailable.radialMenu
       type: bool
       value: false
+    # Disable the scratchpad feature
     - key: featureAvailable.scratchpad
       type: bool
       value: false
+    # Disable the scroll inverter feature
     - key: featureAvailable.scrollInverter
       type: bool
       value: false
+    # Disable the shelf feature
     - key: featureAvailable.shelf
       type: bool
       value: false
+    # Disable the smooth scroll feature
     - key: featureAvailable.smoothScroll
       type: bool
       value: false
+    # Disable the sound output switcher feature
     - key: featureAvailable.soundOutputSwitcher
       type: bool
       value: false
+    # Disable the super key feature
     - key: featureAvailable.superKey
       type: bool
       value: false
+    # Disable the text snippets feature
     - key: featureAvailable.textSnippets
       type: bool
       value: false
+    # Disable the uninstaller feature
     - key: featureAvailable.uninstaller
       type: bool
       value: false
+    # Skip the first-run onboarding
     - key: hasOnboarded
       type: bool
       value: true
+    # Menu bar icon shown while Keep Awake is active
     - key: keepAwakeActiveIcon
       value: coffee
+    # Color of the active Keep Awake icon
     - key: keepAwakeIconTint
       value: blue
-    - key: keepAwakeMouseJiggleIntervalMinutes
-      type: int
-      value: 1
+    # Start Vorssaint at login
     - key: launchAtLoginWanted
       type: bool
       value: true
+    # Hide battery stats in the menu bar
     - key: menuBarBattery
       type: bool
       value: false
+    # Hide CPU stats in the menu bar
     - key: menuBarCPU
       type: bool
       value: false
+    # Hide GPU stats in the menu bar
     - key: menuBarGPU
       type: bool
       value: false
+    # Hide memory stats in the menu bar
     - key: menuBarMemory
       type: bool
       value: false
+    # Hide network stats in the menu bar
     - key: menuBarNetwork
       type: bool
       value: false
+    # Hide power stats in the menu bar
     - key: menuBarPower
       type: bool
       value: false
+    # Alert on low battery
     - key: monitorAlertBattery
       type: bool
       value: true
+    # Low battery alert threshold (%)
     - key: monitorAlertBatteryPercent
       type: int
       value: 5
+    # Alert on high CPU usage
     - key: monitorAlertCPU
       type: bool
       value: true
+    # Alert on high CPU temperature
     - key: monitorAlertCPUTemperature
       type: bool
       value: true
+    # Low free disk space alert threshold (%)
     - key: monitorAlertDiskFreePercent
       type: int
       value: 5
+    # Alert on high memory usage
     - key: monitorAlertMemory
       type: bool
       value: true
-    - key: monitorShowMixer
-      type: bool
-      value: false
+    # Stop media keys from launching the Music app
     - key: musicBlockEnabled
       type: bool
       value: true
-    - key: notchAgentsEnabled
-      type: bool
-      value: true
+    # Expand the input section in the control panel
     - key: panelControlInputExpanded
       type: bool
       value: true
+    # Expand the windows section in the control panel
     - key: panelControlWindowsExpanded
       type: bool
       value: true
+    # Hide fan control in the panel
     - key: panelShowFanControl
       type: bool
       value: false
+    # Hide quick toggles in the panel
     - key: panelShowToggles
       type: bool
       value: false
+    # Size of Dock window previews
     - key: previewSize
       value: xlarge
+    # Disable the Quick Launcher shortcut
     - key: quickLauncherShortcutEnabled
       type: bool
       value: false
+    # Do not record system audio in screen recordings
     - key: recorderSystemAudio
       type: bool
       value: false
+    # Open screenshots in the editor after capture
     - key: screenshotDefaultAction
       value: edit
+    # Enable the screenshot shortcut
     - key: screenshotShortcutEnabled
       type: bool
       value: true
+    # Do not preselect the last screenshot region
     - key: screenshotShowLastRegion
       type: bool
       value: false
+    # Show the Keep Awake countdown in the menu bar
     - key: showCountdownInMenuBar
       type: bool
       value: true
+    # App switcher shows windows on the current display only
     - key: switcherCurrentDisplayOnly
       type: bool
       value: true
+    # App switcher selects immediately without delay
     - key: switcherInstantSelection
       type: bool
       value: true
+    # App switcher lists minimized windows last
     - key: switcherMinimizedPlacement
       value: end
+    # Size of app switcher window previews
     - key: switcherPreviewSize
       value: large
+    # Hide shortcut hints in the app switcher
     - key: switcherShowShortcutHints
       type: bool
       value: false
+    # App switcher hides apps without windows
     - key: switcherWindowlessApps
       value: "off"
+    # Strip tracking parameters from copied URLs
     - key: urlCleanerEnabled
       type: bool
       value: true
+    # Move/resize windows with a modifier + mouse drag
     - key: windowGestureEnabled
       type: bool
       value: true
+    # Modifier keys for the window drag gesture
     - key: windowGestureModifiers
       value: option+command
+    # Bring the window to front when dragging it
     - key: windowGestureRaiseWindow
       type: bool
       value: true
+    # Enable window maximize (double-click title bar)
     - key: windowMaximizeEnabled
       type: bool
       value: true
