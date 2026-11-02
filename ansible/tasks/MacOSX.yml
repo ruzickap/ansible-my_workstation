@@ -819,10 +819,6 @@
     - key: featureAvailable.notchAccessories
       type: bool
       value: false
-    # Disable the notch agents feature
-    - key: featureAvailable.notchAgents
-      type: bool
-      value: false
     # Disable the notch calendar feature
     - key: featureAvailable.notchCalendar
       type: bool
@@ -1047,10 +1043,6 @@
     # Modifier keys for the window drag gesture
     - key: windowGestureModifiers
       value: option+command
-    # Bring the window to front when dragging it
-    - key: windowGestureRaiseWindow
-      type: bool
-      value: true
     # Enable window maximize (double-click title bar)
     - key: windowMaximizeEnabled
       type: bool

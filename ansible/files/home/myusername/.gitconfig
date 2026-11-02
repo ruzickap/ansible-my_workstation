@@ -95,5 +95,6 @@
 [user]
     name = Petr Ruzicka
     email = petr.ruzicka@gmail.com
-    signingkey = ~/.ssh/id_ed25519.pub
+    # Public key literal so signing works via ssh-agent without the .pub file
+    signingkey = key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh petr.ruzicka@gmail.com
 # keep-sorted end
