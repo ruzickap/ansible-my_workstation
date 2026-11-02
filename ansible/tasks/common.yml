@@ -634,9 +634,11 @@
 - name: Install gh clean-branches extension
   ansible.builtin.command: gh extension install davidraviv/gh-clean-branches
   environment:
+    GITHUB_TOKEN: "{{ lookup('ansible.builtin.env', 'GITHUB_TOKEN') }}"
     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
     creates: ~/.local/share/gh/extensions/gh-clean-branches
+  when: lookup('ansible.builtin.env', 'GITHUB_TOKEN') | length > 0
 
 - name: Copy gh configuration files
   ansible.builtin.copy:
