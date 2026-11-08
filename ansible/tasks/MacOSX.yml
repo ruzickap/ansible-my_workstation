@@ -958,14 +958,88 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail
-      JSON='[{"name":"","color":"accent","trackpadTap":false,"id":"7899AE81-2C38-4D14-8867-DFA08CE64362","shortcut":"control+option+command:49","items":[{"id":"7E79C96E-5D8F-4680-9DDA-16E20AB59F1F","payload":"playPause","children":[],"kind":"media","name":"","symbolName":""},{"id":"A32EF7CF-987D-4785-B224-B4A2034C95AA","payload":"nextTrack","children":[],"kind":"media","name":"","symbolName":""},{"id":"A2EC9385-671A-43A9-B4F2-14ACBD5F1468","payload":"screenshot","children":[],"kind":"tool","name":"","symbolName":""},{"id":"2F2E7613-87FB-49F2-B4CD-5FC3FD6B09BF","payload":"~\/Downloads","children":[],"kind":"file","name":"","symbolName":""},{"id":"EAC5E87E-4411-42C7-8066-038FE485D64B","payload":"colorPicker","children":[],"kind":"tool","name":"","symbolName":""},{"id":"BB08B178-EACB-4158-B3E7-20625FEA0C13","payload":"previousTrack","children":[],"kind":"media","name":"","symbolName":""}],"mouseButton":"off","preset":"general"},{"name":"My","color":"accent","trackpadTap":false,"id":"73E98710-BD36-445F-8CCC-B80C42C02AA5","shortcut":"option:7","items":[{"id":"9C1B65F8-85E5-4DEC-98F4-A8C605DD500C","payload":"\/Applications\/Brave Browser Beta.app","children":[],"kind":"app","name":"","symbolName":""},{"id":"51405218-F4EB-4FBF-A264-A29E7D41213A","payload":"\/Applications\/Ghostty.app","children":[],"kind":"app","name":"","symbolName":""},{"id":"B48A7742-BC0F-485F-AC28-512BA755EA92","payload":"\/Applications\/Google Chrome.app","children":[],"kind":"app","name":"","symbolName":""}],"mouseButton":"off","preset":"general"}]'
-      if [ "$(defaults export com.vorssaint.utils - | plutil -extract radialMenuProfiles raw -o - - 2> /dev/null | base64 -d)" = "${JSON}" ]; then
+      JSON='{{ vorssaint_radial_menu_profiles | to_json }}'
+      CURRENT="$(defaults export com.vorssaint.utils - |
+        plutil -extract radialMenuProfiles raw -o - - 2> /dev/null | base64 -d)"
+      if [ "${CURRENT}" = "${JSON}" ]; then
         exit 90
       fi
       defaults write com.vorssaint.utils radialMenuProfiles -data "$(printf %s "${JSON}" | xxd -p | tr -d '\n')"
-  register: vorssaint_radial_menu_profiles
-  changed_when: vorssaint_radial_menu_profiles.rc == 0
-  failed_when: vorssaint_radial_menu_profiles.rc not in [0, 90]
+  register: vorssaint_radial_menu_profiles_result
+  changed_when: vorssaint_radial_menu_profiles_result.rc == 0
+  failed_when: vorssaint_radial_menu_profiles_result.rc not in [0, 90]
+  vars:
+    vorssaint_radial_menu_profiles:
+      - name: ""
+        color: "accent"
+        trackpadTap: false
+        id: "7899AE81-2C38-4D14-8867-DFA08CE64362"
+        shortcut: "control+option+command:49"
+        items:
+          - id: "7E79C96E-5D8F-4680-9DDA-16E20AB59F1F"
+            payload: "playPause"
+            children: []
+            kind: "media"
+            name: ""
+            symbolName: ""
+          - id: "A32EF7CF-987D-4785-B224-B4A2034C95AA"
+            payload: "nextTrack"
+            children: []
+            kind: "media"
+            name: ""
+            symbolName: ""
+          - id: "A2EC9385-671A-43A9-B4F2-14ACBD5F1468"
+            payload: "screenshot"
+            children: []
+            kind: "tool"
+            name: ""
+            symbolName: ""
+          - id: "2F2E7613-87FB-49F2-B4CD-5FC3FD6B09BF"
+            payload: "~/Downloads"
+            children: []
+            kind: "file"
+            name: ""
+            symbolName: ""
+          - id: "EAC5E87E-4411-42C7-8066-038FE485D64B"
+            payload: "colorPicker"
+            children: []
+            kind: "tool"
+            name: ""
+            symbolName: ""
+          - id: "BB08B178-EACB-4158-B3E7-20625FEA0C13"
+            payload: "previousTrack"
+            children: []
+            kind: "media"
+            name: ""
+            symbolName: ""
+        mouseButton: "off"
+        preset: "general"
+      - name: "My"
+        color: "accent"
+        trackpadTap: false
+        id: "73E98710-BD36-445F-8CCC-B80C42C02AA5"
+        shortcut: "option:7"
+        items:
+          - id: "9C1B65F8-85E5-4DEC-98F4-A8C605DD500C"
+            payload: "/Applications/Brave Browser Beta.app"
+            children: []
+            kind: "app"
+            name: ""
+            symbolName: ""
+          - id: "51405218-F4EB-4FBF-A264-A29E7D41213A"
+            payload: "/Applications/Ghostty.app"
+            children: []
+            kind: "app"
+            name: ""
+            symbolName: ""
+          - id: "B48A7742-BC0F-485F-AC28-512BA755EA92"
+            payload: "/Applications/Google Chrome.app"
+            children: []
+            kind: "app"
+            name: ""
+            symbolName: ""
+        mouseButton: "off"
+        preset: "general"
 
 - name: Create directory for infat inside ~/.config
   ansible.builtin.file:
@@ -1199,6 +1273,12 @@
       - vim
       - vscode
       # keep-sorted end
+
+- name: Create directory for Token Monitor
+  ansible.builtin.file:
+    path: ~/Library/Application Support/Token Monitor/
+    state: directory
+    mode: u=rwx,g=rx,o=rx
 
 # Only the non-default options; the app fills in the rest on start.
 # It rewrites the file on quit, so close it before running this
