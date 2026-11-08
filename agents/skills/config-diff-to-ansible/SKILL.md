@@ -49,10 +49,25 @@ Work in a scratch dir, e.g. `${TMPDIR}/config-diff/<app>/`.
    start/stop dance (e.g. `mc` via `F9 > Options > Save setup`,
    `git config --list --show-origin`, `<app> --print-config`).
 7. **Copy defaults** into the scratch dir as `default/`.
-8. **Restore** - always, even if an earlier step failed: stop the app,
-   put `backup/` back in place (`defaults import` for plists), and start
-   the app again **only if it was running in step 2**. Then verify the
-   restored file matches the backup (`diff -r` / `cmp`).
+8. **Restore** - always, even if an earlier step failed. Ask the user
+   which source to restore from:
+   - **rebuild from the new Ansible tasks** (recommended) - apply the
+     tasks you are about to write in step 10 by hand, *without* running
+     `ansible-playbook`, on top of the freshly generated `default/`
+     config. This proves the tasks really reproduce the user's setup.
+     Do the diff (step 9) and write the tasks (step 10) first, then come
+     back here. Afterwards `diff` the result against `backup/` and report
+     every remaining difference, so the user can judge what the tasks
+     still miss.
+   - **restore `backup/` verbatim** - put the backup back in place
+     (`defaults import` for plists) and verify it matches with
+     `diff -r` / `cmp`.
+   Either way: stop the app before replacing files, and start it again
+   **only if it was running in step 2**. If anything fails - no defaults
+   were generated, the diff or the tasks are incomplete, the rebuilt
+   config is rejected by the app - fall back to restoring `backup/`
+   verbatim, so the user is never left without a working config. Keep
+   `backup/` until the user confirms they are happy.
 9. **Diff** `default/` vs `backup/` semantically, not just line by line:
    - ini: compare per section/option (`python3 -c 'import configparser'`)
    - JSON: `jq -S` both sides, then diff
@@ -101,5 +116,7 @@ Match this repo's style (see `ansible/tasks/common.yml`):
 ## Report back
 
 Tell the user: config path(s), which options differ, which you dropped as
-noise and why, where you put the tasks, and confirm the original config
-was restored and the app's running state matches what it was before.
+noise and why, where you put the tasks, which restore source they chose
+(and, for the Ansible rebuild, what still differs from `backup/`), where
+`backup/` lives, and confirm the app's running state matches what it was
+before.
