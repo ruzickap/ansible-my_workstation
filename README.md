@@ -171,15 +171,6 @@ manually in Catalina:
 * iCloud - enable "Find My Mac" only
 * Internet Accounts - add Gmail account - enable "Calendars"
 * Google Chrome (Login to Google services)
-* IINA - prioritize external subtitles: [https://github.com/iina/iina/issues/816](https://github.com/iina/iina/issues/816)
-* IINA - set as default video player
 * Enable Security & Privacy Preferences -> Privacy -> Full Disk Access for
   `~/Documents/backups/backup` binary (recompile it if needed)
 * Enable backup: `launchctl load ~/Library/LaunchAgents/backup.plist`
-* For recording audio from Zoom, create a Multi-Output device with Master
-  Device "Jabra Engage 75 2", Sample Rate: "48.0 KHz", Drift correction turned
-  on for "BlackHole 16". Then you can use this as the default output device in
-  "Sound".
-  Do not use "Jabra Engage 75" (microphone) as Input, because it can only use
-  16 KHz and adversely affects the recording settings...
-* Load extensions into Chrome: `~/Documents/chrome-extensions`

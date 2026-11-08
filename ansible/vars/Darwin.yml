@@ -20,6 +20,7 @@ homebrew_casks:
   - mactoy
   - omniwm
   - stats
+  - token-monitor
   - utm
   - visual-studio-code
   - vlc
