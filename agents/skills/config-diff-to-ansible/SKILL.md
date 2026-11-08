@@ -84,7 +84,8 @@ Match this repo's style (see `ansible/tasks/common.yml`):
   of a template instead. If the app rejects partial files, guard the task
   with `ansible.builtin.stat` + `when: <var>.stat.exists`.
 - plist → `community.general.osx_defaults` (domain, key, type, value).
-- JSON → read, `combine` the diff, write back with `ansible.builtin.copy`
+- JSON → read, `combine(diff, recursive=true)` the diff, write back with
+  `ansible.builtin.copy`
   (`content: "{{ ... | to_nice_json }}"`), or `ansible.builtin.lineinfile`
   for one-off keys.
 - Other line-based formats → `ansible.builtin.lineinfile` with an
