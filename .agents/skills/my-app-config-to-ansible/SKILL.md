@@ -63,8 +63,11 @@ cp -a ~/.config/ghostty "$BACKUP/current/"
 defaults export com.mitchellh.ghostty "$BACKUP/current/com.mitchellh.ghostty.plist"
 ```
 
-Confirm the app is gone (`pgrep -x`) and the backup is non-empty before
-continuing. Tell the user the backup path - they will want it.
+Confirm the app is gone (`pgrep -x`), then verify the backup **per path and
+per domain**: every config path from step 1 exists under `$BACKUP/current/`
+and every `defaults export` exited 0 with a non-empty plist. Never wipe
+anything that is not in the backup. Tell the user the backup path - they
+will want it.
 
 ## 3. Wipe, restart, capture defaults
 
@@ -148,9 +151,12 @@ Idempotence is enforced by CI (the playbook runs twice, second run must be
 
 Two paths - **ask, don't pick for them**:
 
-1. **Restore from backup** - `cp -a "$BACKUP/current/." <original locations>`,
-   restart the app. Fastest way back to a working app; the generated Ansible
-   stays as a patch for review.
+1. **Restore from backup** - quit the app, `cp -a "$BACKUP/current/."
+   <original locations>` and `defaults import <domain>
+   "$BACKUP/current/<domain>.plist"` for every exported domain (copying the
+   export back does *not* restore it), then `killall cfprefsd` and restart
+   the app. Fastest way back to a working app; the generated Ansible stays as
+   a patch for review.
 2. **Apply via Ansible** - run only this app's tasks, nothing else:
 
    ```bash
@@ -158,12 +164,19 @@ Two paths - **ask, don't pick for them**:
      --connection=local -i "127.0.0.1," main.yml
    ```
 
-   This needs a tag on the new tasks; add one if the app has none. Never run
+   This needs a tag on the new tasks; add one if the app has none. The
+   `include_tasks` dispatcher in `ansible/main.yml` carries `tags: always` so
+   tagged runs reach the OS task file - check the output actually lists your
+   tasks, because a run that skips them also reports `changed=0`. Never run
    the full playbook to test one app.
 
 Then verify: start the app, confirm the settings look right, and re-run the
 same tagged playbook to prove it reports `changed=0`. If it doesn't, the task
 isn't idempotent - fix it before finishing.
+
+**If any step after the wipe fails or is interrupted**, restore the backup
+(path 1 above) before handing back control - never leave the user with reset
+settings.
 
 Finish by telling the user the backup path and that it is still there.
 
