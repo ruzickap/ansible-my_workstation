@@ -696,10 +696,6 @@
     value: "{{ item.value }}"
   loop:
     # keep-sorted start block=yes
-    # Do not auto-check for Vorssaint updates (brew handles it)
-    - key: autoCheckUpdates
-      type: bool
-      value: false
     # Do not auto-quit apps that have no open windows
     - key: autoQuitEnabled
       type: bool
@@ -719,190 +715,70 @@
     - key: cleanerScreenshotAgeDays
       type: int
       value: 0
-    # Keep a clipboard history
-    - key: clipboardHistoryEnabled
-      type: bool
-      value: true
-    # Number of items kept in clipboard history
-    - key: clipboardHistoryLimit
-      type: int
-      value: 20
     # Default Keep Awake session length in minutes
     - key: defaultDurationMinutes
       type: int
       value: 15
+    # Dim the screen when the lid is closed in clamshell mode
+    - key: dimScreenOnLidClose
+      type: bool
+      value: true
     # Clicking a Dock icon minimizes the active app
     - key: dockClickMinimize
       type: bool
       value: true
-    # Disable the auto quit feature
-    - key: featureAvailable.autoQuit
+    # Disable the app updates feature (brew handles updates)
+    - key: featureAvailable.appUpdates
       type: bool
       value: false
-    # Disable the camera preview feature
-    - key: featureAvailable.cameraPreview
+    # Enable the cleaner feature
+    - key: featureAvailable.cleaner
+      type: bool
+      value: true
+    # Disable the clipboard history feature
+    - key: featureAvailable.clipboardHistory
       type: bool
       value: false
-    # Disable the cleaning mode feature
-    - key: featureAvailable.cleaningMode
+    # Enable the dock click feature
+    - key: featureAvailable.dockClick
       type: bool
-      value: false
-    # Disable the color picker feature
-    - key: featureAvailable.colorPicker
-      type: bool
-      value: false
-    # Disable the command bar feature
-    - key: featureAvailable.commandBar
-      type: bool
-      value: false
-    # Disable the dock preview feature
+      value: true
+    # Enable the dock preview feature
     - key: featureAvailable.dockPreview
       type: bool
-      value: false
-    # Disable the extra brightness feature
-    - key: featureAvailable.extraBrightness
-      type: bool
-      value: false
-    # Disable the finder cut paste feature
-    - key: featureAvailable.finderCutPaste
-      type: bool
-      value: false
-    # Disable the finder rename feature
-    - key: featureAvailable.finderRename
-      type: bool
-      value: false
-    # Disable the homebrew feature
-    - key: featureAvailable.homebrew
-      type: bool
-      value: false
-    # Disable the keyboard debounce feature
-    - key: featureAvailable.keyboardDebounce
-      type: bool
-      value: false
-    # Disable the media tools feature
-    - key: featureAvailable.mediaTools
-      type: bool
-      value: false
-    # Disable the mic mute feature
-    - key: featureAvailable.micMute
-      type: bool
-      value: false
-    # Disable the middle click feature
-    - key: featureAvailable.middleClick
-      type: bool
-      value: false
+      value: true
     # Disable the mixer feature
     - key: featureAvailable.mixer
       type: bool
       value: false
-    # Disable the mouse acceleration feature
-    - key: featureAvailable.mouseAcceleration
+    # Enable the music block feature
+    - key: featureAvailable.musicBlock
       type: bool
-      value: false
-    # Disable the mouse button shortcuts feature
-    - key: featureAvailable.mouseButtonShortcuts
+      value: true
+    # Enable the screen recorder feature
+    - key: featureAvailable.screenRecorder
       type: bool
-      value: false
-    # Disable the mouse click debounce feature
-    - key: featureAvailable.mouseClickDebounce
+      value: true
+    # Enable the screenshot feature
+    - key: featureAvailable.screenshot
       type: bool
-      value: false
-    # Disable the mouse navigation feature
-    - key: featureAvailable.mouseNavigation
+      value: true
+    # Enable the app switcher feature
+    - key: featureAvailable.switcher
       type: bool
-      value: false
-    # Disable the notch feature
-    - key: featureAvailable.notch
+      value: true
+    # Enable the URL cleaner feature
+    - key: featureAvailable.urlCleaner
       type: bool
-      value: false
-    # Disable the notch accessories feature
-    - key: featureAvailable.notchAccessories
+      value: true
+    # Enable the window layout feature (window drag gesture)
+    - key: featureAvailable.windowLayout
       type: bool
-      value: false
-    # Disable the notch calendar feature
-    - key: featureAvailable.notchCalendar
+      value: true
+    # Enable the window maximizer feature
+    - key: featureAvailable.windowMaximizer
       type: bool
-      value: false
-    # Disable the notch downloads feature
-    - key: featureAvailable.notchDownloads
-      type: bool
-      value: false
-    # Disable the notch gestures feature
-    - key: featureAvailable.notchGestures
-      type: bool
-      value: false
-    # Disable the notch live equalizer feature
-    - key: featureAvailable.notchLiveEqualizer
-      type: bool
-      value: false
-    # Disable the notch lyrics feature
-    - key: featureAvailable.notchLyrics
-      type: bool
-      value: false
-    # Disable the notch notifications feature
-    - key: featureAvailable.notchNotifications
-      type: bool
-      value: false
-    # Disable the notch queue feature
-    - key: featureAvailable.notchQueue
-      type: bool
-      value: false
-    # Disable the notch timer feature
-    - key: featureAvailable.notchTimer
-      type: bool
-      value: false
-    # Disable the notch watch feature
-    - key: featureAvailable.notchWatch
-      type: bool
-      value: false
-    # Disable the paste plain feature
-    - key: featureAvailable.pastePlain
-      type: bool
-      value: false
-    # Disable the quick launcher feature
-    - key: featureAvailable.quickLauncher
-      type: bool
-      value: false
-    # Disable the quick toggles feature
-    - key: featureAvailable.quickToggles
-      type: bool
-      value: false
-    # Disable the radial menu feature
-    - key: featureAvailable.radialMenu
-      type: bool
-      value: false
-    # Disable the scratchpad feature
-    - key: featureAvailable.scratchpad
-      type: bool
-      value: false
-    # Disable the scroll inverter feature
-    - key: featureAvailable.scrollInverter
-      type: bool
-      value: false
-    # Disable the shelf feature
-    - key: featureAvailable.shelf
-      type: bool
-      value: false
-    # Disable the smooth scroll feature
-    - key: featureAvailable.smoothScroll
-      type: bool
-      value: false
-    # Disable the sound output switcher feature
-    - key: featureAvailable.soundOutputSwitcher
-      type: bool
-      value: false
-    # Disable the super key feature
-    - key: featureAvailable.superKey
-      type: bool
-      value: false
-    # Disable the text snippets feature
-    - key: featureAvailable.textSnippets
-      type: bool
-      value: false
-    # Disable the uninstaller feature
-    - key: featureAvailable.uninstaller
-      type: bool
-      value: false
+      value: true
     # Skip the first-run onboarding
     - key: hasOnboarded
       type: bool
@@ -917,6 +793,10 @@
     - key: launchAtLoginWanted
       type: bool
       value: true
+    # Disable the Liquid Glass interface effect
+    - key: liquidGlassEnabled
+      type: bool
+      value: false
     # Hide battery stats in the menu bar
     - key: menuBarBattery
       type: bool
@@ -965,6 +845,22 @@
     - key: monitorAlertMemory
       type: bool
       value: true
+    # Hide the disk section in the monitor panel
+    - key: monitorShowDisk
+      type: bool
+      value: false
+    # Hide the network section in the monitor panel
+    - key: monitorShowNetwork
+      type: bool
+      value: false
+    # Hide the power section in the monitor panel
+    - key: monitorShowPower
+      type: bool
+      value: false
+    # Hide the system section in the monitor panel
+    - key: monitorShowSystem
+      type: bool
+      value: false
     # Stop media keys from launching the Music app
     - key: musicBlockEnabled
       type: bool
@@ -977,6 +873,10 @@
     - key: panelControlWindowsExpanded
       type: bool
       value: true
+    # Hide the controls section in the panel
+    - key: panelShowControls
+      type: bool
+      value: false
     # Hide fan control in the panel
     - key: panelShowFanControl
       type: bool
@@ -992,6 +892,10 @@
     - key: quickLauncherShortcutEnabled
       type: bool
       value: false
+    # Screen recording frame rate (fps)
+    - key: recorderFrameRate
+      type: int
+      value: 30
     # Do not record system audio in screen recordings
     - key: recorderSystemAudio
       type: bool
@@ -999,14 +903,13 @@
     # Open screenshots in the editor after capture
     - key: screenshotDefaultAction
       value: edit
+    # Screenshot file name pattern
+    - key: screenshotFileNamePattern
+      value: "%year%mo%d-%h%mi%s"
     # Enable the screenshot shortcut
     - key: screenshotShortcutEnabled
       type: bool
       value: true
-    # Do not preselect the last screenshot region
-    - key: screenshotShowLastRegion
-      type: bool
-      value: false
     # Show the Keep Awake countdown in the menu bar
     - key: showCountdownInMenuBar
       type: bool
@@ -1036,13 +939,6 @@
     - key: urlCleanerEnabled
       type: bool
       value: true
-    # Move/resize windows with a modifier + mouse drag
-    - key: windowGestureEnabled
-      type: bool
-      value: true
-    # Modifier keys for the window drag gesture
-    - key: windowGestureModifiers
-      value: option+command
     # Enable window maximize (double-click title bar)
     - key: windowMaximizeEnabled
       type: bool
