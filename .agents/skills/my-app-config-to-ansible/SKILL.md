@@ -35,10 +35,10 @@ location - apps scatter config.
 macOS:
 
 ```bash
-APP="Ghostty"                         # adjust
+# adjust the app name / bundle id below
 ls -d ~/Library/Preferences/*ghostty* ~/Library/Application\ Support/*Ghostty* \
-      ~/Library/Containers/*ghostty* ~/Library/Saved\ Application\ State/*ghostty* \
-      ~/.config/ghostty ~/.ghostty* 2>/dev/null
+  ~/Library/Containers/*ghostty* ~/Library/Saved\ Application\ State/*ghostty* \
+  ~/.config/ghostty ~/.ghostty* 2> /dev/null
 defaults domains | tr ',' '\n' | grep -i ghostty
 ```
 
@@ -55,7 +55,7 @@ The app holds settings in memory and writes them on exit, so capturing a
 running app gives a stale file.
 
 ```bash
-osascript -e 'quit app "Ghostty"'     # macOS; or: pkill -x ghostty
+osascript -e 'quit app "Ghostty"' # macOS; or: pkill -x ghostty
 BACKUP="${TMPDIR:-/tmp}/ansible-config-ghostty-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP/current"
 # copy every path found in step 1, keeping structure
@@ -70,8 +70,8 @@ continuing. Tell the user the backup path - they will want it.
 
 ```bash
 rm -rf ~/.config/ghostty
-defaults delete com.mitchellh.ghostty 2>/dev/null
-open -a Ghostty                       # or run the binary once
+defaults delete com.mitchellh.ghostty 2> /dev/null
+open -a Ghostty # or run the binary once
 ```
 
 Give the app time to initialise and ask the user to confirm it reached its
@@ -86,7 +86,7 @@ that still works for the diff, every key in the backup counts as changed.
 
 ```bash
 diff -ru "$BACKUP/defaults" "$BACKUP/current"
-plutil -convert xml1 -o - file.plist   # make plists diffable first
+plutil -convert xml1 -o - file.plist # make plists diffable first
 ```
 
 Normalise before comparing so formatting noise doesn't look like a change:
