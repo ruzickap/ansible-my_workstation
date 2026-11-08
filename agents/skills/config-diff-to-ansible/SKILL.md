@@ -63,8 +63,11 @@ Work in a scratch dir, e.g. `${TMPDIR}/config-diff/<app>/`.
      (`defaults import` for plists) and verify it matches with
      `diff -r` / `cmp`.
    Either way: stop the app before replacing files, and start it again
-   **only if it was running in step 2**. Keep `backup/` until the user
-   confirms they are happy.
+   **only if it was running in step 2**. If anything fails - no defaults
+   were generated, the diff or the tasks are incomplete, the rebuilt
+   config is rejected by the app - fall back to restoring `backup/`
+   verbatim, so the user is never left without a working config. Keep
+   `backup/` until the user confirms they are happy.
 9. **Diff** `default/` vs `backup/` semantically, not just line by line:
    - ini: compare per section/option (`python3 -c 'import configparser'`)
    - JSON: `jq -S` both sides, then diff

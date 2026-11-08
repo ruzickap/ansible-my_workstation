@@ -1115,6 +1115,9 @@
     - section: general
       option: updateChecksEnabled
       value: "false"
+    - section: gestures
+      option: scrollEnabled
+      value: "false"
     - section: hiddenBar
       option: hiddenBundleIDs
       value: '["com.tinyspeck.slackmacgap", "com.okta.mobile", "com.apple.KerberosMenuExtra"]'
