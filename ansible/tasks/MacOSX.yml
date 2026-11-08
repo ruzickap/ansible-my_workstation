@@ -1079,6 +1079,85 @@
       text = "Visual Studio Code"
       # keep-sorted end
 
+# OmniWM rejects incomplete settings files, so only patch the one it creates
+- name: Check if OmniWM settings.toml exists
+  ansible.builtin.stat:
+    path: ~/.config/omniwm/settings.toml
+  register: omniwm_settings
+
+- name: Configure OmniWM
+  community.general.ini_file:
+    path: ~/.config/omniwm/settings.toml
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start block=yes
+    - section: borders
+      option: enabled
+      value: "false"
+    - section: focus
+      option: followsMouse
+      value: "true"
+    - section: focus
+      option: followsWindowToMonitor
+      value: "true"
+    - section: gaps
+      option: size
+      value: "0.0"
+    - section: general
+      option: defaultLayoutType
+      value: '"dwindle"'
+    - section: general
+      option: updateChecksEnabled
+      value: "false"
+    - section: hiddenBar
+      option: hiddenBundleIDs
+      value: '["com.tinyspeck.slackmacgap", "com.okta.mobile", "com.apple.KerberosMenuExtra"]'
+    - section: workspaceBar
+      option: hideEmptyWorkspaces
+      value: "true"
+    - section: workspaceBar
+      option: hideInNativeFullscreen
+      value: "true"
+    - section: workspaceBar
+      option: inactiveIconOpacity
+      value: "1.0"
+    - section: workspaceBar
+      option: showFloatingWindows
+      value: "true"
+    # keep-sorted end
+  when: omniwm_settings.stat.exists
+
+# Option+Return is used by Midnight Commander (copy filename to prompt)
+- name: Set OmniWM toggleFullscreen hotkey
+  ansible.builtin.replace:
+    path: ~/.config/omniwm/settings.toml
+    regexp: '^binding = ".*"\n(id = "toggleFullscreen")$'
+    replace: 'binding = "Option+Shift+Return"\n\1'
+  when: omniwm_settings.stat.exists
+
+# [[workspaces]] is the last section OmniWM writes (sorted keys)
+- name: Configure OmniWM workspaces
+  ansible.builtin.replace:
+    path: ~/.config/omniwm/settings.toml
+    regexp: '^\[\[workspaces\]\][\s\S]*\Z'
+    replace: |-
+      {% for i in range(1, 9) %}
+      [[workspaces]]
+      id = "{{ ('omniwm-workspace-' ~ i) | to_uuid | upper }}"
+      layoutType = "default"
+      name = "{{ i }}"
+
+      [workspaces.monitorAssignment]
+      type = "{{ 'main' if i <= 4 else 'secondary' }}"
+      {% if not loop.last %}
+
+      {% endif %}
+      {% endfor %}
+  when: omniwm_settings.stat.exists
+
 - name: Create directory for topgrade inside ~/.config
   ansible.builtin.file:
     path: ~/.config/topgrade

@@ -17,7 +17,8 @@ homebrew_casks:
   - home-assistant
   - keepassxc
   - kopiaui
-  - opencodex
+  - mactoy
+  - omniwm
   - stats
   - utm
   - visual-studio-code
