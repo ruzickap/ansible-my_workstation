@@ -22,6 +22,8 @@
 
     - name: Include OS specific tasks list in play
       ansible.builtin.include_tasks: tasks/{{ ansible_facts['distribution'] }}.yml
+      # `always` keeps `--tags <app>` runs reaching the OS task file
+      tags: always
 
     - name: Include common tasks list in play
       ansible.builtin.import_tasks: tasks/common.yml
