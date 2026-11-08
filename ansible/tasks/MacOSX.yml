@@ -1103,6 +1103,9 @@
     - section: focus
       option: followsWindowToMonitor
       value: "true"
+    - section: focus
+      option: moveMouseToFocusedWindow
+      value: "true"
     - section: gaps
       option: size
       value: "0.0"
@@ -1115,6 +1118,12 @@
     - section: hiddenBar
       option: hiddenBundleIDs
       value: '["com.tinyspeck.slackmacgap", "com.okta.mobile", "com.apple.KerberosMenuExtra"]'
+    - section: statusMenu
+      option: hiddenControls
+      value: '["bordersEnabled", "focusCrossesMonitorAtEdge", "focusFollowsWindowToMonitor", "mouseWarpEnabled", "moveCrossesMonitorAtEdge", "moveMouseToFocusedWindow", "preventSleepEnabled"]'
+    - section: statusMenu
+      option: hiddenMenuItems
+      value: '["advanced", "appRules", "checkForUpdates", "diagnostics", "helpLinks", "hiddenIcons", "openShellFolder", "reportBug", "sponsors"]'
     - section: workspaceBar
       option: hideEmptyWorkspaces
       value: "true"
@@ -1156,6 +1165,46 @@
 
       {% endif %}
       {% endfor %}
+  when: omniwm_settings.stat.exists
+
+# The workspace bar lives in the shell profile, not in settings.toml
+- name: Configure OmniWM workspace bar
+  community.general.ini_file:
+    path: ~/.config/omniwm/shell/shell.toml
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
+  loop:
+    # keep-sorted start block=yes
+    - section: profiles.default
+      option: center
+      value: '["workspaces"]'
+    - section: profiles.default
+      option: leading
+      value: "[]"
+    - section: profiles.default
+      option: trailing
+      value: "[]"
+    - section: profiles.default.workspaceBar
+      option: backgroundOpacity
+      value: "0.15"
+    - section: profiles.default.workspaceBar
+      option: fullWidth
+      value: "false"
+    - section: profiles.default.workspaceBar
+      option: height
+      value: "24.0"
+    - section: profiles.default.workspaceBar
+      option: position
+      value: '"belowMenuBar"'
+    - section: profiles.default.workspaceBar
+      option: reserveLayoutSpace
+      value: "false"
+    - section: profiles.default.workspaceBar
+      option: windowLevel
+      value: '"popup"'
+    # keep-sorted end
   when: omniwm_settings.stat.exists
 
 - name: Create directory for topgrade inside ~/.config
