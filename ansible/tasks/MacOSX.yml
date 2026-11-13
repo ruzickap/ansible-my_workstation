@@ -487,6 +487,9 @@
       # Configure RUMDL_CACHE_DIR for rumdl
       export RUMDL_CACHE_DIR="${HOME}/.cache/rumdl-cache"
 
+      # Configure RYL_CACHE_DIR for ryl
+      export RYL_CACHE_DIR="${HOME}/.cache/ryl-cache"
+
       # Configure RUFF_CACHE_DIR for ruff
       export RUFF_CACHE_DIR="${HOME}/.cache/ruff-cache"
 
@@ -619,7 +622,7 @@
       /Pictures/Photos Library.photoslibrary/
     mode: u=rw,g=r,o=r
 
-# Only values differing from factory defaults (compare `Vorssaint --export-settings`)
+# Only values differing from the defaults written on a fresh first run
 - name: Configure Vorssaint
   community.general.osx_defaults:
     domain: com.vorssaint.utils
@@ -689,6 +692,10 @@
       value: true
     # Enable the radial menu feature
     - key: featureAvailable.radialMenu
+      type: bool
+      value: true
+    # Enable the screen OCR (text recognition) feature
+    - key: featureAvailable.screenOCR
       type: bool
       value: true
     # Enable the screen recorder feature
@@ -828,6 +835,9 @@
     - key: quickLauncherShortcutEnabled
       type: bool
       value: false
+    # Open the radial menu on a press or a hold of its shortcut
+    - key: radialMenuActivationMode
+      value: pressOrHold
     # Show the radial menu
     - key: radialMenuEnabled
       type: bool
@@ -840,6 +850,14 @@
     - key: recorderSystemAudio
       type: bool
       value: false
+    # Strip line breaks from text captured by screen OCR
+    - key: screenOCRRemoveLineBreaks
+      type: bool
+      value: true
+    # Enable the screen OCR shortcut
+    - key: screenOCRShortcutEnabled
+      type: bool
+      value: true
     # Open screenshots in the editor after capture
     - key: screenshotDefaultAction
       value: edit
@@ -989,6 +1007,9 @@
     - key: CPU_line_chart_box
       type: bool
       value: false
+    # Color of the CPU line chart
+    - key: CPU_line_chart_color
+      value: green
     # Draw a frame around the line chart
     - key: CPU_line_chart_frame
       type: bool
@@ -1102,9 +1123,6 @@
     - section: focus
       option: followsWindowToMonitor
       value: "true"
-    - section: focus
-      option: moveMouseToFocusedWindow
-      value: "true"
     - section: gaps
       option: size
       value: "0.0"
@@ -1190,7 +1208,7 @@
       value: "[]"
     - section: profiles.default.workspaceBar
       option: backgroundOpacity
-      value: "0.15"
+      value: "0.0"
     - section: profiles.default.workspaceBar
       option: fullWidth
       value: "false"
@@ -1206,6 +1224,18 @@
     - section: profiles.default.workspaceBar
       option: windowLevel
       value: '"popup"'
+    - section: profiles.default.workspaceBar.textColor
+      option: alpha
+      value: "1.0"
+    - section: profiles.default.workspaceBar.textColor
+      option: blue
+      value: "1.0"
+    - section: profiles.default.workspaceBar.textColor
+      option: green
+      value: "1.0"
+    - section: profiles.default.workspaceBar.textColor
+      option: red
+      value: "1.0"
     # keep-sorted end
   when: omniwm_settings.stat.exists
 
