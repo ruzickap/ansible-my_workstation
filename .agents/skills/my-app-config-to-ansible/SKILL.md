@@ -12,10 +12,9 @@ description: >-
   <app> to ansible", "add my iTerm2/VS Code/Ghostty/mc/kitty settings to the
   playbook", "what did I change in this app", "generate ansible for this
   config file", "diff this config against defaults" - even if they only say
-  "put my current app setup into ansible". Also use it to pick up changes made
-  since the last run - e.g. "I did some changes in <app> configuration,
-  extract them into my ansible code", "sync my <app> settings back into the
-  playbook", "update the ansible tasks with what I changed in <app>".
+  "put my current app setup into ansible". Also use it to pick up changes
+  made since the last run - e.g. "I did some changes in <app> configuration,
+  extract them into my ansible code".
 license: Apache-2.0
 ---
 
