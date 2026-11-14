@@ -41,10 +41,15 @@
     editor = nvim
 
 [credential "https://gist.github.com"]
-    helper = !/opt/homebrew/bin/gh auth git-credential
+    helper =
+    helper = "!f() { test \"$1\" = get && printf 'username=ruzickap\\npassword=%s\\n' \"$(/opt/homebrew/bin/gh auth token -u ruzickap)\"; }; f"
 
+# Pin the account instead of using the one `gh auth switch` last made active,
+# so work repos under other accounts cannot hijack personal credentials.
+# The empty `helper` resets any helper inherited from a system config.
 [credential "https://github.com"]
-    helper = !/opt/homebrew/bin/gh auth git-credential
+    helper =
+    helper = "!f() { test \"$1\" = get && printf 'username=ruzickap\\npassword=%s\\n' \"$(/opt/homebrew/bin/gh auth token -u ruzickap)\"; }; f"
 
 [delta]
     # https://dandavison.github.io/delta/side-by-side-view.html
@@ -75,9 +80,6 @@
 [gpg]
     format = ssh
 
-[includeIf "gitdir:~/Documents/mckinsey/git/"]
-    path = ~/Documents/mckinsey/git/.gitconfig
-
 [init]
     defaultBranch = main
 
@@ -98,3 +100,8 @@
     # Public key literal so signing works via ssh-agent without the .pub file
     signingkey = key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF58juRs3gDSCFXARSXBBSegOmmBxXln9MVk2Zcq3HGh petr.ruzicka@gmail.com
 # keep-sorted end
+
+# Must stay last and outside the sorted block: git applies includes in file
+# order, so an include placed above [user] cannot override the identity
+[includeIf "gitdir:~/Documents/mckinsey/git/"]
+    path = ~/Documents/mckinsey/git/.gitconfig
