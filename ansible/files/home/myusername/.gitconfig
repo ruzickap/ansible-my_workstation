@@ -42,14 +42,14 @@
 
 [credential "https://gist.github.com"]
     helper =
-    helper = "!f() { test \"$1\" = get && printf 'username=ruzickap\\npassword=%s\\n' \"$(/opt/homebrew/bin/gh auth token -u ruzickap)\"; }; f"
+    helper = "!f() { test \"$1\" = get || return 0; t=$(/opt/homebrew/bin/gh auth token -u ruzickap) || return 0; test -n \"$t\" || return 0; printf 'username=ruzickap\npassword=%s\n' \"$t\"; }; f"
 
 # Pin the account instead of using the one `gh auth switch` last made active,
 # so work repos under other accounts cannot hijack personal credentials.
 # The empty `helper` resets any helper inherited from a system config.
 [credential "https://github.com"]
     helper =
-    helper = "!f() { test \"$1\" = get && printf 'username=ruzickap\\npassword=%s\\n' \"$(/opt/homebrew/bin/gh auth token -u ruzickap)\"; }; f"
+    helper = "!f() { test \"$1\" = get || return 0; t=$(/opt/homebrew/bin/gh auth token -u ruzickap) || return 0; test -n \"$t\" || return 0; printf 'username=ruzickap\npassword=%s\n' \"$t\"; }; f"
 
 [delta]
     # https://dandavison.github.io/delta/side-by-side-view.html
