@@ -240,6 +240,6 @@ homebrew:
   - k3d #
   - krew #
   - kubectl #
-  - pre-commit # libyaml
+  - prek # runs the pre-commit config
   - speedtest-cli #
   - stern

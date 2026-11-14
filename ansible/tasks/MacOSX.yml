@@ -1291,8 +1291,10 @@
     # keep-sorted end
   vars:
     topgrade_git_repos:
+      # The second level catches orgs that keep their repos in a subdirectory
       # keep-sorted start
       - ~/Documents/mckinsey/git/*/
+      - ~/Documents/mckinsey/git/*/*/
       - ~/git/*/
       # keep-sorted end
     topgrade_only_steps:
@@ -1306,6 +1308,7 @@
       - helm
       - krew
       - mise
+      - opencode
       - pi
       - vim
       - vscode
