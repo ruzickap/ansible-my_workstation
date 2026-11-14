@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.3.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.2.0...v2.3.0) (2026-11-14)
+
+
+### Features
+
+* add claude code ascii-fix hook and update settings ([#232](https://github.com/ruzickap/ansible-my_workstation/issues/232)) ([e00e655](https://github.com/ruzickap/ansible-my_workstation/commit/e00e6552797ff4a26f4b19e1c614129ea21be2de))
+* add omniwm config and config-diff-to-ansible skill ([#248](https://github.com/ruzickap/ansible-my_workstation/issues/248)) ([94f6d91](https://github.com/ruzickap/ansible-my_workstation/commit/94f6d916314b831607e254e7eba570bdb5dc3caf))
+* add screen OCR and radial menu settings ([#254](https://github.com/ruzickap/ansible-my_workstation/issues/254)) ([059b3cd](https://github.com/ruzickap/ansible-my_workstation/commit/059b3cd06caf156e7562e65c0dfa423980d36dad))
+* add token monitor and vorssaint radial menu config ([#251](https://github.com/ruzickap/ansible-my_workstation/issues/251)) ([9046d00](https://github.com/ruzickap/ansible-my_workstation/commit/9046d0036069e5bd2a60a070349f943bb8ab19ad))
+* add topgrade and turn off apple intelligence ([#240](https://github.com/ruzickap/ansible-my_workstation/issues/240)) ([0cfd6ec](https://github.com/ruzickap/ansible-my_workstation/commit/0cfd6eccfbc4b314c210300bd8e8ce6a423d949f))
+* add vorssaint settings and clean up macos packages ([#245](https://github.com/ruzickap/ansible-my_workstation/issues/245)) ([64778e8](https://github.com/ruzickap/ansible-my_workstation/commit/64778e88fe5cd2034cdb111968eb17903efc4789))
+* build backup wrapper binary with ansible ([#236](https://github.com/ruzickap/ansible-my_workstation/issues/236)) ([a4774bc](https://github.com/ruzickap/ansible-my_workstation/commit/a4774bc285890e6c9d714588251e79fbb8221791))
+* capture omniwm workspace bar settings ([#249](https://github.com/ruzickap/ansible-my_workstation/issues/249)) ([13d7300](https://github.com/ruzickap/ansible-my_workstation/commit/13d7300402fbe4955a6b5499553e2dd27e04d36e))
+* centralize tool caches and switch to wget2 ([#235](https://github.com/ruzickap/ansible-my_workstation/issues/235)) ([8bbef8f](https://github.com/ruzickap/ansible-my_workstation/commit/8bbef8f2ef26417d6dacedb1538d3e400986cb57))
+* enable fetch.prune in gitconfig ([#241](https://github.com/ruzickap/ansible-my_workstation/issues/241)) ([dc37269](https://github.com/ruzickap/ansible-my_workstation/commit/dc372691ed8bcb1fb06d879c34d6b735c4885d92))
+* enable fnox shell activation in zsh ([#239](https://github.com/ruzickap/ansible-my_workstation/issues/239)) ([bb60026](https://github.com/ruzickap/ansible-my_workstation/commit/bb60026a566294e11f7a4dbfac84b5309bc1b1b2))
+* keep only non-default vorssaint settings ([#250](https://github.com/ruzickap/ansible-my_workstation/issues/250)) ([f496e8e](https://github.com/ruzickap/ansible-my_workstation/commit/f496e8ed4f18c7a147251d978a4accdfbbb3e5a4))
+* switch to lazyvim and kopia allowlist backup rules ([#242](https://github.com/ruzickap/ansible-my_workstation/issues/242)) ([f38754c](https://github.com/ruzickap/ansible-my_workstation/commit/f38754c85878917b22a7742dcee642390914f0bd))
+* wake mac at midnight for backup and move pkgs_upgrade to 05:00 ([#237](https://github.com/ruzickap/ansible-my_workstation/issues/237)) ([454d57f](https://github.com/ruzickap/ansible-my_workstation/commit/454d57f3e3b7fcfb2d4350dc6df0fa4ac6c66dca))
+
+
+### Bug Fixes
+
+* pin git credentials per GitHub account ([#255](https://github.com/ruzickap/ansible-my_workstation/issues/255)) ([8cb2c4d](https://github.com/ruzickap/ansible-my_workstation/commit/8cb2c4d2a0a56799225b53ddad8944ed4d3ea2bd))
+* sign commits via ssh-agent and add gh clean-branches ([#246](https://github.com/ruzickap/ansible-my_workstation/issues/246)) ([34c8380](https://github.com/ruzickap/ansible-my_workstation/commit/34c8380855034e76fe7aef9647d0e65dfea91693))
+
 ## [2.2.0](https://github.com/ruzickap/ansible-my_workstation/compare/v2.1.0...v2.2.0) (2026-10-05)
 
 
