@@ -449,8 +449,8 @@
     mode: u=rw,g=r,o=r
 
 - name: Configure git
-  ansible.builtin.copy:
-    src: files/home/myusername/.gitconfig
+  ansible.builtin.template:
+    src: files/home/myusername/.gitconfig.j2
     dest: ~/.gitconfig
     mode: u=rw,g=r,o=r
 
