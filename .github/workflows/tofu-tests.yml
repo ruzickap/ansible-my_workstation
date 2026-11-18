@@ -61,7 +61,7 @@ jobs:
       - name: 🐳 Start Floci
         env:
           # renovate: datasource=docker depName=floci/floci
-          FLOCI_IMAGE: floci/floci:2.4.0@sha256:5ee85db604c4aa74ac76e07ea5cc83086f37bb472bf3dbb97e34019e48efae9c
+          FLOCI_IMAGE: floci/floci:2.5.0@sha256:a0fbf944d7f338cc0856f1ef83831ea749ff2be71956eb7a7fce08fc21458e19
         run: |
           docker run -d --name floci -p 4566:4566 \
             -v /var/run/docker.sock:/var/run/docker.sock -u root \
