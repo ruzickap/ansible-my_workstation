@@ -84,7 +84,7 @@ data "http" "my_public_ip" {
 module "vpc" {
   # checkov:skip=CKV_TF_1:Registry module pinned by version so Renovate can update it
   source  = "terraform-aws-modules/vpc/aws"
-  version = "6.7.3"
+  version = "6.7.4"
 
   name = var.name
   cidr = "10.0.0.0/24"
