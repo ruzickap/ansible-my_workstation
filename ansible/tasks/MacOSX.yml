@@ -1014,14 +1014,6 @@
     - key: CPU_line_chart_frame
       type: bool
       value: true
-    # Notify when the total CPU load is high
-    - key: CPU_notifications_totalLoad_state
-      type: bool
-      value: true
-    # Total CPU load notification threshold (%)
-    - key: CPU_notifications_totalLoad_value
-      type: int
-      value: 95
     # Show the CPU module as a line chart in the menu bar
     - key: CPU_widget
       value: line_chart
