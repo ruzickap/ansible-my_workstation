@@ -631,13 +631,14 @@
   loop: "{{ code_opencode_agent_skills }}"
   when: lookup('ansible.builtin.env', 'GITHUB_TOKEN') | length > 0
 
-- name: Install gh clean-branches extension
-  ansible.builtin.command: gh extension install davidraviv/gh-clean-branches
+- name: Install gh extensions
+  ansible.builtin.command: gh extension install {{ item }}
   environment:
     GITHUB_TOKEN: "{{ lookup('ansible.builtin.env', 'GITHUB_TOKEN') }}"
     PATH: "{{ homebrew_prefix }}/bin:{{ ansible_facts['env']['PATH'] }}"
   args:
-    creates: ~/.local/share/gh/extensions/gh-clean-branches
+    creates: ~/.local/share/gh/extensions/{{ item | basename }}
+  loop: "{{ gh_extensions }}"
   when: lookup('ansible.builtin.env', 'GITHUB_TOKEN') | length > 0
 
 - name: Copy gh configuration files
