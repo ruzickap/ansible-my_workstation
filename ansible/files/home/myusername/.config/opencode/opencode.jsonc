@@ -51,7 +51,7 @@
       "atlassian-mcp-server": {
         "disabled": true,
         "type": "remote",
-        "url": "https://mcp.atlassian.com/v1/mcp",
+        "url": "https://mcp.atlassian.com/v2/mcp",
       },
       "aws-knowledge-mcp-server": {
         "disabled": true,

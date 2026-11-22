@@ -25,6 +25,9 @@ code_opencode_agent_skills:
   - name: gh-fix-ci
     repo: openai/skills
     skill: skills/.curated/gh-fix-ci
+  - name: gh-stack
+    repo: github/gh-stack
+    skill: skills/gh-stack
   - name: git-commit
     repo: github/awesome-copilot
     skill: git-commit
@@ -49,6 +52,12 @@ code_opencode_agent_skills:
 data_source_dir: "~"
 
 email: petr.ruzicka@gmail.com
+
+gh_extensions:
+  # keep-sorted start
+  - davidraviv/gh-clean-branches
+  - github/gh-stack
+  # keep-sorted end
 
 github_username: ruzickap
 
